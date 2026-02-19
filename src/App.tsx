@@ -1,38 +1,58 @@
+import { lazy, Suspense } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
 import { ToastProvider } from './context/ToastContext'
 import ProtectedRoute from './components/ProtectedRoute'
+import useDocumentTitle from './hooks/useDocumentTitle'
+
+/* ── Landing components (above fold — eagerly loaded) ── */
 import Navbar from './components/Navbar'
 import Hero from './components/Hero'
-import WhoWeAre from './components/WhoWeAre'
 import Features from './components/Features'
+import WhoWeAre from './components/WhoWeAre'
 import AuthSection from './components/AuthSection'
 import Subscribe from './components/Subscribe'
 import Footer from './components/Footer'
+
+/* ── Layouts (eager — they are route shells) ── */
 import AdminLayout from './pages/admin/AdminLayout'
-import Overview from './pages/admin/Overview'
-import BusManagement from './pages/admin/BusManagement'
-import RouteStops from './pages/admin/RouteStops'
-import UserManagement from './pages/admin/UserManagement'
-import ScheduleManagement from './pages/admin/ScheduleManagement'
-import Reports from './pages/admin/Reports'
-import Notifications from './pages/admin/Notifications'
 import PassengerLayout from './pages/passenger/PassengerLayout'
-import PassengerOverview from './pages/passenger/PassengerOverview'
-import ReserveASeat from './pages/passenger/ReserveASeat'
-import MyReservations from './pages/passenger/MyReservations'
-import PassengerRoutes from './pages/passenger/PassengerRoutes'
-import PassengerNotifications from './pages/passenger/PassengerNotifications'
-import ProfileSettings from './pages/passenger/ProfileSettings'
 import DriverLayout from './pages/driver/DriverLayout'
-import DriverOverview from './pages/driver/DriverOverview'
-import MyRoute from './pages/driver/MyRoute'
-import PassengerList from './pages/driver/PassengerList'
-import DriverNotifications from './pages/driver/DriverNotifications'
-import DriverProfile from './pages/driver/DriverProfile'
+
+/* ── Lazy-loaded dashboard pages ── */
+const Overview = lazy(() => import('./pages/admin/Overview'))
+const BusManagement = lazy(() => import('./pages/admin/BusManagement'))
+const RouteStops = lazy(() => import('./pages/admin/RouteStops'))
+const UserManagement = lazy(() => import('./pages/admin/UserManagement'))
+const ScheduleManagement = lazy(() => import('./pages/admin/ScheduleManagement'))
+const Reports = lazy(() => import('./pages/admin/Reports'))
+const Notifications = lazy(() => import('./pages/admin/Notifications'))
+
+const PassengerOverview = lazy(() => import('./pages/passenger/PassengerOverview'))
+const ReserveASeat = lazy(() => import('./pages/passenger/ReserveASeat'))
+const MyReservations = lazy(() => import('./pages/passenger/MyReservations'))
+const PassengerRoutes = lazy(() => import('./pages/passenger/PassengerRoutes'))
+const PassengerNotifications = lazy(() => import('./pages/passenger/PassengerNotifications'))
+const ProfileSettings = lazy(() => import('./pages/passenger/ProfileSettings'))
+
+const DriverOverview = lazy(() => import('./pages/driver/DriverOverview'))
+const MyRoute = lazy(() => import('./pages/driver/MyRoute'))
+const PassengerList = lazy(() => import('./pages/driver/PassengerList'))
+const DriverNotifications = lazy(() => import('./pages/driver/DriverNotifications'))
+const DriverProfile = lazy(() => import('./pages/driver/DriverProfile'))
+
+const NotFound = lazy(() => import('./pages/NotFound'))
+
+/* ── Suspense fallback ── */
+const PageLoader = () => (
+  <div className="flex items-center justify-center min-h-[60vh]">
+    <div className="w-8 h-8 border-3 border-primary-200 border-t-primary-600 rounded-full animate-spin" />
+  </div>
+)
 
 /* ── Landing page (all sections on one scroll) ── */
 function LandingPage() {
+  useDocumentTitle('Fleetmark — Smart Transportation')
   return (
     <div className="min-h-screen bg-white">
       <Navbar />
@@ -52,6 +72,7 @@ function App() {
     <BrowserRouter>
       <AuthProvider>
         <ToastProvider>
+        <Suspense fallback={<PageLoader />}>
         <Routes>
           {/* Public landing */}
           <Route path="/" element={<LandingPage />} />
@@ -89,9 +110,10 @@ function App() {
             <Route path="profile" element={<DriverProfile />} />
           </Route>
 
-          {/* Fallback */}
-          <Route path="*" element={<Navigate to="/" replace />} />
+          {/* 404 */}
+          <Route path="*" element={<NotFound />} />
         </Routes>
+        </Suspense>
         </ToastProvider>
       </AuthProvider>
     </BrowserRouter>

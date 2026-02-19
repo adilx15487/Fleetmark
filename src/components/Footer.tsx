@@ -28,7 +28,7 @@ const Footer = () => {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Main footer content */}
-        <div className="py-16 lg:py-20 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8">
+        <div className="py-16 lg:py-20 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Brand column */}
           <div className="lg:col-span-1">
             <a href="#" className="flex items-center gap-2 group">
@@ -107,7 +107,7 @@ const Footer = () => {
         {/* Bottom bar */}
         <div className="py-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-sm text-primary-300/50">
-            © 2025 Fleetmark. All rights reserved.
+            © 2026 Fleetmark. All rights reserved.
           </p>
           <p className="text-sm text-primary-300/40">
             Smart Transportation. Reserved for You.

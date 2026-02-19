@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import Sidebar from '../../components/admin/Sidebar';
 import Topbar from '../../components/admin/Topbar';
+import useDocumentTitle from '../../hooks/useDocumentTitle';
 
 const pageTitles: Record<string, string> = {
   '/admin': 'Overview',
@@ -20,6 +21,7 @@ const AdminLayout = () => {
   const location = useLocation();
 
   const title = pageTitles[location.pathname] || 'Dashboard';
+  useDocumentTitle(`${title} — Fleetmark Admin`);
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -37,8 +39,10 @@ const AdminLayout = () => {
         }`}
       >
         <Topbar title={title} onMenuClick={() => setMobileOpen(true)} />
-        <main className="p-4 sm:p-6">
-          <Outlet />
+        <main className="p-4 sm:p-6" key={location.pathname}>
+          <div className="animate-page-in">
+            <Outlet />
+          </div>
         </main>
       </div>
     </div>

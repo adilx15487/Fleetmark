@@ -108,7 +108,7 @@ const Hero = () => {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.6 }}
-              className="mt-12 grid grid-cols-3 gap-8 max-w-md mx-auto lg:mx-0"
+              className="mt-12 grid grid-cols-3 gap-4 sm:gap-8 max-w-md mx-auto lg:mx-0"
             >
               {[
                 { value: '500+', label: 'Active Riders' },

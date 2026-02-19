@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import DriverSidebar from '../../components/driver/DriverSidebar';
 import DriverTopbar from '../../components/driver/DriverTopbar';
+import useDocumentTitle from '../../hooks/useDocumentTitle';
 
 const pageTitles: Record<string, string> = {
   '/driver': 'Overview',
@@ -18,6 +19,7 @@ const DriverLayout = () => {
   const location = useLocation();
 
   const title = pageTitles[location.pathname] || 'Dashboard';
+  useDocumentTitle(`${title} — Fleetmark Driver`);
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -34,8 +36,10 @@ const DriverLayout = () => {
         }`}
       >
         <DriverTopbar title={title} onMenuClick={() => setMobileOpen(true)} />
-        <main className="p-4 sm:p-6">
-          <Outlet />
+        <main className="p-4 sm:p-6" key={location.pathname}>
+          <div className="animate-page-in">
+            <Outlet />
+          </div>
         </main>
       </div>
     </div>
