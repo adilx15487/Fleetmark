@@ -21,6 +21,12 @@ import MyReservations from './pages/passenger/MyReservations'
 import PassengerRoutes from './pages/passenger/PassengerRoutes'
 import PassengerNotifications from './pages/passenger/PassengerNotifications'
 import ProfileSettings from './pages/passenger/ProfileSettings'
+import DriverLayout from './pages/driver/DriverLayout'
+import DriverOverview from './pages/driver/DriverOverview'
+import MyRoute from './pages/driver/MyRoute'
+import PassengerList from './pages/driver/PassengerList'
+import DriverNotifications from './pages/driver/DriverNotifications'
+import DriverProfile from './pages/driver/DriverProfile'
 
 /* ── Landing page (all sections on one scroll) ── */
 function LandingPage() {
@@ -66,6 +72,16 @@ function App() {
           <Route path="routes" element={<PassengerRoutes />} />
           <Route path="notifications" element={<PassengerNotifications />} />
           <Route path="profile" element={<ProfileSettings />} />
+        </Route>
+
+        {/* Driver dashboard */}
+        <Route path="/driver" element={<DriverLayout />}>
+          <Route index element={<Navigate to="overview" replace />} />
+          <Route path="overview" element={<DriverOverview />} />
+          <Route path="route" element={<MyRoute />} />
+          <Route path="passengers" element={<PassengerList />} />
+          <Route path="notifications" element={<DriverNotifications />} />
+          <Route path="profile" element={<DriverProfile />} />
         </Route>
 
         {/* Fallback */}
