@@ -12,12 +12,12 @@ import {
   ArrowRight,
 } from 'lucide-react';
 import {
-  driverProfile,
   driverStats,
   currentShift,
   todaysTrips,
   driverNotifications,
 } from '../../data/driverMockData';
+import { useAuth } from '../../context/AuthContext';
 
 const notifColor: Record<string, { color: string; bg: string }> = {
   new_passenger: { color: 'text-sky-500', bg: 'bg-sky-50' },
@@ -35,6 +35,7 @@ const greeting = () => {
 };
 
 const DriverOverview = () => {
+  const { user } = useAuth();
   const [onDuty, setOnDuty] = useState(currentShift.status === 'on-duty');
   const recentNotifs = driverNotifications.slice(0, 3);
 
@@ -87,7 +88,7 @@ const DriverOverview = () => {
         <div className="relative z-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
           <div>
             <h2 className="text-2xl sm:text-3xl font-bold text-white">
-              {greeting()}, {driverProfile.name.split(' ')[0]} 👋
+              {greeting()}, {user?.name.split(' ')[0] || 'Driver'} 👋
             </h2>
             <p className="text-white/70 mt-1 text-sm sm:text-base">
               {onDuty ? "You're on duty. Drive safe!" : "You're currently off duty."}

@@ -10,6 +10,7 @@ import {
   ChevronLeft,
   ChevronRight,
 } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
 
 interface SidebarProps {
   collapsed: boolean;
@@ -29,6 +30,8 @@ const navItems = [
 ];
 
 const Sidebar = ({ collapsed, onToggle, mobileOpen, onMobileClose }: SidebarProps) => {
+  const { user } = useAuth();
+
   const sidebarContent = (
     <div className="flex flex-col h-full">
       {/* Logo */}
@@ -68,11 +71,11 @@ const Sidebar = ({ collapsed, onToggle, mobileOpen, onMobileClose }: SidebarProp
       <div className="border-t border-primary-700/30 px-3 py-4 shrink-0">
         <div className={`flex items-center gap-3 ${collapsed ? 'justify-center' : ''}`}>
           <div className="w-9 h-9 rounded-full bg-gradient-to-br from-accent-400 to-primary-500 flex items-center justify-center text-white text-sm font-bold shrink-0">
-            AB
+            {user?.initials || 'AB'}
           </div>
           {!collapsed && (
             <div className="min-w-0">
-              <p className="text-sm font-semibold text-white truncate">Adil Bourji</p>
+              <p className="text-sm font-semibold text-white truncate">{user?.name || 'Admin'}</p>
               <span className="inline-block px-2 py-0.5 rounded text-[10px] font-semibold bg-accent-400/20 text-accent-400 uppercase tracking-wider">
                 Admin
               </span>

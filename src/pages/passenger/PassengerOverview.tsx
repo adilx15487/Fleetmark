@@ -1,12 +1,12 @@
 import { Link } from 'react-router-dom';
 import { Ticket, Bus, MapPin, Clock, ArrowRight, TrendingUp, Calendar, XCircle, Heart, Bell } from 'lucide-react';
 import {
-  passengerProfile,
   passengerStats,
   nextRide,
   passengerReservations,
   passengerNotifications,
 } from '../../data/passengerMockData';
+import { useAuth } from '../../context/AuthContext';
 
 const notifIcon: Record<string, { color: string; bg: string }> = {
   reservation: { color: 'text-emerald-500', bg: 'bg-emerald-50' },
@@ -24,6 +24,7 @@ const greeting = () => {
 };
 
 const PassengerOverview = () => {
+  const { user } = useAuth();
   const upcoming = passengerReservations.filter((r) => r.status === 'Confirmed' || r.status === 'Pending');
   const recentNotifs = passengerNotifications.slice(0, 3);
 
@@ -44,7 +45,7 @@ const PassengerOverview = () => {
         <div className="relative z-10 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
           <div>
             <h2 className="text-2xl sm:text-3xl font-bold">
-              {greeting()}, {passengerProfile.name.split(' ')[0]} 👋
+              {greeting()}, {user?.name.split(' ')[0] || 'there'} 👋
             </h2>
             <p className="text-primary-200 mt-1 text-sm sm:text-base">
               Here's what's happening with your rides today.

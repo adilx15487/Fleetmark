@@ -1,6 +1,8 @@
 import { useState, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion, useInView } from 'framer-motion';
-import { Mail, Lock, User, ChevronDown, Eye, EyeOff, LogIn, UserPlus } from 'lucide-react';
+import { Mail, Lock, User, ChevronDown, Eye, EyeOff, LogIn, UserPlus, Loader2 } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 40 },
@@ -17,6 +19,8 @@ type Role = 'admin' | 'passenger' | 'driver';
 const AuthSection = () => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-80px' });
+  const navigate = useNavigate();
+  const { login, isLoading, error, clearError, getDashboardPath } = useAuth();
 
   const [activeTab, setActiveTab] = useState<AuthTab>('login');
   const [showPassword, setShowPassword] = useState(false);
@@ -30,10 +34,13 @@ const AuthSection = () => {
     { value: 'driver', label: 'Driver', description: 'View schedule & passengers' },
   ];
 
-  const handleLoginSubmit = (e: React.FormEvent) => {
+  const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Login submitted:', loginForm);
-    // Will connect to backend API later
+    clearError();
+    const success = await login(loginForm.email, loginForm.password, loginForm.role);
+    if (success) {
+      navigate(getDashboardPath(loginForm.role));
+    }
   };
 
   const handleSignupSubmit = (e: React.FormEvent) => {
@@ -228,11 +235,25 @@ const AuthSection = () => {
                       </div>
                     </div>
 
+                    {error && activeTab === 'login' && (
+                      <div className="px-4 py-3 rounded-xl bg-red-50 border border-red-200 text-sm text-red-600 font-medium">
+                        {error}
+                      </div>
+                    )}
+
                     <button
                       type="submit"
-                      className="w-full py-3.5 rounded-xl bg-primary-700 text-white font-semibold text-sm hover:bg-primary-800 transition-all duration-200 shadow-lg shadow-primary-700/25 hover:shadow-primary-800/30 active:scale-[0.98]"
+                      disabled={isLoading}
+                      className="w-full py-3.5 rounded-xl bg-primary-700 text-white font-semibold text-sm hover:bg-primary-800 transition-all duration-200 shadow-lg shadow-primary-700/25 hover:shadow-primary-800/30 active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                     >
-                      Log In
+                      {isLoading ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          Logging in…
+                        </>
+                      ) : (
+                        'Log In'
+                      )}
                     </button>
 
                     <p className="text-center text-sm text-slate-400">

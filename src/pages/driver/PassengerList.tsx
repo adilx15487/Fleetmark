@@ -103,7 +103,6 @@ const PassengerList = () => {
               className="bg-white rounded-2xl border border-slate-200 p-5 hover:shadow-lg hover:shadow-primary-100/30 transition-shadow"
             >
               <div className="flex items-center gap-4">
-                {/* Avatar */}
                 {p.avatar ? (
                   <img src={p.avatar} alt={p.name} className="w-11 h-11 rounded-full bg-slate-100 shrink-0" />
                 ) : (
@@ -117,7 +116,6 @@ const PassengerList = () => {
                   <p className="text-xs text-slate-400 mt-0.5">{p.stop}</p>
                 </div>
 
-                {/* Status */}
                 <span className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold border shrink-0 ${statusStyle[p.status]}`}>
                   {p.status}
                 </span>

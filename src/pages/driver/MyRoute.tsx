@@ -70,7 +70,6 @@ const MyRoute = () => {
           </span>
         </div>
 
-        {/* Horizontal scroll on smaller screens */}
         <div className="overflow-x-auto">
           <div className="flex items-start gap-0 px-6 py-8 min-w-[800px]">
             {routeStops.map((stop, i) => {
@@ -79,7 +78,6 @@ const MyRoute = () => {
               return (
                 <div key={stop.id} className="flex items-start flex-1 min-w-0">
                   <div className="flex flex-col items-center">
-                    {/* Dot */}
                     <div className={`w-4 h-4 rounded-full border-2 ${style.dot} shrink-0 z-10`}>
                       {stop.status === 'completed' && (
                         <CheckCircle2 className="w-3 h-3 text-white -mt-[1px] -ml-[1px]" />
@@ -88,8 +86,6 @@ const MyRoute = () => {
                         <Circle className="w-2 h-2 text-white mt-[1px] ml-[1px]" />
                       )}
                     </div>
-
-                    {/* Label below */}
                     <div className="mt-2 text-center w-20">
                       <p className={`text-[11px] leading-tight ${style.text}`}>{stop.name}</p>
                       <p className="text-[10px] text-slate-300 mt-0.5">{stop.estimatedArrival}</p>
@@ -101,8 +97,6 @@ const MyRoute = () => {
                       )}
                     </div>
                   </div>
-
-                  {/* Connecting line */}
                   {!isLast && (
                     <div className={`h-0.5 flex-1 mt-[7px] ${style.line}`} />
                   )}
@@ -119,7 +113,6 @@ const MyRoute = () => {
           <h3 className="text-sm font-bold text-primary-900">Route Map</h3>
         </div>
         <div className="relative h-64 sm:h-80 bg-gradient-to-br from-slate-100 to-slate-50 flex items-center justify-center">
-          {/* Decorative route visualization */}
           <svg className="absolute inset-0 w-full h-full opacity-20" viewBox="0 0 800 320" fill="none">
             <path
               d="M60 260 Q150 40, 300 140 T540 100 T740 200"

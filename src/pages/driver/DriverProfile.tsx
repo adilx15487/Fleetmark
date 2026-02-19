@@ -29,14 +29,12 @@ const DriverProfile = () => {
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Save profile:', form);
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
   };
 
   const handlePasswordChange = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Change password');
     setPasswords({ current: '', newPass: '', confirm: '' });
   };
 

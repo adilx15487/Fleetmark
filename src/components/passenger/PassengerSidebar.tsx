@@ -10,7 +10,8 @@ import {
   ChevronLeft,
   ChevronRight,
 } from 'lucide-react';
-import { passengerProfile, passengerNotifications } from '../../data/passengerMockData';
+import { passengerNotifications } from '../../data/passengerMockData';
+import { useAuth } from '../../context/AuthContext';
 
 interface SidebarProps {
   collapsed: boolean;
@@ -29,6 +30,8 @@ const navItems = [
 ];
 
 const PassengerSidebar = ({ collapsed, onToggle, mobileOpen, onMobileClose }: SidebarProps) => {
+  const { user } = useAuth();
+
   const sidebarContent = (
     <div className="flex flex-col h-full">
       {/* Logo */}
@@ -75,13 +78,13 @@ const PassengerSidebar = ({ collapsed, onToggle, mobileOpen, onMobileClose }: Si
       <div className="border-t border-primary-700/30 px-3 py-4 shrink-0">
         <div className={`flex items-center gap-3 ${collapsed ? 'justify-center' : ''}`}>
           <img
-            src={passengerProfile.avatar}
-            alt={passengerProfile.name}
+            src={user?.avatar || ''}
+            alt={user?.name || 'User'}
             className="w-9 h-9 rounded-full bg-slate-200 shrink-0"
           />
           {!collapsed && (
             <div className="min-w-0">
-              <p className="text-sm font-semibold text-white truncate">{passengerProfile.name}</p>
+              <p className="text-sm font-semibold text-white truncate">{user?.name || 'Passenger'}</p>
               <span className="inline-block px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-400/20 text-emerald-400 uppercase tracking-wider">
                 Passenger
               </span>

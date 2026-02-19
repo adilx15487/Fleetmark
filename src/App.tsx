@@ -1,4 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { AuthProvider } from './context/AuthContext'
+import ProtectedRoute from './components/ProtectedRoute'
 import Navbar from './components/Navbar'
 import Hero from './components/Hero'
 import WhoWeAre from './components/WhoWeAre'
@@ -47,46 +49,48 @@ function LandingPage() {
 function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        {/* Public landing */}
-        <Route path="/" element={<LandingPage />} />
+      <AuthProvider>
+        <Routes>
+          {/* Public landing */}
+          <Route path="/" element={<LandingPage />} />
 
-        {/* Admin dashboard */}
-        <Route path="/admin" element={<AdminLayout />}>
-          <Route index element={<Navigate to="overview" replace />} />
-          <Route path="overview" element={<Overview />} />
-          <Route path="buses" element={<BusManagement />} />
-          <Route path="routes" element={<RouteStops />} />
-          <Route path="users" element={<UserManagement />} />
-          <Route path="schedule" element={<ScheduleManagement />} />
-          <Route path="reports" element={<Reports />} />
-          <Route path="notifications" element={<Notifications />} />
-        </Route>
+          {/* Admin dashboard — protected */}
+          <Route path="/admin" element={<ProtectedRoute allowedRole="admin"><AdminLayout /></ProtectedRoute>}>
+            <Route index element={<Navigate to="overview" replace />} />
+            <Route path="overview" element={<Overview />} />
+            <Route path="buses" element={<BusManagement />} />
+            <Route path="routes" element={<RouteStops />} />
+            <Route path="users" element={<UserManagement />} />
+            <Route path="schedule" element={<ScheduleManagement />} />
+            <Route path="reports" element={<Reports />} />
+            <Route path="notifications" element={<Notifications />} />
+          </Route>
 
-        {/* Passenger dashboard */}
-        <Route path="/passenger" element={<PassengerLayout />}>
-          <Route index element={<Navigate to="overview" replace />} />
-          <Route path="overview" element={<PassengerOverview />} />
-          <Route path="reserve" element={<ReserveASeat />} />
-          <Route path="reservations" element={<MyReservations />} />
-          <Route path="routes" element={<PassengerRoutes />} />
-          <Route path="notifications" element={<PassengerNotifications />} />
-          <Route path="profile" element={<ProfileSettings />} />
-        </Route>
+          {/* Passenger dashboard — protected */}
+          <Route path="/passenger" element={<ProtectedRoute allowedRole="passenger"><PassengerLayout /></ProtectedRoute>}>
+            <Route index element={<Navigate to="overview" replace />} />
+            <Route path="overview" element={<PassengerOverview />} />
+            <Route path="reserve" element={<ReserveASeat />} />
+            <Route path="reservations" element={<MyReservations />} />
+            <Route path="routes" element={<PassengerRoutes />} />
+            <Route path="notifications" element={<PassengerNotifications />} />
+            <Route path="profile" element={<ProfileSettings />} />
+          </Route>
 
-        {/* Driver dashboard */}
-        <Route path="/driver" element={<DriverLayout />}>
-          <Route index element={<Navigate to="overview" replace />} />
-          <Route path="overview" element={<DriverOverview />} />
-          <Route path="route" element={<MyRoute />} />
-          <Route path="passengers" element={<PassengerList />} />
-          <Route path="notifications" element={<DriverNotifications />} />
-          <Route path="profile" element={<DriverProfile />} />
-        </Route>
+          {/* Driver dashboard — protected */}
+          <Route path="/driver" element={<ProtectedRoute allowedRole="driver"><DriverLayout /></ProtectedRoute>}>
+            <Route index element={<Navigate to="overview" replace />} />
+            <Route path="overview" element={<DriverOverview />} />
+            <Route path="route" element={<MyRoute />} />
+            <Route path="passengers" element={<PassengerList />} />
+            <Route path="notifications" element={<DriverNotifications />} />
+            <Route path="profile" element={<DriverProfile />} />
+          </Route>
 
-        {/* Fallback */}
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
+          {/* Fallback */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </AuthProvider>
     </BrowserRouter>
   )
 }

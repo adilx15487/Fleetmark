@@ -9,7 +9,8 @@ import {
   ChevronLeft,
   ChevronRight,
 } from 'lucide-react';
-import { driverProfile, driverNotifications } from '../../data/driverMockData';
+import { driverNotifications } from '../../data/driverMockData';
+import { useAuth } from '../../context/AuthContext';
 
 interface SidebarProps {
   collapsed: boolean;
@@ -27,6 +28,8 @@ const navItems = [
 ];
 
 const DriverSidebar = ({ collapsed, onToggle, mobileOpen, onMobileClose }: SidebarProps) => {
+  const { user } = useAuth();
+
   const sidebarContent = (
     <div className="flex flex-col h-full">
       {/* Logo */}
@@ -73,13 +76,13 @@ const DriverSidebar = ({ collapsed, onToggle, mobileOpen, onMobileClose }: Sideb
       <div className="border-t border-primary-700/30 px-3 py-4 shrink-0">
         <div className={`flex items-center gap-3 ${collapsed ? 'justify-center' : ''}`}>
           <img
-            src={driverProfile.avatar}
-            alt={driverProfile.name}
+            src={user?.avatar || ''}
+            alt={user?.name || 'Driver'}
             className="w-9 h-9 rounded-full bg-slate-200 shrink-0"
           />
           {!collapsed && (
             <div className="min-w-0">
-              <p className="text-sm font-semibold text-white truncate">{driverProfile.name}</p>
+              <p className="text-sm font-semibold text-white truncate">{user?.name || 'Driver'}</p>
               <span className="inline-block px-2 py-0.5 rounded text-[10px] font-semibold bg-sky-400/20 text-sky-400 uppercase tracking-wider">
                 Driver
               </span>

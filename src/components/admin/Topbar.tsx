@@ -1,6 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Search, Bell, Menu, ChevronDown, User, Settings, LogOut } from 'lucide-react';
 import { notifications } from '../../data/mockData';
+import { useAuth } from '../../context/AuthContext';
 
 interface TopbarProps {
   title: string;
@@ -11,6 +13,13 @@ const Topbar = ({ title, onMenuClick }: TopbarProps) => {
   const [profileOpen, setProfileOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const unreadCount = notifications.filter((n) => n.status === 'Unread').length;
+  const navigate = useNavigate();
+  const { user, logout } = useAuth();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+  };
 
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
@@ -65,17 +74,17 @@ const Topbar = ({ title, onMenuClick }: TopbarProps) => {
               className="flex items-center gap-2 px-2 py-1.5 rounded-xl hover:bg-slate-50 transition-colors"
             >
               <div className="w-8 h-8 rounded-full bg-gradient-to-br from-accent-400 to-primary-500 flex items-center justify-center text-white text-xs font-bold">
-                AB
+                {user?.initials || 'AB'}
               </div>
-              <span className="hidden sm:block text-sm font-medium text-slate-700">Adil</span>
+              <span className="hidden sm:block text-sm font-medium text-slate-700">{user?.name.split(' ')[0] || 'Admin'}</span>
               <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform ${profileOpen ? 'rotate-180' : ''}`} />
             </button>
 
             {profileOpen && (
               <div className="absolute right-0 mt-2 w-48 bg-white border border-slate-200 rounded-xl shadow-xl overflow-hidden">
                 <div className="px-4 py-3 border-b border-slate-100">
-                  <p className="text-sm font-semibold text-primary-900">Adil Bourji</p>
-                  <p className="text-xs text-slate-400">adil@fleetmark.com</p>
+                  <p className="text-sm font-semibold text-primary-900">{user?.name || 'Admin'}</p>
+                  <p className="text-xs text-slate-400">{user?.email || ''}</p>
                 </div>
                 <div className="py-1">
                   {[
@@ -92,7 +101,10 @@ const Topbar = ({ title, onMenuClick }: TopbarProps) => {
                   ))}
                 </div>
                 <div className="border-t border-slate-100 py-1">
-                  <button className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-danger-500 hover:bg-red-50 transition-colors">
+                  <button
+                    onClick={handleLogout}
+                    className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-danger-500 hover:bg-red-50 transition-colors"
+                  >
                     <LogOut className="w-4 h-4" />
                     Logout
                   </button>
