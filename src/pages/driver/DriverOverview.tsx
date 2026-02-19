@@ -18,6 +18,9 @@ import {
   driverNotifications,
 } from '../../data/driverMockData';
 import { useAuth } from '../../context/AuthContext';
+import { useLoadingState } from '../../hooks/useLoadingState';
+import { SkeletonCard, SkeletonList } from '../../components/ui/Skeleton';
+import ErrorState from '../../components/ui/ErrorState';
 
 const notifColor: Record<string, { color: string; bg: string }> = {
   new_passenger: { color: 'text-sky-500', bg: 'bg-sky-50' },
@@ -36,6 +39,7 @@ const greeting = () => {
 
 const DriverOverview = () => {
   const { user } = useAuth();
+  const { isLoading, isError, retry } = useLoadingState();
   const [onDuty, setOnDuty] = useState(currentShift.status === 'on-duty');
   const recentNotifs = driverNotifications.slice(0, 3);
 
@@ -71,6 +75,23 @@ const DriverOverview = () => {
     'In Progress': { text: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-200', icon: Loader2 },
     Upcoming: { text: 'text-sky-600', bg: 'bg-sky-50', border: 'border-sky-200', icon: Clock },
   };
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <div className="bg-white rounded-2xl border border-slate-200 p-8"><SkeletonCard /></div>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          {Array.from({ length: 4 }, (_, i) => <SkeletonCard key={i} />)}
+        </div>
+        <div className="grid lg:grid-cols-5 gap-6">
+          <SkeletonList className="lg:col-span-3" items={5} />
+          <SkeletonList className="lg:col-span-2" items={3} />
+        </div>
+      </div>
+    );
+  }
+
+  if (isError) return <ErrorState onRetry={retry} />;
 
   return (
     <div className="space-y-6">

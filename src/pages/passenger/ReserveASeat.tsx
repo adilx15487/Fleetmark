@@ -1,12 +1,14 @@
 import { useState, useMemo } from 'react';
 import { Search, MapPin, Clock, Users, ArrowRight, Check, CalendarDays, Ticket, ChevronLeft, Bus as BusIcon } from 'lucide-react';
 import { availableRoutes, generateSeatMap, type Seat } from '../../data/passengerMockData';
+import { useToast } from '../../context/ToastContext';
 
 type Step = 1 | 2 | 3;
 
 const stepLabels = ['Choose Route', 'Choose Seat', 'Confirm'];
 
 const ReserveASeat = () => {
+  const { toast } = useToast();
   const [step, setStep] = useState<Step>(1);
   const [search, setSearch] = useState('');
   const [selectedRouteId, setSelectedRouteId] = useState<string | null>(null);
@@ -15,6 +17,7 @@ const ReserveASeat = () => {
   const [selectedTime, setSelectedTime] = useState('');
   const [selectedDate, setSelectedDate] = useState('');
   const [confirmed, setConfirmed] = useState(false);
+  const [stepError, setStepError] = useState('');
 
   const selectedRoute = availableRoutes.find((r) => r.id === selectedRouteId);
 
@@ -36,11 +39,30 @@ const ReserveASeat = () => {
     const seat = seats.find((s) => s.id === id);
     if (seat && seat.status === 'available') {
       setSelectedSeat(id);
+      setStepError('');
     }
+  };
+
+  const handleContinueToConfirm = () => {
+    if (!selectedSeat && !selectedDate) {
+      setStepError('Please select a seat and a date to continue.');
+      return;
+    }
+    if (!selectedSeat) {
+      setStepError('Please select a seat from the map.');
+      return;
+    }
+    if (!selectedDate) {
+      setStepError('Please pick a date for your trip.');
+      return;
+    }
+    setStepError('');
+    setStep(3);
   };
 
   const handleConfirm = () => {
     setConfirmed(true);
+    toast('Seat confirmed! 🎉');
   };
 
   const handleReset = () => {
@@ -256,7 +278,7 @@ const ReserveASeat = () => {
                 <input
                   type="date"
                   value={selectedDate}
-                  onChange={(e) => setSelectedDate(e.target.value)}
+                  onChange={(e) => { setSelectedDate(e.target.value); setStepError(''); }}
                   className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none"
                 />
               </div>
@@ -289,12 +311,14 @@ const ReserveASeat = () => {
               )}
 
               <button
-                disabled={!selectedSeat || !selectedDate}
-                onClick={() => setStep(3)}
+                onClick={handleContinueToConfirm}
                 className="w-full mt-4 px-5 py-3 rounded-xl bg-primary-600 text-white text-sm font-semibold hover:bg-primary-700 shadow-lg shadow-primary-600/20 transition-all disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none"
               >
                 Continue to Confirm
               </button>
+              {stepError && (
+                <p className="mt-2 text-xs text-red-500 font-medium text-center">{stepError}</p>
+              )}
             </div>
           </div>
         </div>

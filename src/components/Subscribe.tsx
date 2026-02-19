@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
 import { Send, Bell, Sparkles } from 'lucide-react';
+import { useToast } from '../context/ToastContext';
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 40 },
@@ -16,11 +17,13 @@ const Subscribe = () => {
   const isInView = useInView(ref, { once: true, margin: '-80px' });
   const [email, setEmail] = useState('');
   const [subscribed, setSubscribed] = useState(false);
+  const { toast } = useToast();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (email) {
       console.log('Subscribed:', email);
+      toast("You're subscribed! 🚀");
       setSubscribed(true);
       setEmail('');
       setTimeout(() => setSubscribed(false), 4000);

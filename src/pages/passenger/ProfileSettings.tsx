@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Camera, Save, Trash2, Eye, EyeOff, ChevronDown } from 'lucide-react';
 import { passengerProfile } from '../../data/passengerMockData';
+import { useToast } from '../../context/ToastContext';
 
 const ProfileSettings = () => {
   const [form, setForm] = useState({
@@ -25,10 +26,12 @@ const ProfileSettings = () => {
   });
 
   const [saved, setSaved] = useState(false);
+  const { toast } = useToast();
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
     console.log('Save profile:', form);
+    toast('Profile updated successfully!');
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
   };

@@ -1,7 +1,12 @@
 import { useState, useMemo } from 'react';
-import { Send, Info, CheckCircle, AlertTriangle, AlertCircle, Filter } from 'lucide-react';
+import { Send, Info, CheckCircle, AlertTriangle, AlertCircle, Filter, BellOff } from 'lucide-react';
 import { notifications, type Notification } from '../../data/mockData';
 import Modal from '../../components/admin/Modal';
+import { useLoadingState } from '../../hooks/useLoadingState';
+import { SkeletonList } from '../../components/ui/Skeleton';
+import ErrorState from '../../components/ui/ErrorState';
+import EmptyState from '../../components/ui/EmptyState';
+import { useToast } from '../../context/ToastContext';
 
 const iconMap: Record<Notification['icon'], { Icon: typeof Info; color: string; bg: string }> = {
   info: { Icon: Info, color: 'text-sky-500', bg: 'bg-sky-50' },
@@ -12,10 +17,16 @@ const iconMap: Record<Notification['icon'], { Icon: typeof Info; color: string; 
 
 type FilterType = 'All' | 'Unread' | 'Sent';
 
+interface FormErrors { [key: string]: string; }
+
 const Notifications = () => {
+  const { isLoading, isError, retry } = useLoadingState();
+  const { toast } = useToast();
   const [filter, setFilter] = useState<FilterType>('All');
   const [modalOpen, setModalOpen] = useState(false);
   const [formData, setFormData] = useState({ target: 'All Users', title: '', message: '' });
+  const [formErrors, setFormErrors] = useState<FormErrors>({});
+  const [formTouched, setFormTouched] = useState<Record<string, boolean>>({});
 
   const filtered = useMemo(() => {
     if (filter === 'All') return notifications;
@@ -25,12 +36,46 @@ const Notifications = () => {
 
   const unreadCount = notifications.filter((n) => n.status === 'Unread').length;
 
+  const validateField = (key: string, value: string): string => {
+    switch (key) {
+      case 'title': return !value.trim() ? 'Title is required' : '';
+      case 'message':
+        if (!value.trim()) return 'Message is required';
+        if (value.trim().length < 10) return 'Message must be at least 10 characters';
+        return '';
+      default: return '';
+    }
+  };
+
+  const handleFieldBlur = (key: string) => {
+    setFormTouched((p) => ({ ...p, [key]: true }));
+    setFormErrors((p) => ({ ...p, [key]: validateField(key, (formData as Record<string, string>)[key]) }));
+  };
+
+  const handleFieldChange = (key: string, value: string) => {
+    setFormData({ ...formData, [key]: value });
+    if (formTouched[key]) setFormErrors((p) => ({ ...p, [key]: validateField(key, value) }));
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    const errors: FormErrors = {};
+    errors.title = validateField('title', formData.title);
+    errors.message = validateField('message', formData.message);
+    setFormErrors(errors);
+    setFormTouched({ title: true, message: true });
+    if (errors.title || errors.message) return;
+
     console.log('Send notification:', formData);
+    toast('Notification sent!');
     setModalOpen(false);
     setFormData({ target: 'All Users', title: '', message: '' });
+    setFormErrors({});
+    setFormTouched({});
   };
+
+  if (isLoading) return <SkeletonList items={5} />;
+  if (isError) return <ErrorState onRetry={retry} />;
 
   return (
     <div className="space-y-6">
@@ -75,9 +120,11 @@ const Notifications = () => {
       {/* Notification list */}
       <div className="space-y-3">
         {filtered.length === 0 ? (
-          <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center text-sm text-slate-400">
-            No notifications to display.
-          </div>
+          <EmptyState
+            icon={<BellOff className="w-8 h-8 text-slate-300" />}
+            title="No notifications to show"
+            subtitle="All clear — nothing to display right now."
+          />
         ) : (
           filtered.map((n) => {
             const { Icon, color, bg } = iconMap[n.icon];
@@ -113,7 +160,7 @@ const Notifications = () => {
       </div>
 
       {/* Send Notification Modal */}
-      <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title="Send Notification">
+      <Modal isOpen={modalOpen} onClose={() => { setModalOpen(false); setFormErrors({}); setFormTouched({}); }} title="Send Notification">
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1.5">Target Audience</label>
@@ -134,19 +181,35 @@ const Notifications = () => {
               type="text"
               placeholder="Notification title"
               value={formData.title}
-              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-              className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none transition-all placeholder:text-slate-300"
+              onChange={(e) => handleFieldChange('title', e.target.value)}
+              onBlur={() => handleFieldBlur('title')}
+              className={`w-full px-4 py-2.5 rounded-xl border text-sm focus:ring-2 outline-none transition-all placeholder:text-slate-300 ${
+                formTouched.title && formErrors.title
+                  ? 'border-red-300 focus:ring-red-500/20 focus:border-red-500'
+                  : 'border-slate-200 focus:ring-primary-500/20 focus:border-primary-500'
+              }`}
             />
+            {formTouched.title && formErrors.title && (
+              <p className="mt-1 text-xs text-red-500 font-medium">{formErrors.title}</p>
+            )}
           </div>
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1.5">Message</label>
             <textarea
               placeholder="Write your notification message…"
               value={formData.message}
-              onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+              onChange={(e) => handleFieldChange('message', e.target.value)}
+              onBlur={() => handleFieldBlur('message')}
               rows={4}
-              className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none transition-all placeholder:text-slate-300 resize-none"
+              className={`w-full px-4 py-2.5 rounded-xl border text-sm focus:ring-2 outline-none transition-all placeholder:text-slate-300 resize-none ${
+                formTouched.message && formErrors.message
+                  ? 'border-red-300 focus:ring-red-500/20 focus:border-red-500'
+                  : 'border-slate-200 focus:ring-primary-500/20 focus:border-primary-500'
+              }`}
             />
+            {formTouched.message && formErrors.message && (
+              <p className="mt-1 text-xs text-red-500 font-medium">{formErrors.message}</p>
+            )}
           </div>
           <div className="flex justify-end gap-3 pt-2">
             <button type="button" onClick={() => setModalOpen(false)} className="px-5 py-2.5 rounded-xl border border-slate-200 text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors">Cancel</button>

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Camera, Save, Eye, EyeOff } from 'lucide-react';
 import { driverProfile } from '../../data/driverMockData';
+import { useToast } from '../../context/ToastContext';
 
 const DriverProfile = () => {
   const [form, setForm] = useState({
@@ -26,9 +27,11 @@ const DriverProfile = () => {
   });
 
   const [saved, setSaved] = useState(false);
+  const { toast } = useToast();
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
+    toast('Profile updated successfully!');
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
   };

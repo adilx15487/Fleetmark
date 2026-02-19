@@ -2,10 +2,14 @@ import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { Search, MapPin, Clock, Users, ChevronDown, ChevronUp, Bus, Ticket } from 'lucide-react';
 import { availableRoutes } from '../../data/passengerMockData';
+import { useLoadingState } from '../../hooks/useLoadingState';
+import { SkeletonList } from '../../components/ui/Skeleton';
+import ErrorState from '../../components/ui/ErrorState';
 
 type OrgFilter = 'All' | 'University' | 'Enterprise' | 'School';
 
 const PassengerRoutes = () => {
+  const { isLoading, isError, retry } = useLoadingState();
   const [search, setSearch] = useState('');
   const [orgFilter, setOrgFilter] = useState<OrgFilter>('All');
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -18,6 +22,9 @@ const PassengerRoutes = () => {
       return matchSearch && matchOrg;
     });
   }, [search, orgFilter]);
+
+  if (isLoading) return <SkeletonList items={5} />;
+  if (isError) return <ErrorState onRetry={retry} />;
 
   return (
     <div className="space-y-6">

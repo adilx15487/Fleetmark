@@ -7,6 +7,9 @@ import {
   passengerNotifications,
 } from '../../data/passengerMockData';
 import { useAuth } from '../../context/AuthContext';
+import { useLoadingState } from '../../hooks/useLoadingState';
+import { SkeletonCard, SkeletonTable, SkeletonList } from '../../components/ui/Skeleton';
+import ErrorState from '../../components/ui/ErrorState';
 
 const notifIcon: Record<string, { color: string; bg: string }> = {
   reservation: { color: 'text-emerald-500', bg: 'bg-emerald-50' },
@@ -25,6 +28,7 @@ const greeting = () => {
 
 const PassengerOverview = () => {
   const { user } = useAuth();
+  const { isLoading, isError, retry } = useLoadingState();
   const upcoming = passengerReservations.filter((r) => r.status === 'Confirmed' || r.status === 'Pending');
   const recentNotifs = passengerNotifications.slice(0, 3);
 
@@ -34,6 +38,23 @@ const PassengerOverview = () => {
     { ...passengerStats.cancelledRides, icon: XCircle, color: 'text-red-500', bg: 'bg-red-50' },
     { ...passengerStats.favoriteRoute, icon: Heart, color: 'text-pink-500', bg: 'bg-pink-50' },
   ];
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <div className="bg-white rounded-2xl border border-slate-200 p-8"><SkeletonCard /></div>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          {Array.from({ length: 4 }, (_, i) => <SkeletonCard key={i} />)}
+        </div>
+        <div className="grid lg:grid-cols-5 gap-6">
+          <SkeletonTable className="lg:col-span-3" rows={4} cols={6} />
+          <SkeletonList className="lg:col-span-2" items={3} />
+        </div>
+      </div>
+    );
+  }
+
+  if (isError) return <ErrorState onRetry={retry} />;
 
   return (
     <div className="space-y-6">

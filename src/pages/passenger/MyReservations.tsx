@@ -1,6 +1,12 @@
 import { useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { MapPin, Bus, Ticket, Clock, CalendarDays, XCircle, Star } from 'lucide-react';
 import { passengerReservations, type Reservation } from '../../data/passengerMockData';
+import { useLoadingState } from '../../hooks/useLoadingState';
+import { SkeletonCardGrid } from '../../components/ui/Skeleton';
+import ErrorState from '../../components/ui/ErrorState';
+import EmptyState from '../../components/ui/EmptyState';
+import { useToast } from '../../context/ToastContext';
 
 type FilterTab = 'All' | 'Upcoming' | 'Completed' | 'Cancelled';
 
@@ -12,6 +18,9 @@ const statusStyle: Record<Reservation['status'], string> = {
 };
 
 const MyReservations = () => {
+  const { isLoading, isError, retry } = useLoadingState();
+  const navigate = useNavigate();
+  const { toast } = useToast();
   const [tab, setTab] = useState<FilterTab>('All');
 
   const filtered = useMemo(() => {
@@ -21,6 +30,9 @@ const MyReservations = () => {
   }, [tab]);
 
   const tabs: FilterTab[] = ['All', 'Upcoming', 'Completed', 'Cancelled'];
+
+  if (isLoading) return <SkeletonCardGrid count={6} cols="sm:grid-cols-2 xl:grid-cols-3" />;
+  if (isError) return <ErrorState onRetry={retry} />;
 
   return (
     <div className="space-y-6">
@@ -43,19 +55,12 @@ const MyReservations = () => {
 
       {/* Reservation cards */}
       {filtered.length === 0 ? (
-        <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center">
-          <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-4">
-            <Ticket className="w-7 h-7 text-slate-300" />
-          </div>
-          <h3 className="text-base font-bold text-primary-900 mb-1">No reservations here</h3>
-          <p className="text-sm text-slate-400">
-            {tab === 'Upcoming'
-              ? "You don't have any upcoming rides. Reserve a seat to get started."
-              : tab === 'Cancelled'
-              ? "You haven't cancelled any rides."
-              : 'No reservations to show.'}
-          </p>
-        </div>
+        <EmptyState
+          icon={<Ticket className="w-8 h-8 text-slate-300" />}
+          title="No reservations yet"
+          subtitle="Reserve your first seat!"
+          action={{ label: 'Reserve a Seat', onClick: () => navigate('/passenger/reserve') }}
+        />
       ) : (
         <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-4">
           {filtered.map((r) => (
@@ -114,7 +119,10 @@ const MyReservations = () => {
               {/* Actions */}
               <div className="mt-3 pt-3 border-t border-slate-100">
                 {(r.status === 'Confirmed' || r.status === 'Pending') && (
-                  <button className="flex items-center gap-1.5 text-xs font-semibold text-red-500 hover:text-red-600 transition-colors">
+                  <button
+                    onClick={() => toast('Reservation cancelled.', 'warning')}
+                    className="flex items-center gap-1.5 text-xs font-semibold text-red-500 hover:text-red-600 transition-colors"
+                  >
                     <XCircle className="w-3.5 h-3.5" />
                     Cancel Reservation
                   </button>

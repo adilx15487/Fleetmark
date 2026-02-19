@@ -1,6 +1,10 @@
 import { useState, useMemo } from 'react';
 import { Search, Download, Users } from 'lucide-react';
 import { routePassengers, type RoutePassenger } from '../../data/driverMockData';
+import { useLoadingState } from '../../hooks/useLoadingState';
+import { SkeletonCardGrid } from '../../components/ui/Skeleton';
+import ErrorState from '../../components/ui/ErrorState';
+import EmptyState from '../../components/ui/EmptyState';
 
 type FilterTab = 'All' | 'Confirmed' | 'Pending' | 'Cancelled';
 
@@ -11,6 +15,7 @@ const statusStyle: Record<RoutePassenger['status'], string> = {
 };
 
 const PassengerList = () => {
+  const { isLoading, isError, retry } = useLoadingState();
   const [filter, setFilter] = useState<FilterTab>('All');
   const [search, setSearch] = useState('');
 
@@ -37,6 +42,9 @@ const PassengerList = () => {
     }),
     []
   );
+
+  if (isLoading) return <SkeletonCardGrid count={6} cols="sm:grid-cols-2 lg:grid-cols-3" />;
+  if (isError) return <ErrorState onRetry={retry} />;
 
   return (
     <div className="space-y-6">
@@ -91,10 +99,11 @@ const PassengerList = () => {
 
       {/* Passenger grid */}
       {filtered.length === 0 ? (
-        <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center">
-          <Users className="w-12 h-12 text-slate-200 mx-auto mb-3" />
-          <p className="text-sm text-slate-400">No passengers found matching your criteria.</p>
-        </div>
+        <EmptyState
+          icon={<Users className="w-8 h-8 text-slate-300" />}
+          title="No passengers reserved for this trip yet"
+          subtitle="Passengers will appear here once they reserve seats."
+        />
       ) : (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {filtered.map((p) => (

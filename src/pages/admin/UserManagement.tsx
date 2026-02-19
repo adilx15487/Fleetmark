@@ -2,6 +2,9 @@ import { useState, useMemo } from 'react';
 import { Search, UserPlus, Edit2, Trash2, ChevronDown } from 'lucide-react';
 import { users } from '../../data/mockData';
 import Modal from '../../components/admin/Modal';
+import { useLoadingState } from '../../hooks/useLoadingState';
+import { SkeletonTable } from '../../components/ui/Skeleton';
+import ErrorState from '../../components/ui/ErrorState';
 
 const roleBadge: Record<string, string> = {
   Admin: 'bg-purple-50 text-purple-600 border-purple-200',
@@ -16,6 +19,7 @@ const statusDot: Record<string, string> = {
 };
 
 const UserManagement = () => {
+  const { isLoading, isError, retry } = useLoadingState();
   const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState('All');
   const [modalOpen, setModalOpen] = useState(false);
@@ -37,6 +41,9 @@ const UserManagement = () => {
     setModalOpen(false);
     setFormData({ name: '', email: '', role: 'Passenger', organization: '' });
   };
+
+  if (isLoading) return <SkeletonTable rows={6} cols={7} />;
+  if (isError) return <ErrorState onRetry={retry} />;
 
   return (
     <div className="space-y-6">

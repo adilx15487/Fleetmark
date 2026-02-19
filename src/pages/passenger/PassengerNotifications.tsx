@@ -1,6 +1,10 @@
 import { useState, useMemo } from 'react';
-import { CheckCircle, AlertTriangle, AlertCircle, Clock, Info, Filter, CheckCheck } from 'lucide-react';
+import { CheckCircle, AlertTriangle, AlertCircle, Clock, Info, Filter, CheckCheck, BellOff } from 'lucide-react';
 import { passengerNotifications, type PassengerNotification } from '../../data/passengerMockData';
+import { useLoadingState } from '../../hooks/useLoadingState';
+import { SkeletonList } from '../../components/ui/Skeleton';
+import ErrorState from '../../components/ui/ErrorState';
+import EmptyState from '../../components/ui/EmptyState';
 
 const typeConfig: Record<PassengerNotification['type'], { Icon: typeof Info; color: string; bg: string }> = {
   reservation: { Icon: CheckCircle, color: 'text-emerald-500', bg: 'bg-emerald-50' },
@@ -13,6 +17,7 @@ const typeConfig: Record<PassengerNotification['type'], { Icon: typeof Info; col
 type NotifFilter = 'All' | 'Unread';
 
 const PassengerNotificationsPage = () => {
+  const { isLoading, isError, retry } = useLoadingState();
   const [filter, setFilter] = useState<NotifFilter>('All');
   const [readIds, setReadIds] = useState<Set<string>>(
     new Set(passengerNotifications.filter((n) => n.read).map((n) => n.id))
@@ -28,6 +33,9 @@ const PassengerNotificationsPage = () => {
   const markAllRead = () => {
     setReadIds(new Set(passengerNotifications.map((n) => n.id)));
   };
+
+  if (isLoading) return <SkeletonList items={5} />;
+  if (isError) return <ErrorState onRetry={retry} />;
 
   return (
     <div className="space-y-6">
@@ -68,9 +76,11 @@ const PassengerNotificationsPage = () => {
 
       {/* Notification list */}
       {filtered.length === 0 ? (
-        <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center text-sm text-slate-400">
-          {filter === 'Unread' ? 'All caught up! No unread notifications.' : 'No notifications yet.'}
-        </div>
+        <EmptyState
+          icon={<BellOff className="w-8 h-8 text-slate-300" />}
+          title="You're all caught up!"
+          subtitle="No new notifications."
+        />
       ) : (
         <div className="space-y-3">
           {filtered.map((n) => {

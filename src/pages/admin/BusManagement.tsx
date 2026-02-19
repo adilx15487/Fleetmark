@@ -2,6 +2,10 @@ import { useState } from 'react';
 import { Plus, Pencil, Trash2, Search } from 'lucide-react';
 import { buses, type Bus } from '../../data/mockData';
 import Modal from '../../components/admin/Modal';
+import { useLoadingState } from '../../hooks/useLoadingState';
+import { SkeletonTable } from '../../components/ui/Skeleton';
+import ErrorState from '../../components/ui/ErrorState';
+import { useToast } from '../../context/ToastContext';
 
 const statusClasses: Record<string, string> = {
   Active: 'bg-emerald-50 text-emerald-600 border-emerald-200',
@@ -9,12 +13,18 @@ const statusClasses: Record<string, string> = {
   Maintenance: 'bg-amber-50 text-amber-600 border-amber-200',
 };
 
+interface FormErrors { [key: string]: string; }
+
 const BusManagement = () => {
+  const { isLoading, isError, retry } = useLoadingState();
+  const { toast } = useToast();
   const [search, setSearch] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
   const [formData, setFormData] = useState({
     name: '', plateNumber: '', capacity: '', assignedRoute: '', driver: '', status: 'Active',
   });
+  const [formErrors, setFormErrors] = useState<FormErrors>({});
+  const [formTouched, setFormTouched] = useState<Record<string, boolean>>({});
 
   const filtered = buses.filter((b) =>
     b.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -22,12 +32,49 @@ const BusManagement = () => {
     b.driver.toLowerCase().includes(search.toLowerCase())
   );
 
+  const validateField = (key: string, value: string): string => {
+    switch (key) {
+      case 'name': return !value.trim() ? 'Bus name is required' : '';
+      case 'plateNumber': return !value.trim() ? 'Plate number is required' : '';
+      case 'capacity':
+        if (!value.trim()) return 'Capacity is required';
+        if (Number(value) <= 0) return 'Capacity must be greater than 0';
+        return '';
+      case 'assignedRoute': return !value.trim() ? 'Route is required' : '';
+      case 'driver': return !value.trim() ? 'Driver is required' : '';
+      default: return '';
+    }
+  };
+
+  const handleFieldBlur = (key: string) => {
+    setFormTouched((p) => ({ ...p, [key]: true }));
+    setFormErrors((p) => ({ ...p, [key]: validateField(key, (formData as Record<string, string>)[key]) }));
+  };
+
+  const handleFieldChange = (key: string, value: string) => {
+    setFormData({ ...formData, [key]: value });
+    if (formTouched[key]) setFormErrors((p) => ({ ...p, [key]: validateField(key, value) }));
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    const errors: FormErrors = {};
+    const fields = ['name', 'plateNumber', 'capacity', 'assignedRoute', 'driver'];
+    fields.forEach((k) => { errors[k] = validateField(k, (formData as Record<string, string>)[k]); });
+    setFormErrors(errors);
+    setFormTouched(Object.fromEntries(fields.map((k) => [k, true])));
+    if (Object.values(errors).some((e) => e)) return;
+
     console.log('Add bus:', formData);
+    toast('Bus added successfully!');
     setModalOpen(false);
     setFormData({ name: '', plateNumber: '', capacity: '', assignedRoute: '', driver: '', status: 'Active' });
+    setFormErrors({});
+    setFormTouched({});
   };
+
+  if (isLoading) return <SkeletonTable rows={6} cols={7} />;
+  if (isError) return <ErrorState onRetry={retry} />;
 
   return (
     <div className="space-y-6">
@@ -105,7 +152,7 @@ const BusManagement = () => {
       </div>
 
       {/* Add Bus Modal */}
-      <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title="Add New Bus">
+      <Modal isOpen={modalOpen} onClose={() => { setModalOpen(false); setFormErrors({}); setFormTouched({}); }} title="Add New Bus">
         <form onSubmit={handleSubmit} className="space-y-4">
           {[
             { label: 'Bus Name', key: 'name', type: 'text', placeholder: 'e.g. Campus Cruiser' },
@@ -120,9 +167,17 @@ const BusManagement = () => {
                 type={field.type}
                 placeholder={field.placeholder}
                 value={(formData as Record<string, string>)[field.key]}
-                onChange={(e) => setFormData({ ...formData, [field.key]: e.target.value })}
-                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none transition-all placeholder:text-slate-300"
+                onChange={(e) => handleFieldChange(field.key, e.target.value)}
+                onBlur={() => handleFieldBlur(field.key)}
+                className={`w-full px-4 py-2.5 rounded-xl border text-sm focus:ring-2 outline-none transition-all placeholder:text-slate-300 ${
+                  formTouched[field.key] && formErrors[field.key]
+                    ? 'border-red-300 focus:ring-red-500/20 focus:border-red-500'
+                    : 'border-slate-200 focus:ring-primary-500/20 focus:border-primary-500'
+                }`}
               />
+              {formTouched[field.key] && formErrors[field.key] && (
+                <p className="mt-1 text-xs text-red-500 font-medium">{formErrors[field.key]}</p>
+              )}
             </div>
           ))}
           <div>

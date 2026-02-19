@@ -14,6 +14,9 @@ import {
   PieChart, Pie, Cell, Legend,
 } from 'recharts';
 import { dashboardStats, dailyReservations, capacityData, recentActivities } from '../../data/mockData';
+import { useLoadingState } from '../../hooks/useLoadingState';
+import { SkeletonCard, SkeletonChart, SkeletonTable } from '../../components/ui/Skeleton';
+import ErrorState from '../../components/ui/ErrorState';
 
 const statIcons = [Bus, MapPinned, Users, CalendarCheck];
 const statColors = [
@@ -30,12 +33,31 @@ const statusClasses: Record<string, string> = {
 };
 
 const Overview = () => {
+  const { isLoading, isError, retry } = useLoadingState();
+
   const stats = [
     dashboardStats.totalBuses,
     dashboardStats.activeRoutes,
     dashboardStats.totalUsers,
     dashboardStats.todayReservations,
   ];
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6">
+          {Array.from({ length: 4 }, (_, i) => <SkeletonCard key={i} />)}
+        </div>
+        <div className="grid lg:grid-cols-5 gap-6">
+          <SkeletonChart className="lg:col-span-3" />
+          <SkeletonChart className="lg:col-span-2" />
+        </div>
+        <SkeletonTable rows={5} cols={6} />
+      </div>
+    );
+  }
+
+  if (isError) return <ErrorState onRetry={retry} />;
 
   return (
     <div className="space-y-6">

@@ -1,8 +1,9 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, useInView } from 'framer-motion';
 import { Mail, Lock, User, ChevronDown, Eye, EyeOff, LogIn, UserPlus, Loader2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 40 },
@@ -16,17 +17,100 @@ const fadeInUp = {
 type AuthTab = 'login' | 'signup';
 type Role = 'admin' | 'passenger' | 'driver';
 
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+interface FormErrors {
+  [key: string]: string;
+}
+
 const AuthSection = () => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-80px' });
   const navigate = useNavigate();
   const { login, isLoading, error, clearError, getDashboardPath } = useAuth();
+  const { toast } = useToast();
 
   const [activeTab, setActiveTab] = useState<AuthTab>('login');
   const [showPassword, setShowPassword] = useState(false);
   const [loginForm, setLoginForm] = useState({ email: '', password: '', role: 'passenger' as Role });
-  const [signupForm, setSignupForm] = useState({ fullName: '', email: '', password: '', role: 'passenger' as Role });
+  const [signupForm, setSignupForm] = useState({ fullName: '', email: '', password: '', confirmPassword: '', role: 'passenger' as Role });
   const [roleDropdownOpen, setRoleDropdownOpen] = useState(false);
+  const [loginErrors, setLoginErrors] = useState<FormErrors>({});
+  const [signupErrors, setSignupErrors] = useState<FormErrors>({});
+  const [loginTouched, setLoginTouched] = useState<Record<string, boolean>>({});
+  const [signupTouched, setSignupTouched] = useState<Record<string, boolean>>({});
+
+  // --- Validation helpers ---
+  const validateLoginField = useCallback((field: string, value: string): string => {
+    switch (field) {
+      case 'email':
+        if (!value.trim()) return 'Email is required';
+        if (!emailRegex.test(value)) return 'Enter a valid email address';
+        return '';
+      case 'password':
+        if (!value) return 'Password is required';
+        if (value.length < 6) return 'Password must be at least 6 characters';
+        return '';
+      default:
+        return '';
+    }
+  }, []);
+
+  const validateSignupField = useCallback((field: string, value: string, form?: typeof signupForm): string => {
+    const f = form || signupForm;
+    switch (field) {
+      case 'fullName':
+        if (!value.trim()) return 'Full name is required';
+        if (value.trim().length < 2) return 'Name must be at least 2 characters';
+        return '';
+      case 'email':
+        if (!value.trim()) return 'Email is required';
+        if (!emailRegex.test(value)) return 'Enter a valid email address';
+        return '';
+      case 'password':
+        if (!value) return 'Password is required';
+        if (value.length < 6) return 'Password must be at least 6 characters';
+        return '';
+      case 'confirmPassword':
+        if (!value) return 'Please confirm your password';
+        if (value !== f.password) return 'Passwords do not match';
+        return '';
+      default:
+        return '';
+    }
+  }, [signupForm]);
+
+  const handleLoginBlur = (field: string) => {
+    setLoginTouched((p) => ({ ...p, [field]: true }));
+    const err = validateLoginField(field, loginForm[field as keyof typeof loginForm]);
+    setLoginErrors((p) => ({ ...p, [field]: err }));
+  };
+
+  const handleSignupBlur = (field: string) => {
+    setSignupTouched((p) => ({ ...p, [field]: true }));
+    const err = validateSignupField(field, signupForm[field as keyof typeof signupForm]);
+    setSignupErrors((p) => ({ ...p, [field]: err }));
+  };
+
+  const validateLoginForm = (): boolean => {
+    const errors: FormErrors = {};
+    errors.email = validateLoginField('email', loginForm.email);
+    errors.password = validateLoginField('password', loginForm.password);
+    setLoginErrors(errors);
+    setLoginTouched({ email: true, password: true });
+    return !errors.email && !errors.password;
+  };
+
+  const validateSignupForm = (): boolean => {
+    const errors: FormErrors = {};
+    errors.fullName = validateSignupField('fullName', signupForm.fullName);
+    errors.email = validateSignupField('email', signupForm.email);
+    errors.password = validateSignupField('password', signupForm.password);
+    errors.confirmPassword = validateSignupField('confirmPassword', signupForm.confirmPassword);
+    setSignupErrors(errors);
+    setSignupTouched({ fullName: true, email: true, password: true, confirmPassword: true });
+    return !errors.fullName && !errors.email && !errors.password && !errors.confirmPassword;
+  };
 
   const roles: { value: Role; label: string; description: string }[] = [
     { value: 'admin', label: 'Admin / Organizer', description: 'Manage fleet, routes & users' },
@@ -36,15 +120,19 @@ const AuthSection = () => {
 
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!validateLoginForm()) return;
     clearError();
     const success = await login(loginForm.email, loginForm.password, loginForm.role);
     if (success) {
+      toast('Welcome back! 👋');
       navigate(getDashboardPath(loginForm.role));
     }
   };
 
   const handleSignupSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!validateSignupForm()) return;
+    toast('Account created successfully! 🎉');
     console.log('Signup submitted:', signupForm);
     // Will connect to backend API later
   };
@@ -173,11 +261,22 @@ const AuthSection = () => {
                         <input
                           type="email"
                           value={loginForm.email}
-                          onChange={(e) => setLoginForm({ ...loginForm, email: e.target.value })}
+                          onChange={(e) => {
+                            setLoginForm({ ...loginForm, email: e.target.value });
+                            if (loginTouched.email) setLoginErrors((p) => ({ ...p, email: validateLoginField('email', e.target.value) }));
+                          }}
+                          onBlur={() => handleLoginBlur('email')}
                           placeholder="you@example.com"
-                          className="w-full pl-12 pr-4 py-3.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none transition-all placeholder:text-slate-300"
+                          className={`w-full pl-12 pr-4 py-3.5 rounded-xl border text-sm focus:ring-2 outline-none transition-all placeholder:text-slate-300 ${
+                            loginTouched.email && loginErrors.email
+                              ? 'border-red-300 focus:ring-red-500/20 focus:border-red-500'
+                              : 'border-slate-200 focus:ring-primary-500/20 focus:border-primary-500'
+                          }`}
                         />
                       </div>
+                      {loginTouched.email && loginErrors.email && (
+                        <p className="mt-1.5 text-xs text-red-500 font-medium">{loginErrors.email}</p>
+                      )}
                     </div>
 
                     <div>
@@ -187,9 +286,17 @@ const AuthSection = () => {
                         <input
                           type={showPassword ? 'text' : 'password'}
                           value={loginForm.password}
-                          onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
+                          onChange={(e) => {
+                            setLoginForm({ ...loginForm, password: e.target.value });
+                            if (loginTouched.password) setLoginErrors((p) => ({ ...p, password: validateLoginField('password', e.target.value) }));
+                          }}
+                          onBlur={() => handleLoginBlur('password')}
                           placeholder="Enter your password"
-                          className="w-full pl-12 pr-12 py-3.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none transition-all placeholder:text-slate-300"
+                          className={`w-full pl-12 pr-12 py-3.5 rounded-xl border text-sm focus:ring-2 outline-none transition-all placeholder:text-slate-300 ${
+                            loginTouched.password && loginErrors.password
+                              ? 'border-red-300 focus:ring-red-500/20 focus:border-red-500'
+                              : 'border-slate-200 focus:ring-primary-500/20 focus:border-primary-500'
+                          }`}
                         />
                         <button
                           type="button"
@@ -199,6 +306,9 @@ const AuthSection = () => {
                           {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                         </button>
                       </div>
+                      {loginTouched.password && loginErrors.password && (
+                        <p className="mt-1.5 text-xs text-red-500 font-medium">{loginErrors.password}</p>
+                      )}
                     </div>
 
                     {/* Role Selector */}
@@ -276,11 +386,22 @@ const AuthSection = () => {
                         <input
                           type="text"
                           value={signupForm.fullName}
-                          onChange={(e) => setSignupForm({ ...signupForm, fullName: e.target.value })}
+                          onChange={(e) => {
+                            setSignupForm({ ...signupForm, fullName: e.target.value });
+                            if (signupTouched.fullName) setSignupErrors((p) => ({ ...p, fullName: validateSignupField('fullName', e.target.value) }));
+                          }}
+                          onBlur={() => handleSignupBlur('fullName')}
                           placeholder="John Doe"
-                          className="w-full pl-12 pr-4 py-3.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none transition-all placeholder:text-slate-300"
+                          className={`w-full pl-12 pr-4 py-3.5 rounded-xl border text-sm focus:ring-2 outline-none transition-all placeholder:text-slate-300 ${
+                            signupTouched.fullName && signupErrors.fullName
+                              ? 'border-red-300 focus:ring-red-500/20 focus:border-red-500'
+                              : 'border-slate-200 focus:ring-primary-500/20 focus:border-primary-500'
+                          }`}
                         />
                       </div>
+                      {signupTouched.fullName && signupErrors.fullName && (
+                        <p className="mt-1.5 text-xs text-red-500 font-medium">{signupErrors.fullName}</p>
+                      )}
                     </div>
 
                     <div>
@@ -290,11 +411,22 @@ const AuthSection = () => {
                         <input
                           type="email"
                           value={signupForm.email}
-                          onChange={(e) => setSignupForm({ ...signupForm, email: e.target.value })}
+                          onChange={(e) => {
+                            setSignupForm({ ...signupForm, email: e.target.value });
+                            if (signupTouched.email) setSignupErrors((p) => ({ ...p, email: validateSignupField('email', e.target.value) }));
+                          }}
+                          onBlur={() => handleSignupBlur('email')}
                           placeholder="you@example.com"
-                          className="w-full pl-12 pr-4 py-3.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none transition-all placeholder:text-slate-300"
+                          className={`w-full pl-12 pr-4 py-3.5 rounded-xl border text-sm focus:ring-2 outline-none transition-all placeholder:text-slate-300 ${
+                            signupTouched.email && signupErrors.email
+                              ? 'border-red-300 focus:ring-red-500/20 focus:border-red-500'
+                              : 'border-slate-200 focus:ring-primary-500/20 focus:border-primary-500'
+                          }`}
                         />
                       </div>
+                      {signupTouched.email && signupErrors.email && (
+                        <p className="mt-1.5 text-xs text-red-500 font-medium">{signupErrors.email}</p>
+                      )}
                     </div>
 
                     <div>
@@ -304,9 +436,17 @@ const AuthSection = () => {
                         <input
                           type={showPassword ? 'text' : 'password'}
                           value={signupForm.password}
-                          onChange={(e) => setSignupForm({ ...signupForm, password: e.target.value })}
+                          onChange={(e) => {
+                            setSignupForm({ ...signupForm, password: e.target.value });
+                            if (signupTouched.password) setSignupErrors((p) => ({ ...p, password: validateSignupField('password', e.target.value) }));
+                          }}
+                          onBlur={() => handleSignupBlur('password')}
                           placeholder="Create a strong password"
-                          className="w-full pl-12 pr-12 py-3.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none transition-all placeholder:text-slate-300"
+                          className={`w-full pl-12 pr-12 py-3.5 rounded-xl border text-sm focus:ring-2 outline-none transition-all placeholder:text-slate-300 ${
+                            signupTouched.password && signupErrors.password
+                              ? 'border-red-300 focus:ring-red-500/20 focus:border-red-500'
+                              : 'border-slate-200 focus:ring-primary-500/20 focus:border-primary-500'
+                          }`}
                         />
                         <button
                           type="button"
@@ -316,6 +456,34 @@ const AuthSection = () => {
                           {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                         </button>
                       </div>
+                      {signupTouched.password && signupErrors.password && (
+                        <p className="mt-1.5 text-xs text-red-500 font-medium">{signupErrors.password}</p>
+                      )}
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-slate-700 mb-2">Confirm Password</label>
+                      <div className="relative">
+                        <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300" />
+                        <input
+                          type={showPassword ? 'text' : 'password'}
+                          value={signupForm.confirmPassword}
+                          onChange={(e) => {
+                            setSignupForm({ ...signupForm, confirmPassword: e.target.value });
+                            if (signupTouched.confirmPassword) setSignupErrors((p) => ({ ...p, confirmPassword: validateSignupField('confirmPassword', e.target.value, { ...signupForm, confirmPassword: e.target.value }) }));
+                          }}
+                          onBlur={() => handleSignupBlur('confirmPassword')}
+                          placeholder="Re-enter your password"
+                          className={`w-full pl-12 pr-4 py-3.5 rounded-xl border text-sm focus:ring-2 outline-none transition-all placeholder:text-slate-300 ${
+                            signupTouched.confirmPassword && signupErrors.confirmPassword
+                              ? 'border-red-300 focus:ring-red-500/20 focus:border-red-500'
+                              : 'border-slate-200 focus:ring-primary-500/20 focus:border-primary-500'
+                          }`}
+                        />
+                      </div>
+                      {signupTouched.confirmPassword && signupErrors.confirmPassword && (
+                        <p className="mt-1.5 text-xs text-red-500 font-medium">{signupErrors.confirmPassword}</p>
+                      )}
                     </div>
 
                     {/* Role Selector */}
