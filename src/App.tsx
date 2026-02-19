@@ -14,6 +14,13 @@ import UserManagement from './pages/admin/UserManagement'
 import ScheduleManagement from './pages/admin/ScheduleManagement'
 import Reports from './pages/admin/Reports'
 import Notifications from './pages/admin/Notifications'
+import PassengerLayout from './pages/passenger/PassengerLayout'
+import PassengerOverview from './pages/passenger/PassengerOverview'
+import ReserveASeat from './pages/passenger/ReserveASeat'
+import MyReservations from './pages/passenger/MyReservations'
+import PassengerRoutes from './pages/passenger/PassengerRoutes'
+import PassengerNotifications from './pages/passenger/PassengerNotifications'
+import ProfileSettings from './pages/passenger/ProfileSettings'
 
 /* ── Landing page (all sections on one scroll) ── */
 function LandingPage() {
@@ -48,6 +55,17 @@ function App() {
           <Route path="schedule" element={<ScheduleManagement />} />
           <Route path="reports" element={<Reports />} />
           <Route path="notifications" element={<Notifications />} />
+        </Route>
+
+        {/* Passenger dashboard */}
+        <Route path="/passenger" element={<PassengerLayout />}>
+          <Route index element={<Navigate to="overview" replace />} />
+          <Route path="overview" element={<PassengerOverview />} />
+          <Route path="reserve" element={<ReserveASeat />} />
+          <Route path="reservations" element={<MyReservations />} />
+          <Route path="routes" element={<PassengerRoutes />} />
+          <Route path="notifications" element={<PassengerNotifications />} />
+          <Route path="profile" element={<ProfileSettings />} />
         </Route>
 
         {/* Fallback */}
