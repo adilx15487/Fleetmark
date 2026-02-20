@@ -20,8 +20,18 @@ const ReserveASeat = () => {
   const [selectedDate, setSelectedDate] = useState('');
   const [confirmed, setConfirmed] = useState(false);
   const [stepError, setStepError] = useState('');
+  const [selectedBoardStop, setSelectedBoardStop] = useState('');
+  const [selectedDropoffStop, setSelectedDropoffStop] = useState('');
 
   const selectedRoute = availableRoutes.find((r) => r.id === selectedRouteId);
+
+  // Compute dropoff stops — only stops AFTER the selected boarding stop
+  const dropoffStops = useMemo(() => {
+    if (!selectedRoute || !selectedBoardStop) return [];
+    const boardIndex = selectedRoute.stops.indexOf(selectedBoardStop);
+    if (boardIndex < 0) return [];
+    return selectedRoute.stops.slice(boardIndex + 1);
+  }, [selectedRoute, selectedBoardStop]);
 
   const filteredRoutes = useMemo(() => {
     if (!search) return availableRoutes.filter((r) => r.status === 'Active');
@@ -32,6 +42,8 @@ const ReserveASeat = () => {
 
   const handleSelectRoute = (id: string) => {
     setSelectedRouteId(id);
+    setSelectedBoardStop('');
+    setSelectedDropoffStop('');
     // Auto-select first active slot
     const firstActive = generatedSlots.find((s) => s.status === 'active');
     setSelectedSlot(firstActive || null);
@@ -53,6 +65,10 @@ const ReserveASeat = () => {
     }
     if (!selectedSlot) {
       setStepError('Please select a departure time slot.');
+      return;
+    }
+    if (!selectedBoardStop || !selectedDropoffStop) {
+      setStepError('Please select your board at and drop off at stops.');
       return;
     }
     if (!selectedSeat) {
@@ -78,6 +94,8 @@ const ReserveASeat = () => {
     setSelectedSeat(null);
     setSelectedSlot(null);
     setSelectedDate('');
+    setSelectedBoardStop('');
+    setSelectedDropoffStop('');
     setConfirmed(false);
   };
 
@@ -196,13 +214,22 @@ const ReserveASeat = () => {
                 </div>
 
                 <div className="flex items-center gap-1 text-xs text-slate-400 mb-3 flex-wrap">
-                  {route.stops.map((stop, i) => (
-                    <span key={stop} className="flex items-center gap-1">
+                  {route.stops.slice(0, 3).map((stop, i) => (
+                    <span key={stop + i} className="flex items-center gap-1">
                       <MapPin className="w-3 h-3 text-primary-400" />
                       <span>{stop}</span>
-                      {i < route.stops.length - 1 && <span className="text-slate-300 mx-0.5">→</span>}
+                      {i < 2 && <span className="text-slate-300 mx-0.5">→</span>}
                     </span>
                   ))}
+                  {route.stops.length > 3 && (
+                    <span className="text-slate-300 ml-1">… +{route.stops.length - 3} more</span>
+                  )}
+                </div>
+
+                <div className="flex items-center gap-1 text-[11px] text-slate-400 mb-1">
+                  <span className="font-semibold text-primary-600">{route.stops.length} stops</span>
+                  <span>·</span>
+                  <span>{route.stops[0]} → {route.stops[route.stops.length - 1]}</span>
                 </div>
 
                 <div className="flex items-center justify-between text-xs">
@@ -388,6 +415,50 @@ const ReserveASeat = () => {
                   className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none"
                 />
               </div>
+
+              <div>
+                <label className="block text-xs font-medium text-slate-500 mb-1.5">Board at</label>
+                <select
+                  value={selectedBoardStop}
+                  onChange={(e) => {
+                    setSelectedBoardStop(e.target.value);
+                    setSelectedDropoffStop('');
+                    setStepError('');
+                  }}
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none bg-white"
+                >
+                  <option value="">Select boarding stop…</option>
+                  {selectedRoute.stops.slice(0, -1).map((stop, i) => (
+                    <option key={`board-${i}`} value={stop}>{i + 1}. {stop}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-slate-500 mb-1.5">Drop off at</label>
+                <select
+                  value={selectedDropoffStop}
+                  onChange={(e) => { setSelectedDropoffStop(e.target.value); setStepError(''); }}
+                  disabled={!selectedBoardStop}
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none bg-white disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <option value="">{selectedBoardStop ? 'Select drop-off stop…' : 'Select boarding stop first'}</option>
+                  {dropoffStops.map((stop, i) => {
+                    const globalIndex = selectedRoute.stops.indexOf(stop);
+                    return (
+                      <option key={`drop-${i}`} value={stop}>{globalIndex + 1}. {stop}</option>
+                    );
+                  })}
+                </select>
+              </div>
+            </div>
+
+            {/* Notice */}
+            <div className="flex items-start gap-2 px-4 py-3 rounded-xl bg-amber-50 border border-amber-200">
+              <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
+              <p className="text-[11px] text-amber-700 leading-relaxed">
+                Arrive at your stop on time. The bus will not wait. No pick-up or drop-off outside official stops.
+              </p>
             </div>
 
             {/* Selection info */}
@@ -404,8 +475,12 @@ const ReserveASeat = () => {
                     <span className="font-medium text-primary-900">{selectedRoute.name.split(' — ')[0]}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-400">Bus</span>
-                    <span className="font-medium text-primary-900">{selectedRoute.assignedBus}</span>
+                    <span className="text-slate-400">Board at</span>
+                    <span className="font-medium text-primary-900">{selectedBoardStop || '—'}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">Drop off</span>
+                    <span className="font-medium text-primary-900">{selectedDropoffStop || '—'}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-400">Time</span>
@@ -447,6 +522,8 @@ const ReserveASeat = () => {
             <div className="space-y-3 text-sm">
               {[
                 { label: 'Route', value: selectedRoute.name, icon: MapPin },
+                { label: 'Board at', value: selectedBoardStop, icon: MapPin },
+                { label: 'Drop off at', value: selectedDropoffStop, icon: MapPin },
                 { label: 'Bus', value: selectedRoute.assignedBus, icon: BusIcon },
                 { label: 'Seat', value: selectedSeat!, icon: Ticket },
                 { label: 'Date', value: selectedDate, icon: CalendarDays },
@@ -462,9 +539,16 @@ const ReserveASeat = () => {
               ))}
             </div>
 
+            <div className="flex items-start gap-2 mt-4 px-3 py-2.5 rounded-xl bg-amber-50 border border-amber-200">
+              <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
+              <p className="text-[11px] text-amber-700 leading-relaxed">
+                Arrive at your boarding stop on time. The bus will not wait beyond the scheduled departure.
+              </p>
+            </div>
+
             <button
               onClick={handleConfirm}
-              className="w-full mt-6 px-5 py-3.5 rounded-xl bg-emerald-500 text-white text-sm font-bold hover:bg-emerald-600 shadow-lg shadow-emerald-500/20 transition-all active:scale-[0.98]"
+              className="w-full mt-4 px-5 py-3.5 rounded-xl bg-emerald-500 text-white text-sm font-bold hover:bg-emerald-600 shadow-lg shadow-emerald-500/20 transition-all active:scale-[0.98]"
             >
               Confirm Reservation
             </button>

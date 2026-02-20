@@ -17,6 +17,8 @@ import {
   driverStats,
   currentShift,
   driverNotifications,
+  driverRouteInfo,
+  routeStops,
 } from '../../data/driverMockData';
 import { useAuth } from '../../context/AuthContext';
 import { useSchedule, to12Hour } from '../../context/ScheduleContext';
@@ -218,6 +220,56 @@ const DriverOverview = () => {
             </div>
           );
         })}
+      </div>
+
+      {/* Break Reminder */}
+      {config.stoppedPeriods.length > 0 && (
+        <div className="flex items-center gap-3 px-5 py-3.5 rounded-2xl bg-amber-50 border border-amber-200">
+          <Pause className="w-5 h-5 text-amber-500 shrink-0" />
+          <div>
+            <p className="text-sm font-semibold text-amber-800">Break Reminder</p>
+            <p className="text-xs text-amber-600">
+              {config.stoppedPeriods.map((p) =>
+                `${to12Hour(p.startTime)} → ${to12Hour(p.endTime)}`
+              ).join(', ')} — No service during break periods.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Route Stops Preview */}
+      <div className="bg-white rounded-2xl border border-slate-200 p-5">
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-sm font-bold text-primary-900">
+            Your Route — {driverRouteInfo.totalStops} Stops
+          </h3>
+          <span className="text-xs text-slate-400">{driverRouteInfo.totalDistance} · ~{driverRouteInfo.estimatedDuration}</span>
+        </div>
+        <div className="flex overflow-x-auto gap-0 pb-2" style={{ scrollbarWidth: 'thin' }}>
+          <div className="flex items-start gap-0 min-w-max px-1">
+            {routeStops.map((stop, i) => (
+              <div key={i} className="flex items-start">
+                <div className="flex flex-col items-center" style={{ width: '80px' }}>
+                  <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-bold text-white shadow-sm ${
+                    i === 0 ? 'bg-primary-500' : i === routeStops.length - 1 ? 'bg-emerald-500' : 'bg-primary-300'
+                  }`}>
+                    {i + 1}
+                  </div>
+                  <p className="text-[10px] font-medium text-primary-900 text-center mt-1 leading-tight px-0.5 max-w-[76px]">
+                    {stop.name}
+                  </p>
+                  <p className="text-[9px] text-slate-400 mt-0.5">{stop.passengerCount}p</p>
+                </div>
+                {i < routeStops.length - 1 && (
+                  <div className="flex items-center mt-[11px]">
+                    <div className="w-5 h-[2px] bg-primary-200" />
+                    <div className="w-0 h-0 border-t-[2px] border-t-transparent border-b-[2px] border-b-transparent border-l-[4px] border-l-primary-200" />
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
 
       <div className="grid lg:grid-cols-5 gap-6">

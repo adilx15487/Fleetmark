@@ -9,25 +9,25 @@ export const driverProfile = {
   phone: '+212 6 55 44 33 22',
   licenseNumber: 'DL-2024-MAR-08821',
   yearsOfExperience: 8,
-  assignedBus: 'Bus 07 — Campus Cruiser',
-  assignedRoute: 'Route A — Campus Express',
+  assignedBus: '1337 Night Shuttle — Bus 1',
+  assignedRoute: 'Night Shuttle — Route 1',
   avatar: 'https://api.dicebear.com/9.x/avataaars/svg?seed=Karim&backgroundColor=c0aede&top=shortHair',
 };
 
 // Driver stats
 export const driverStats = {
-  assignedRoute: { value: 'Route A', subtext: '12 stops', label: 'Assigned Route' },
+  assignedRoute: { value: 'Route 1', subtext: '19 stops', label: 'Assigned Route' },
   passengersToday: { value: 34, label: 'Passengers Today' },
-  nextDeparture: { value: '10:30 AM', subtext: 'in 42 min', label: 'Next Departure' },
-  busInfo: { value: 'Bus 07', subtext: 'FL-1234-AB · 44 seats', label: 'Bus Info' },
+  nextDeparture: { value: '10:00 PM', subtext: 'Tonight', label: 'Next Departure' },
+  busInfo: { value: 'Bus 1', subtext: 'X-0001-NS · 50 seats', label: 'Bus Info' },
 };
 
 // Current shift
 export const currentShift = {
   status: 'on-duty' as 'on-duty' | 'off-duty',
-  startTime: '06:00 AM',
-  endTime: '02:00 PM',
-  routeName: 'Route A — Campus Express',
+  startTime: '10:00 PM',
+  endTime: '06:00 AM',
+  routeName: 'Night Shuttle — Route 1',
 };
 
 // Trips for today
@@ -41,14 +41,13 @@ export interface Trip {
 }
 
 export const todaysTrips: Trip[] = [
-  { id: 'T-001', departureTime: '06:30 AM', route: 'Campus Express', stops: 12, passengers: 38, status: 'Completed' },
-  { id: 'T-002', departureTime: '07:30 AM', route: 'Campus Express', stops: 12, passengers: 42, status: 'Completed' },
-  { id: 'T-003', departureTime: '08:30 AM', route: 'Campus Express', stops: 12, passengers: 44, status: 'Completed' },
-  { id: 'T-004', departureTime: '09:30 AM', route: 'Campus Express', stops: 12, passengers: 34, status: 'In Progress' },
-  { id: 'T-005', departureTime: '10:30 AM', route: 'Campus Express', stops: 12, passengers: 29, status: 'Upcoming' },
-  { id: 'T-006', departureTime: '11:30 AM', route: 'Campus Express', stops: 12, passengers: 18, status: 'Upcoming' },
-  { id: 'T-007', departureTime: '12:30 PM', route: 'Campus Express', stops: 12, passengers: 12, status: 'Upcoming' },
-  { id: 'T-008', departureTime: '01:30 PM', route: 'Campus Express', stops: 12, passengers: 0, status: 'Upcoming' },
+  { id: 'T-001', departureTime: '10:00 PM', route: 'Night Shuttle Route 1', stops: 19, passengers: 42, status: 'Completed' },
+  { id: 'T-002', departureTime: '11:00 PM', route: 'Night Shuttle Route 1', stops: 19, passengers: 38, status: 'Completed' },
+  { id: 'T-003', departureTime: '12:00 AM', route: 'Night Shuttle Route 1', stops: 19, passengers: 35, status: 'In Progress' },
+  { id: 'T-004', departureTime: '01:00 AM', route: 'Night Shuttle Route 1', stops: 19, passengers: 28, status: 'Upcoming' },
+  { id: 'T-005', departureTime: '03:00 AM', route: 'Night Shuttle Route 1', stops: 19, passengers: 15, status: 'Upcoming' },
+  { id: 'T-006', departureTime: '04:00 AM', route: 'Night Shuttle Route 1', stops: 19, passengers: 10, status: 'Upcoming' },
+  { id: 'T-007', departureTime: '05:00 AM', route: 'Night Shuttle Route 1', stops: 19, passengers: 8, status: 'Upcoming' },
 ];
 
 // Route details
@@ -61,27 +60,34 @@ export interface RouteStop {
 }
 
 export const driverRouteInfo = {
-  name: 'Route A — Campus Express',
+  name: 'Night Shuttle — Route 1',
   status: 'Active' as const,
-  totalDistance: '18.5 km',
-  totalStops: 12,
-  estimatedDuration: '55 min',
-  assignedBus: 'Bus 07 — Campus Cruiser',
+  totalDistance: '24 km',
+  totalStops: 19,
+  estimatedDuration: '75 min',
+  assignedBus: '1337 Night Shuttle — Bus 1',
 };
 
 export const routeStops: RouteStop[] = [
-  { id: 'S-01', name: 'Central Station', estimatedArrival: '06:30 AM', passengerCount: 8, status: 'completed' },
-  { id: 'S-02', name: 'City Hall', estimatedArrival: '06:35 AM', passengerCount: 5, status: 'completed' },
-  { id: 'S-03', name: 'Main Square', estimatedArrival: '06:40 AM', passengerCount: 6, status: 'completed' },
-  { id: 'S-04', name: 'Library', estimatedArrival: '06:45 AM', passengerCount: 3, status: 'completed' },
-  { id: 'S-05', name: 'Sports Complex', estimatedArrival: '06:50 AM', passengerCount: 4, status: 'completed' },
-  { id: 'S-06', name: 'Residence Hall A', estimatedArrival: '06:55 AM', passengerCount: 7, status: 'current' },
-  { id: 'S-07', name: 'Residence Hall B', estimatedArrival: '07:00 AM', passengerCount: 3, status: 'upcoming' },
-  { id: 'S-08', name: 'Science Building', estimatedArrival: '07:05 AM', passengerCount: 5, status: 'upcoming' },
-  { id: 'S-09', name: 'Engineering Block', estimatedArrival: '07:10 AM', passengerCount: 4, status: 'upcoming' },
-  { id: 'S-10', name: 'Medical Faculty', estimatedArrival: '07:15 AM', passengerCount: 2, status: 'upcoming' },
-  { id: 'S-11', name: 'Admin Building', estimatedArrival: '07:20 AM', passengerCount: 1, status: 'upcoming' },
-  { id: 'S-12', name: 'Campus Gate', estimatedArrival: '07:25 AM', passengerCount: 0, status: 'upcoming' },
+  { id: 'S-01', name: 'OCP Saka', estimatedArrival: '10:00 PM', passengerCount: 8, status: 'completed' },
+  { id: 'S-02', name: 'OCP 6', estimatedArrival: '10:04 PM', passengerCount: 5, status: 'completed' },
+  { id: 'S-03', name: 'Nakhil', estimatedArrival: '10:08 PM', passengerCount: 6, status: 'completed' },
+  { id: 'S-04', name: 'Chaaibat (Lhayat Pharmacy)', estimatedArrival: '10:12 PM', passengerCount: 3, status: 'completed' },
+  { id: 'S-05', name: 'Posto Gosto', estimatedArrival: '10:16 PM', passengerCount: 4, status: 'completed' },
+  { id: 'S-06', name: 'Mesk Lil', estimatedArrival: '10:20 PM', passengerCount: 7, status: 'current' },
+  { id: 'S-07', name: 'Jnane Lkhir', estimatedArrival: '10:24 PM', passengerCount: 3, status: 'upcoming' },
+  { id: 'S-08', name: 'Lhamriti (Ben Salem)', estimatedArrival: '10:28 PM', passengerCount: 5, status: 'upcoming' },
+  { id: 'S-09', name: 'Al Fadl', estimatedArrival: '10:32 PM', passengerCount: 4, status: 'upcoming' },
+  { id: 'S-10', name: 'Kentra', estimatedArrival: '10:36 PM', passengerCount: 2, status: 'upcoming' },
+  { id: 'S-11', name: 'Jnane Lkhir', estimatedArrival: '10:40 PM', passengerCount: 3, status: 'upcoming' },
+  { id: 'S-12', name: 'Pharmacie Ibn Sina', estimatedArrival: '10:44 PM', passengerCount: 2, status: 'upcoming' },
+  { id: 'S-13', name: 'Al Qods', estimatedArrival: '10:48 PM', passengerCount: 1, status: 'upcoming' },
+  { id: 'S-14', name: 'Sissane', estimatedArrival: '10:52 PM', passengerCount: 2, status: 'upcoming' },
+  { id: 'S-15', name: 'La Gare', estimatedArrival: '10:56 PM', passengerCount: 4, status: 'upcoming' },
+  { id: 'S-16', name: 'Dyour Chouhada', estimatedArrival: '11:00 PM', passengerCount: 1, status: 'upcoming' },
+  { id: 'S-17', name: 'Chtayba', estimatedArrival: '11:04 PM', passengerCount: 1, status: 'upcoming' },
+  { id: 'S-18', name: 'Ibn Tofail', estimatedArrival: '11:08 PM', passengerCount: 2, status: 'upcoming' },
+  { id: 'S-19', name: 'Green Oil Station', estimatedArrival: '11:12 PM', passengerCount: 0, status: 'upcoming' },
 ];
 
 // Passengers for the driver's route
@@ -96,24 +102,24 @@ export interface RoutePassenger {
 }
 
 export const routePassengers: RoutePassenger[] = [
-  { id: 'P-01', name: 'Ahmed Benali', initials: 'AB', seat: '1A', stop: 'Central Station', status: 'Confirmed', avatar: 'https://api.dicebear.com/9.x/avataaars/svg?seed=Ahmed&backgroundColor=b6e3f4' },
-  { id: 'P-02', name: 'Sara Idrissi', initials: 'SI', seat: '1B', stop: 'Central Station', status: 'Confirmed', avatar: 'https://api.dicebear.com/9.x/avataaars/svg?seed=Sara&backgroundColor=ffd5dc' },
-  { id: 'P-03', name: 'Youssef Tazi', initials: 'YT', seat: '2A', stop: 'City Hall', status: 'Confirmed' },
-  { id: 'P-04', name: 'Fatima Zahra', initials: 'FZ', seat: '2B', stop: 'City Hall', status: 'Pending' },
-  { id: 'P-05', name: 'Omar Meknassi', initials: 'OM', seat: '3A', stop: 'Main Square', status: 'Confirmed', avatar: 'https://api.dicebear.com/9.x/avataaars/svg?seed=Omar&backgroundColor=c0aede' },
-  { id: 'P-06', name: 'Laila Bennani', initials: 'LB', seat: '3B', stop: 'Main Square', status: 'Cancelled' },
-  { id: 'P-07', name: 'Hassan Ouazzani', initials: 'HO', seat: '4A', stop: 'Library', status: 'Confirmed' },
-  { id: 'P-08', name: 'Nadia Chraibi', initials: 'NC', seat: '4B', stop: 'Sports Complex', status: 'Confirmed', avatar: 'https://api.dicebear.com/9.x/avataaars/svg?seed=Nadia&backgroundColor=ffd5dc' },
-  { id: 'P-09', name: 'Rachid Fassi', initials: 'RF', seat: '5A', stop: 'Residence Hall A', status: 'Pending' },
-  { id: 'P-10', name: 'Amina Kadiri', initials: 'AK', seat: '5B', stop: 'Residence Hall A', status: 'Confirmed' },
-  { id: 'P-11', name: 'Mouad Sebti', initials: 'MS', seat: '6A', stop: 'Residence Hall B', status: 'Confirmed', avatar: 'https://api.dicebear.com/9.x/avataaars/svg?seed=Mouad&backgroundColor=b6e3f4' },
-  { id: 'P-12', name: 'Zineb Alaoui', initials: 'ZA', seat: '6B', stop: 'Science Building', status: 'Confirmed' },
-  { id: 'P-13', name: 'Hamza Bouazza', initials: 'HB', seat: '7A', stop: 'Science Building', status: 'Pending' },
-  { id: 'P-14', name: 'Kenza Rhali', initials: 'KR', seat: '7B', stop: 'Engineering Block', status: 'Confirmed', avatar: 'https://api.dicebear.com/9.x/avataaars/svg?seed=Kenza&backgroundColor=ffd5dc' },
-  { id: 'P-15', name: 'Adil Bourji', initials: 'AB', seat: '8A', stop: 'Engineering Block', status: 'Confirmed' },
-  { id: 'P-16', name: 'Salma Naciri', initials: 'SN', seat: '8B', stop: 'Medical Faculty', status: 'Cancelled' },
-  { id: 'P-17', name: 'Badr Mansouri', initials: 'BM', seat: '9A', stop: 'Medical Faculty', status: 'Confirmed' },
-  { id: 'P-18', name: 'Houda Talbi', initials: 'HT', seat: '9B', stop: 'Admin Building', status: 'Confirmed', avatar: 'https://api.dicebear.com/9.x/avataaars/svg?seed=Houda&backgroundColor=c0aede' },
+  { id: 'P-01', name: 'Ahmed Benali', initials: 'AB', seat: '1A', stop: 'OCP Saka', status: 'Confirmed', avatar: 'https://api.dicebear.com/9.x/avataaars/svg?seed=Ahmed&backgroundColor=b6e3f4' },
+  { id: 'P-02', name: 'Sara Idrissi', initials: 'SI', seat: '1B', stop: 'OCP Saka', status: 'Confirmed', avatar: 'https://api.dicebear.com/9.x/avataaars/svg?seed=Sara&backgroundColor=ffd5dc' },
+  { id: 'P-03', name: 'Youssef Tazi', initials: 'YT', seat: '2A', stop: 'OCP 6', status: 'Confirmed' },
+  { id: 'P-04', name: 'Fatima Zahra', initials: 'FZ', seat: '2B', stop: 'Nakhil', status: 'Pending' },
+  { id: 'P-05', name: 'Omar Meknassi', initials: 'OM', seat: '3A', stop: 'Chaaibat (Lhayat Pharmacy)', status: 'Confirmed', avatar: 'https://api.dicebear.com/9.x/avataaars/svg?seed=Omar&backgroundColor=c0aede' },
+  { id: 'P-06', name: 'Laila Bennani', initials: 'LB', seat: '3B', stop: 'Posto Gosto', status: 'Cancelled' },
+  { id: 'P-07', name: 'Hassan Ouazzani', initials: 'HO', seat: '4A', stop: 'Mesk Lil', status: 'Confirmed' },
+  { id: 'P-08', name: 'Nadia Chraibi', initials: 'NC', seat: '4B', stop: 'Jnane Lkhir', status: 'Confirmed', avatar: 'https://api.dicebear.com/9.x/avataaars/svg?seed=Nadia&backgroundColor=ffd5dc' },
+  { id: 'P-09', name: 'Rachid Fassi', initials: 'RF', seat: '5A', stop: 'Al Fadl', status: 'Pending' },
+  { id: 'P-10', name: 'Amina Kadiri', initials: 'AK', seat: '5B', stop: 'Kentra', status: 'Confirmed' },
+  { id: 'P-11', name: 'Mouad Sebti', initials: 'MS', seat: '6A', stop: 'Pharmacie Ibn Sina', status: 'Confirmed', avatar: 'https://api.dicebear.com/9.x/avataaars/svg?seed=Mouad&backgroundColor=b6e3f4' },
+  { id: 'P-12', name: 'Zineb Alaoui', initials: 'ZA', seat: '6B', stop: 'Al Qods', status: 'Confirmed' },
+  { id: 'P-13', name: 'Hamza Bouazza', initials: 'HB', seat: '7A', stop: 'Sissane', status: 'Pending' },
+  { id: 'P-14', name: 'Kenza Rhali', initials: 'KR', seat: '7B', stop: 'La Gare', status: 'Confirmed', avatar: 'https://api.dicebear.com/9.x/avataaars/svg?seed=Kenza&backgroundColor=ffd5dc' },
+  { id: 'P-15', name: 'Adil Bourji', initials: 'AB', seat: '8A', stop: 'Dyour Chouhada', status: 'Confirmed' },
+  { id: 'P-16', name: 'Salma Naciri', initials: 'SN', seat: '8B', stop: 'Chtayba', status: 'Cancelled' },
+  { id: 'P-17', name: 'Badr Mansouri', initials: 'BM', seat: '9A', stop: 'Ibn Tofail', status: 'Confirmed' },
+  { id: 'P-18', name: 'Houda Talbi', initials: 'HT', seat: '9B', stop: 'Green Oil Station', status: 'Confirmed', avatar: 'https://api.dicebear.com/9.x/avataaars/svg?seed=Houda&backgroundColor=c0aede' },
 ];
 
 // Driver notifications
@@ -127,12 +133,12 @@ export interface DriverNotification {
 }
 
 export const driverNotifications: DriverNotification[] = [
-  { id: 'DN-01', type: 'new_passenger', title: 'New Reservation', message: 'Ahmed Benali reserved seat 1A for the 07:30 AM trip.', time: '5 min ago', read: false },
+  { id: 'DN-01', type: 'new_passenger', title: 'New Reservation', message: 'Ahmed Benali reserved seat 1A for the 10:00 PM trip.', time: '5 min ago', read: false },
   { id: 'DN-02', type: 'cancellation', title: 'Passenger Cancelled', message: 'Laila Bennani cancelled her reservation for seat 3B.', time: '18 min ago', read: false },
-  { id: 'DN-03', type: 'route_change', title: 'Route Adjustment', message: 'Admin updated Route A — "Main Square" stop moved 200m north.', time: '1 hr ago', read: false },
-  { id: 'DN-04', type: 'schedule_update', title: 'Schedule Change', message: 'Your shift on Feb 21 has been extended to 03:00 PM.', time: '2 hrs ago', read: true },
-  { id: 'DN-05', type: 'maintenance', title: 'Maintenance Alert', message: 'Bus 07 is due for oil change on Feb 25. Contact fleet manager.', time: '3 hrs ago', read: true },
-  { id: 'DN-06', type: 'new_passenger', title: 'New Reservation', message: 'Fatima Zahra reserved seat 2B for the 08:30 AM trip.', time: '5 hrs ago', read: true },
-  { id: 'DN-07', type: 'schedule_update', title: 'Trip Added', message: 'An extra trip at 01:30 PM was added to your schedule today.', time: 'Yesterday', read: true },
-  { id: 'DN-08', type: 'maintenance', title: 'Tire Inspection', message: 'Bus 07 passed tire inspection. Report available in admin portal.', time: 'Yesterday', read: true },
+  { id: 'DN-03', type: 'route_change', title: 'Break Reminder', message: 'Nightly break 2:00 AM — 3:00 AM. Park bus safely.', time: '1 hr ago', read: false },
+  { id: 'DN-04', type: 'schedule_update', title: 'Schedule Confirmed', message: 'Night shuttle schedule Sun–Thu confirmed for this week.', time: '2 hrs ago', read: true },
+  { id: 'DN-05', type: 'maintenance', title: 'Maintenance Alert', message: 'Bus 1 is due for oil change on Feb 25. Contact fleet manager.', time: '3 hrs ago', read: true },
+  { id: 'DN-06', type: 'new_passenger', title: 'New Reservation', message: 'Fatima Zahra reserved seat 2B for the 11:00 PM trip.', time: '5 hrs ago', read: true },
+  { id: 'DN-07', type: 'schedule_update', title: 'Stops Reminder', message: 'No pick-up or drop-off outside official stops.', time: 'Yesterday', read: true },
+  { id: 'DN-08', type: 'maintenance', title: 'Tire Inspection', message: 'Bus 1 passed tire inspection. Report available in admin portal.', time: 'Yesterday', read: true },
 ];

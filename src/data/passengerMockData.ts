@@ -5,11 +5,11 @@ export const passengerProfile = {
   id: 'U-002',
   name: 'Ahmed Benali',
   initials: 'AB',
-  email: 'ahmed.b@university.edu',
+  email: 'abenali@student.1337.ma',
   phone: '+212 6 12 34 56 78',
-  organizationType: 'University' as const,
-  organizationName: 'State University',
-  defaultRoute: 'Route A — Campus Express',
+  organizationType: 'School' as const,
+  organizationName: '1337 School — Ben Guerir',
+  defaultRoute: 'Night Shuttle — Route 1',
   avatar: 'https://api.dicebear.com/9.x/avataaars/svg?seed=Ahmed&backgroundColor=b6e3f4&top=shortHair',
 };
 
@@ -18,17 +18,17 @@ export const passengerStats = {
   totalRides: { value: 47, label: 'Total Rides Taken' },
   upcomingReservations: { value: 3, label: 'Upcoming Reservations' },
   cancelledRides: { value: 2, label: 'Cancelled Rides' },
-  favoriteRoute: { value: 'Route A', label: 'Favorite Route' },
+  favoriteRoute: { value: 'Route 1', label: 'Favorite Route' },
 };
 
 // Next ride
 export const nextRide = {
-  route: 'Route A — Campus Express',
-  departureTime: '07:30 AM',
+  route: 'Night Shuttle — Route 1',
+  departureTime: '10:00 PM',
   seat: '14A',
-  bus: 'Bus 07 — Campus Cruiser',
-  date: 'Tomorrow, Feb 20',
-  stop: 'Main Gate',
+  bus: '1337 Night Shuttle — Bus 1',
+  date: 'Tonight, Feb 20',
+  stop: 'OCP Saka',
 };
 
 // Reservations
@@ -45,16 +45,16 @@ export interface Reservation {
 }
 
 export const passengerReservations: Reservation[] = [
-  { id: 'R-001', route: 'Route A — Campus Express', bus: 'Bus 07', seat: '14A', date: 'Feb 20, 2026', departureTime: '07:30 AM', stop: 'Main Gate', status: 'Confirmed' },
-  { id: 'R-002', route: 'Route B — Downtown Loop', bus: 'Bus 12', seat: '8C', date: 'Feb 21, 2026', departureTime: '08:00 AM', stop: 'City Center', status: 'Pending' },
-  { id: 'R-003', route: 'Route A — Campus Express', bus: 'Bus 07', seat: '6D', date: 'Feb 22, 2026', departureTime: '07:30 AM', stop: 'Library', status: 'Confirmed' },
-  { id: 'R-004', route: 'Route D — Airport Shuttle', bus: 'Bus 19', seat: '3A', date: 'Feb 18, 2026', departureTime: '05:00 AM', stop: 'Terminal 1', status: 'Completed', rating: 5 },
-  { id: 'R-005', route: 'Route A — Campus Express', bus: 'Bus 07', seat: '10B', date: 'Feb 17, 2026', departureTime: '07:30 AM', stop: 'Science Labs', status: 'Completed', rating: 4 },
-  { id: 'R-006', route: 'Route C — Industrial Zone', bus: 'Bus 03', seat: '22B', date: 'Feb 16, 2026', departureTime: '06:00 AM', stop: 'Factory Gate', status: 'Completed' },
-  { id: 'R-007', route: 'Route B — Downtown Loop', bus: 'Bus 12', seat: '11B', date: 'Feb 15, 2026', departureTime: '08:00 AM', stop: 'Business Park', status: 'Cancelled' },
-  { id: 'R-008', route: 'Route A — Campus Express', bus: 'Bus 07', seat: '2A', date: 'Feb 14, 2026', departureTime: '07:30 AM', stop: 'Dormitory Block', status: 'Completed', rating: 5 },
-  { id: 'R-009', route: 'Route E — Medical Campus', bus: 'Bus 05', seat: '17C', date: 'Feb 13, 2026', departureTime: '07:00 AM', stop: 'Hospital Main', status: 'Cancelled' },
-  { id: 'R-010', route: 'Route A — Campus Express', bus: 'Bus 07', seat: '14A', date: 'Feb 12, 2026', departureTime: '07:30 AM', stop: 'Main Gate', status: 'Completed', rating: 4 },
+  { id: 'R-001', route: 'Night Shuttle — Route 1', bus: 'Bus 1', seat: '14A', date: 'Feb 20, 2026', departureTime: '10:00 PM', stop: 'OCP Saka', status: 'Confirmed' },
+  { id: 'R-002', route: 'Night Shuttle — Route 2', bus: 'Bus 2', seat: '8C', date: 'Feb 21, 2026', departureTime: '11:00 PM', stop: 'Coin Bleu', status: 'Pending' },
+  { id: 'R-003', route: 'Night Shuttle — Route 1', bus: 'Bus 1', seat: '6D', date: 'Feb 22, 2026', departureTime: '10:00 PM', stop: 'Nakhil', status: 'Confirmed' },
+  { id: 'R-004', route: 'Night Shuttle — Route 1', bus: 'Bus 1', seat: '3A', date: 'Feb 18, 2026', departureTime: '12:00 AM', stop: 'La Gare', status: 'Completed', rating: 5 },
+  { id: 'R-005', route: 'Night Shuttle — Route 1', bus: 'Bus 1', seat: '10B', date: 'Feb 17, 2026', departureTime: '10:00 PM', stop: 'Kentra', status: 'Completed', rating: 4 },
+  { id: 'R-006', route: 'Night Shuttle — Route 2', bus: 'Bus 2', seat: '22B', date: 'Feb 16, 2026', departureTime: '11:00 PM', stop: 'BMCE', status: 'Completed' },
+  { id: 'R-007', route: 'Night Shuttle — Route 1', bus: 'Bus 1', seat: '11B', date: 'Feb 15, 2026', departureTime: '01:00 AM', stop: 'Posto Gosto', status: 'Cancelled' },
+  { id: 'R-008', route: 'Night Shuttle — Route 1', bus: 'Bus 1', seat: '2A', date: 'Feb 14, 2026', departureTime: '10:00 PM', stop: 'Al Fadl', status: 'Completed', rating: 5 },
+  { id: 'R-009', route: 'Night Shuttle — Route 2', bus: 'Bus 2', seat: '17C', date: 'Feb 13, 2026', departureTime: '10:00 PM', stop: 'Café Al Mouhajir', status: 'Cancelled' },
+  { id: 'R-010', route: 'Night Shuttle — Route 1', bus: 'Bus 1', seat: '14A', date: 'Feb 12, 2026', departureTime: '10:00 PM', stop: 'OCP Saka', status: 'Completed', rating: 4 },
 ];
 
 // Browsable routes for passenger
@@ -71,12 +71,37 @@ export interface AvailableRoute {
 }
 
 export const availableRoutes: AvailableRoute[] = [
-  { id: 'RT-001', name: 'Route A — Campus Express', stops: ['Main Gate', 'Library', 'Science Labs', 'Dormitory Block'], departureTimes: ['07:30 AM', '12:00 PM', '05:30 PM'], availableSeats: 18, totalSeats: 48, status: 'Active', assignedBus: 'Bus 07', organization: 'University' },
-  { id: 'RT-002', name: 'Route B — Downtown Loop', stops: ['City Center', 'Business Park', 'Shopping Mall', 'Railway Station'], departureTimes: ['08:00 AM', '01:00 PM', '06:00 PM'], availableSeats: 12, totalSeats: 36, status: 'Active', assignedBus: 'Bus 12', organization: 'Enterprise' },
-  { id: 'RT-003', name: 'Route C — Industrial Zone', stops: ['Factory Gate', 'Warehouse District', 'Admin Building'], departureTimes: ['06:00 AM', '02:00 PM'], availableSeats: 30, totalSeats: 52, status: 'Active', assignedBus: 'Bus 03', organization: 'Enterprise' },
-  { id: 'RT-004', name: 'Route D — Airport Shuttle', stops: ['Terminal 1', 'Terminal 2', 'Hotel District', 'Convention Center'], departureTimes: ['05:00 AM', '11:00 AM', '05:00 PM', '10:00 PM'], availableSeats: 8, totalSeats: 24, status: 'Active', assignedBus: 'Bus 19', organization: 'Enterprise' },
-  { id: 'RT-005', name: 'Route E — Medical Campus', stops: ['Hospital Main', 'Clinic Block', 'Research Center'], departureTimes: ['07:00 AM', '12:30 PM'], availableSeats: 22, totalSeats: 40, status: 'Inactive', assignedBus: 'Bus 05', organization: 'University' },
-  { id: 'RT-006', name: 'Route F — School Morning', stops: ['Hay Riad', 'Agdal Center', 'National School Gate'], departureTimes: ['07:00 AM'], availableSeats: 15, totalSeats: 44, status: 'Active', assignedBus: 'Bus 09', organization: 'School' },
+  {
+    id: 'RT-001',
+    name: 'Night Shuttle — Route 1',
+    stops: [
+      'OCP Saka', 'OCP 6', 'Nakhil', 'Chaaibat (Lhayat Pharmacy)',
+      'Posto Gosto', 'Mesk Lil', 'Jnane Lkhir', 'Lhamriti (Ben Salem)',
+      'Al Fadl', 'Kentra', 'Jnane Lkhir', 'Pharmacie Ibn Sina',
+      'Al Qods', 'Sissane', 'La Gare', 'Dyour Chouhada',
+      'Chtayba', 'Ibn Tofail', 'Green Oil Station',
+    ],
+    departureTimes: ['10:00 PM', '11:00 PM', '12:00 AM', '01:00 AM', '03:00 AM', '04:00 AM', '05:00 AM'],
+    availableSeats: 32,
+    totalSeats: 50,
+    status: 'Active',
+    assignedBus: '1337 Night Shuttle — Bus 1',
+    organization: 'School',
+  },
+  {
+    id: 'RT-002',
+    name: 'Night Shuttle — Route 2',
+    stops: [
+      'Coin Bleu', 'BMCE', 'Café Al Mouhajir', 'Café Al Akhawayne',
+      'Posto Gosto', 'Chaaibat', 'Café Grind',
+    ],
+    departureTimes: ['10:00 PM', '11:00 PM', '12:00 AM', '01:00 AM', '03:00 AM', '04:00 AM', '05:00 AM'],
+    availableSeats: 38,
+    totalSeats: 50,
+    status: 'Active',
+    assignedBus: '1337 Night Shuttle — Bus 2',
+    organization: 'School',
+  },
 ];
 
 // Seat map for reservation flow
@@ -116,12 +141,12 @@ export interface PassengerNotification {
 }
 
 export const passengerNotifications: PassengerNotification[] = [
-  { id: 'PN-001', type: 'reservation', title: 'Reservation Confirmed', message: 'Your seat 14A on Route A — Campus Express for Feb 20 has been confirmed.', time: '10 min ago', read: false },
-  { id: 'PN-002', type: 'delay', title: 'Bus 12 Delayed', message: 'Bus 12 on Route B is running 15 minutes late due to traffic.', time: '1 hour ago', read: false },
-  { id: 'PN-003', type: 'route_change', title: 'Route A Schedule Updated', message: 'Route A has added a new 5:30 PM departure time starting next week.', time: '3 hours ago', read: false },
-  { id: 'PN-004', type: 'reservation', title: 'Reservation Confirmed', message: 'Your seat 6D on Route A for Feb 22 has been confirmed.', time: '5 hours ago', read: true },
-  { id: 'PN-005', type: 'cancellation', title: 'Ride Cancelled', message: 'Your reservation R-007 on Route B for Feb 15 has been cancelled per your request.', time: 'Yesterday', read: true },
-  { id: 'PN-006', type: 'system', title: 'Welcome to Fleetmark!', message: 'Your account has been set up. Start reserving seats on your favorite routes.', time: '3 days ago', read: true },
-  { id: 'PN-007', type: 'delay', title: 'Bus 03 Maintenance', message: 'Bus 03 on Route C will be unavailable on Feb 25 for scheduled maintenance.', time: '4 days ago', read: true },
-  { id: 'PN-008', type: 'route_change', title: 'New Route Available', message: 'Route F — School Morning is now available for reservations.', time: '1 week ago', read: true },
+  { id: 'PN-001', type: 'reservation', title: 'Reservation Confirmed', message: 'Your seat 14A on Night Shuttle Route 1 for Feb 20 has been confirmed.', time: '10 min ago', read: false },
+  { id: 'PN-002', type: 'delay', title: 'Bus 2 Delayed', message: 'Bus 2 on Route 2 is running 10 minutes late.', time: '1 hour ago', read: false },
+  { id: 'PN-003', type: 'route_change', title: 'Break Reminder', message: 'Nightly break 2:00 AM — 3:00 AM. No service during this period.', time: '3 hours ago', read: false },
+  { id: 'PN-004', type: 'reservation', title: 'Reservation Confirmed', message: 'Your seat 6D on Night Shuttle Route 1 for Feb 22 has been confirmed.', time: '5 hours ago', read: true },
+  { id: 'PN-005', type: 'cancellation', title: 'Ride Cancelled', message: 'Your reservation R-007 on Route 1 for Feb 15 has been cancelled per your request.', time: 'Yesterday', read: true },
+  { id: 'PN-006', type: 'system', title: 'Welcome to Fleetmark!', message: 'Your 1337 account has been set up. Start reserving seats on the night shuttle.', time: '3 days ago', read: true },
+  { id: 'PN-007', type: 'delay', title: 'Bus 1 Inspection', message: 'Bus 1 passed its scheduled inspection. Service unaffected.', time: '4 days ago', read: true },
+  { id: 'PN-008', type: 'route_change', title: 'Stops Updated', message: 'Official shuttle stops are revised once per year at la rentrée.', time: '1 week ago', read: true },
 ];

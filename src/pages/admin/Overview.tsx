@@ -8,12 +8,14 @@ import {
   Plus,
   FileText,
   Send,
+  Moon,
+  Pause,
 } from 'lucide-react';
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, Legend,
 } from 'recharts';
-import { dashboardStats, dailyReservations, capacityData, recentActivities } from '../../data/mockData';
+import { dashboardStats, dailyReservations, capacityData, recentActivities, routes } from '../../data/mockData';
 import { useLoadingState } from '../../hooks/useLoadingState';
 import { SkeletonCard, SkeletonChart, SkeletonTable } from '../../components/ui/Skeleton';
 import ErrorState from '../../components/ui/ErrorState';
@@ -87,6 +89,31 @@ const Overview = () => {
             </div>
           );
         })}
+      </div>
+
+      {/* Operating Info Strip */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="flex items-center gap-3 px-5 py-3.5 rounded-2xl bg-indigo-50 border border-indigo-200">
+          <Moon className="w-5 h-5 text-indigo-500 shrink-0" />
+          <div>
+            <p className="text-xs text-indigo-400">Operating Hours</p>
+            <p className="text-sm font-bold text-indigo-800">10:00 PM → 6:00 AM</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-3 px-5 py-3.5 rounded-2xl bg-amber-50 border border-amber-200">
+          <Pause className="w-5 h-5 text-amber-500 shrink-0" />
+          <div>
+            <p className="text-xs text-amber-400">Break Period</p>
+            <p className="text-sm font-bold text-amber-800">2:00 AM → 3:00 AM</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-3 px-5 py-3.5 rounded-2xl bg-emerald-50 border border-emerald-200">
+          <MapPinned className="w-5 h-5 text-emerald-500 shrink-0" />
+          <div>
+            <p className="text-xs text-emerald-400">Total Stops</p>
+            <p className="text-sm font-bold text-emerald-800">{routes.reduce((sum, r) => sum + r.stops.length, 0)} across {routes.length} routes</p>
+          </div>
+        </div>
       </div>
 
       {/* Charts Row */}

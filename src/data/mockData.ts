@@ -2,8 +2,8 @@
 
 // Stats
 export const dashboardStats = {
-  totalBuses: { value: 42, change: +8.2, label: 'Total Buses' },
-  activeRoutes: { value: 25, change: +12.5, label: 'Active Routes' },
+  totalBuses: { value: 2, change: 0, label: 'Total Buses' },
+  activeRoutes: { value: 2, change: 0, label: 'Active Routes' },
   totalUsers: { value: 1_284, change: +5.3, label: 'Total Users' },
   todayReservations: { value: 387, change: -2.1, label: "Today's Reservations" },
 };
@@ -37,14 +37,14 @@ export interface Activity {
 }
 
 export const recentActivities: Activity[] = [
-  { id: 'A001', user: 'Ahmed Benali', route: 'Route A — Campus Express', bus: 'Bus 07', seat: '14A', status: 'Confirmed', time: '2 min ago' },
-  { id: 'A002', user: 'Sara Oufkir', route: 'Route B — Downtown Loop', bus: 'Bus 12', seat: '8C', status: 'Pending', time: '5 min ago' },
-  { id: 'A003', user: 'Youssef El Amrani', route: 'Route C — Industrial Zone', bus: 'Bus 03', seat: '22B', status: 'Confirmed', time: '8 min ago' },
-  { id: 'A004', user: 'Fatima Zahra', route: 'Route A — Campus Express', bus: 'Bus 07', seat: '6D', status: 'Cancelled', time: '12 min ago' },
-  { id: 'A005', user: 'Omar Tazi', route: 'Route D — Airport Shuttle', bus: 'Bus 19', seat: '3A', status: 'Confirmed', time: '18 min ago' },
-  { id: 'A006', user: 'Leila Mansouri', route: 'Route B — Downtown Loop', bus: 'Bus 12', seat: '11B', status: 'Pending', time: '25 min ago' },
-  { id: 'A007', user: 'Karim Idrissi', route: 'Route E — Medical Campus', bus: 'Bus 05', seat: '17C', status: 'Confirmed', time: '30 min ago' },
-  { id: 'A008', user: 'Nadia Chraibi', route: 'Route C — Industrial Zone', bus: 'Bus 03', seat: '9A', status: 'Cancelled', time: '45 min ago' },
+  { id: 'A001', user: 'Ahmed Benali', route: 'Night Shuttle — Route 1', bus: 'Bus 1', seat: '14A', status: 'Confirmed', time: '2 min ago' },
+  { id: 'A002', user: 'Sara Oufkir', route: 'Night Shuttle — Route 2', bus: 'Bus 2', seat: '8C', status: 'Pending', time: '5 min ago' },
+  { id: 'A003', user: 'Youssef El Amrani', route: 'Night Shuttle — Route 1', bus: 'Bus 1', seat: '22B', status: 'Confirmed', time: '8 min ago' },
+  { id: 'A004', user: 'Fatima Zahra', route: 'Night Shuttle — Route 1', bus: 'Bus 1', seat: '6D', status: 'Cancelled', time: '12 min ago' },
+  { id: 'A005', user: 'Omar Tazi', route: 'Night Shuttle — Route 2', bus: 'Bus 2', seat: '3A', status: 'Confirmed', time: '18 min ago' },
+  { id: 'A006', user: 'Leila Mansouri', route: 'Night Shuttle — Route 1', bus: 'Bus 1', seat: '11B', status: 'Pending', time: '25 min ago' },
+  { id: 'A007', user: 'Karim Idrissi', route: 'Night Shuttle — Route 2', bus: 'Bus 2', seat: '17C', status: 'Confirmed', time: '30 min ago' },
+  { id: 'A008', user: 'Nadia Chraibi', route: 'Night Shuttle — Route 1', bus: 'Bus 1', seat: '9A', status: 'Cancelled', time: '45 min ago' },
 ];
 
 // Buses
@@ -59,14 +59,8 @@ export interface Bus {
 }
 
 export const buses: Bus[] = [
-  { id: 'BUS-001', name: 'Campus Cruiser', plateNumber: 'A-1234-BC', capacity: 48, assignedRoute: 'Route A', driver: 'Hassan Moukhtari', status: 'Active' },
-  { id: 'BUS-002', name: 'City Runner', plateNumber: 'B-5678-DE', capacity: 36, assignedRoute: 'Route B', driver: 'Khalid Bennani', status: 'Active' },
-  { id: 'BUS-003', name: 'Express Line', plateNumber: 'C-9012-FG', capacity: 52, assignedRoute: 'Route C', driver: 'Rachid Alami', status: 'Maintenance' },
-  { id: 'BUS-004', name: 'Shuttle Pro', plateNumber: 'D-3456-HI', capacity: 24, assignedRoute: 'Route D', driver: 'Mustapha Ziani', status: 'Active' },
-  { id: 'BUS-005', name: 'MedExpress', plateNumber: 'E-7890-JK', capacity: 40, assignedRoute: 'Route E', driver: 'Driss Fassi', status: 'Active' },
-  { id: 'BUS-006', name: 'Night Liner', plateNumber: 'F-2345-LM', capacity: 32, assignedRoute: 'Unassigned', driver: 'Unassigned', status: 'Inactive' },
-  { id: 'BUS-007', name: 'Green Transit', plateNumber: 'G-6789-NO', capacity: 44, assignedRoute: 'Route A', driver: 'Yassine Hajji', status: 'Active' },
-  { id: 'BUS-008', name: 'Metro Link', plateNumber: 'H-0123-PQ', capacity: 50, assignedRoute: 'Route F', driver: 'Amine Bouazza', status: 'Maintenance' },
+  { id: 'BUS-001', name: '1337 Night Shuttle — Bus 1', plateNumber: 'X-0001-NS', capacity: 50, assignedRoute: 'Night Shuttle — Route 1', driver: 'Karim El Amrani', status: 'Active' },
+  { id: 'BUS-002', name: '1337 Night Shuttle — Bus 2', plateNumber: 'X-0002-NS', capacity: 50, assignedRoute: 'Night Shuttle — Route 2', driver: 'Hassan Moukhtari', status: 'Active' },
 ];
 
 // Routes
@@ -87,52 +81,42 @@ export interface Route {
 
 export const routes: Route[] = [
   {
-    id: 'RT-001', name: 'Route A — Campus Express',
+    id: 'RT-001', name: 'Night Shuttle — Route 1',
     stops: [
-      { name: 'Main Gate', arrivalTime: '07:30' },
-      { name: 'Library', arrivalTime: '07:40' },
-      { name: 'Science Labs', arrivalTime: '07:50' },
-      { name: 'Dormitory Block', arrivalTime: '08:00' },
+      { name: 'OCP Saka', arrivalTime: '22:00' },
+      { name: 'OCP 6', arrivalTime: '22:04' },
+      { name: 'Nakhil', arrivalTime: '22:08' },
+      { name: 'Chaaibat (Lhayat Pharmacy)', arrivalTime: '22:12' },
+      { name: 'Posto Gosto', arrivalTime: '22:16' },
+      { name: 'Mesk Lil', arrivalTime: '22:20' },
+      { name: 'Jnane Lkhir', arrivalTime: '22:24' },
+      { name: 'Lhamriti (Ben Salem)', arrivalTime: '22:28' },
+      { name: 'Al Fadl', arrivalTime: '22:32' },
+      { name: 'Kentra', arrivalTime: '22:36' },
+      { name: 'Jnane Lkhir', arrivalTime: '22:40' },
+      { name: 'Pharmacie Ibn Sina', arrivalTime: '22:44' },
+      { name: 'Al Qods', arrivalTime: '22:48' },
+      { name: 'Sissane', arrivalTime: '22:52' },
+      { name: 'La Gare', arrivalTime: '22:56' },
+      { name: 'Dyour Chouhada', arrivalTime: '23:00' },
+      { name: 'Chtayba', arrivalTime: '23:04' },
+      { name: 'Ibn Tofail', arrivalTime: '23:08' },
+      { name: 'Green Oil Station', arrivalTime: '23:12' },
     ],
-    assignedBus: 'Bus 07', startTime: '07:30', endTime: '08:00', status: 'Active',
+    assignedBus: '1337 Night Shuttle — Bus 1', startTime: '22:00', endTime: '06:00', status: 'Active',
   },
   {
-    id: 'RT-002', name: 'Route B — Downtown Loop',
+    id: 'RT-002', name: 'Night Shuttle — Route 2',
     stops: [
-      { name: 'City Center', arrivalTime: '08:00' },
-      { name: 'Business Park', arrivalTime: '08:15' },
-      { name: 'Shopping Mall', arrivalTime: '08:30' },
-      { name: 'Railway Station', arrivalTime: '08:45' },
+      { name: 'Coin Bleu', arrivalTime: '22:00' },
+      { name: 'BMCE', arrivalTime: '22:06' },
+      { name: 'Café Al Mouhajir', arrivalTime: '22:12' },
+      { name: 'Café Al Akhawayne', arrivalTime: '22:18' },
+      { name: 'Posto Gosto', arrivalTime: '22:24' },
+      { name: 'Chaaibat', arrivalTime: '22:30' },
+      { name: 'Café Grind', arrivalTime: '22:36' },
     ],
-    assignedBus: 'Bus 12', startTime: '08:00', endTime: '08:45', status: 'Active',
-  },
-  {
-    id: 'RT-003', name: 'Route C — Industrial Zone',
-    stops: [
-      { name: 'Factory Gate', arrivalTime: '06:00' },
-      { name: 'Warehouse District', arrivalTime: '06:15' },
-      { name: 'Admin Building', arrivalTime: '06:30' },
-    ],
-    assignedBus: 'Bus 03', startTime: '06:00', endTime: '06:30', status: 'Active',
-  },
-  {
-    id: 'RT-004', name: 'Route D — Airport Shuttle',
-    stops: [
-      { name: 'Terminal 1', arrivalTime: '05:00' },
-      { name: 'Terminal 2', arrivalTime: '05:10' },
-      { name: 'Hotel District', arrivalTime: '05:30' },
-      { name: 'Convention Center', arrivalTime: '05:45' },
-    ],
-    assignedBus: 'Bus 19', startTime: '05:00', endTime: '05:45', status: 'Active',
-  },
-  {
-    id: 'RT-005', name: 'Route E — Medical Campus',
-    stops: [
-      { name: 'Hospital Main', arrivalTime: '07:00' },
-      { name: 'Clinic Block', arrivalTime: '07:10' },
-      { name: 'Research Center', arrivalTime: '07:25' },
-    ],
-    assignedBus: 'Bus 05', startTime: '07:00', endTime: '07:25', status: 'Inactive',
+    assignedBus: '1337 Night Shuttle — Bus 2', startTime: '22:00', endTime: '06:00', status: 'Active',
   },
 ];
 
@@ -175,67 +159,27 @@ export interface DaySchedule {
   slots: ScheduleSlot[];
 }
 
+// Active days: Sunday → Thursday (1337 school schedule)
+const nightSlots = [
+  { id: 'S1', route: 'Route 1', bus: 'Bus 1', time: '10:00 PM - 6:00 AM', color: 'bg-primary-500' },
+  { id: 'S2', route: 'Route 2', bus: 'Bus 2', time: '10:00 PM - 6:00 AM', color: 'bg-accent-500' },
+];
+const emptySlots: ScheduleSlot[] = [];
+
 export const weeklySchedule: DaySchedule[] = [
-  {
-    day: 'Monday', date: 'Feb 16',
-    slots: [
-      { id: 'S1', route: 'Route A', bus: 'Bus 07', time: '07:30 - 08:00', color: 'bg-primary-500' },
-      { id: 'S2', route: 'Route B', bus: 'Bus 12', time: '08:00 - 08:45', color: 'bg-accent-500' },
-      { id: 'S3', route: 'Route C', bus: 'Bus 03', time: '06:00 - 06:30', color: 'bg-emerald-500' },
-      { id: 'S4', route: 'Route D', bus: 'Bus 19', time: '05:00 - 05:45', color: 'bg-amber-500' },
-    ],
-  },
-  {
-    day: 'Tuesday', date: 'Feb 17',
-    slots: [
-      { id: 'S5', route: 'Route A', bus: 'Bus 07', time: '07:30 - 08:00', color: 'bg-primary-500' },
-      { id: 'S6', route: 'Route B', bus: 'Bus 12', time: '08:00 - 08:45', color: 'bg-accent-500' },
-      { id: 'S7', route: 'Route E', bus: 'Bus 05', time: '07:00 - 07:25', color: 'bg-rose-500' },
-    ],
-  },
-  {
-    day: 'Wednesday', date: 'Feb 18',
-    slots: [
-      { id: 'S8', route: 'Route A', bus: 'Bus 07', time: '07:30 - 08:00', color: 'bg-primary-500' },
-      { id: 'S9', route: 'Route C', bus: 'Bus 03', time: '06:00 - 06:30', color: 'bg-emerald-500' },
-      { id: 'S10', route: 'Route D', bus: 'Bus 19', time: '05:00 - 05:45', color: 'bg-amber-500' },
-    ],
-  },
-  {
-    day: 'Thursday', date: 'Feb 19',
-    slots: [
-      { id: 'S11', route: 'Route A', bus: 'Bus 07', time: '07:30 - 08:00', color: 'bg-primary-500' },
-      { id: 'S12', route: 'Route B', bus: 'Bus 12', time: '08:00 - 08:45', color: 'bg-accent-500' },
-      { id: 'S13', route: 'Route E', bus: 'Bus 05', time: '07:00 - 07:25', color: 'bg-rose-500' },
-      { id: 'S14', route: 'Route C', bus: 'Bus 03', time: '06:00 - 06:30', color: 'bg-emerald-500' },
-    ],
-  },
-  {
-    day: 'Friday', date: 'Feb 20',
-    slots: [
-      { id: 'S15', route: 'Route A', bus: 'Bus 07', time: '07:30 - 08:00', color: 'bg-primary-500' },
-      { id: 'S16', route: 'Route D', bus: 'Bus 19', time: '05:00 - 05:45', color: 'bg-amber-500' },
-    ],
-  },
-  {
-    day: 'Saturday', date: 'Feb 21',
-    slots: [
-      { id: 'S17', route: 'Route B', bus: 'Bus 12', time: '09:00 - 09:45', color: 'bg-accent-500' },
-    ],
-  },
-  {
-    day: 'Sunday', date: 'Feb 22',
-    slots: [],
-  },
+  { day: 'Sunday', date: 'Feb 15', slots: nightSlots },
+  { day: 'Monday', date: 'Feb 16', slots: nightSlots },
+  { day: 'Tuesday', date: 'Feb 17', slots: nightSlots },
+  { day: 'Wednesday', date: 'Feb 18', slots: nightSlots },
+  { day: 'Thursday', date: 'Feb 19', slots: nightSlots },
+  { day: 'Friday', date: 'Feb 20', slots: emptySlots },
+  { day: 'Saturday', date: 'Feb 21', slots: emptySlots },
 ];
 
 // Reports
 export const ridesPerRoute = [
-  { route: 'Route A', rides: 1245 },
-  { route: 'Route B', rides: 987 },
-  { route: 'Route C', rides: 756 },
-  { route: 'Route D', rides: 643 },
-  { route: 'Route E', rides: 421 },
+  { route: 'Route 1', rides: 2_340 },
+  { route: 'Route 2', rides: 1_712 },
 ];
 
 export const weeklyRidership = [
@@ -250,8 +194,8 @@ export const weeklyRidership = [
 export const reportStats = {
   totalRides: 4_052,
   averageOccupancy: 78,
-  mostUsedRoute: 'Route A — Campus Express',
-  peakHours: '7:30 AM - 8:30 AM',
+  mostUsedRoute: 'Night Shuttle — Route 1',
+  peakHours: '10:00 PM - 12:00 AM',
 };
 
 // Notifications
@@ -266,12 +210,12 @@ export interface Notification {
 }
 
 export const notifications: Notification[] = [
-  { id: 'N-001', icon: 'success', title: 'Route A Updated', message: 'Route A schedule has been updated for next week.', time: '5 min ago', status: 'Unread', type: 'received' },
-  { id: 'N-002', icon: 'warning', title: 'Bus 03 Maintenance', message: 'Bus 03 is scheduled for maintenance on Feb 20.', time: '1 hour ago', status: 'Unread', type: 'received' },
-  { id: 'N-003', icon: 'info', title: 'New User Registered', message: 'Leila Mansouri registered as a Passenger.', time: '2 hours ago', status: 'Read', type: 'received' },
-  { id: 'N-004', icon: 'alert', title: 'Overcapacity Alert', message: 'Route B bus is at 110% capacity for tomorrow.', time: '3 hours ago', status: 'Unread', type: 'received' },
-  { id: 'N-005', icon: 'info', title: 'Schedule Published', message: 'You published the weekly schedule for Feb 16-22.', time: '5 hours ago', status: 'Read', type: 'sent' },
+  { id: 'N-001', icon: 'success', title: 'Route 1 Updated', message: 'Night Shuttle Route 1 schedule has been confirmed for this week.', time: '5 min ago', status: 'Unread', type: 'received' },
+  { id: 'N-002', icon: 'warning', title: 'Bus 1 Maintenance', message: 'Bus 1 is scheduled for inspection on Feb 25.', time: '1 hour ago', status: 'Unread', type: 'received' },
+  { id: 'N-003', icon: 'info', title: 'New Student Registered', message: 'Leila Mansouri registered as a Passenger.', time: '2 hours ago', status: 'Read', type: 'received' },
+  { id: 'N-004', icon: 'alert', title: 'Overcapacity Alert', message: 'Route 1 bus approaching full capacity for tonight.', time: '3 hours ago', status: 'Unread', type: 'received' },
+  { id: 'N-005', icon: 'info', title: 'Schedule Published', message: 'You published the night shuttle schedule for this week.', time: '5 hours ago', status: 'Read', type: 'sent' },
   { id: 'N-006', icon: 'success', title: 'Report Generated', message: 'Monthly ridership report has been generated.', time: 'Yesterday', status: 'Read', type: 'received' },
-  { id: 'N-007', icon: 'warning', title: 'Driver Unavailable', message: 'Driver Rachid Alami reported sick leave for Feb 19.', time: 'Yesterday', status: 'Read', type: 'received' },
+  { id: 'N-007', icon: 'warning', title: 'Break Reminder', message: 'Nightly break 2:00 AM — 3:00 AM applies to both routes.', time: 'Yesterday', status: 'Read', type: 'received' },
   { id: 'N-008', icon: 'info', title: 'System Update', message: 'Fleetmark v2.1 deployed with new features.', time: '2 days ago', status: 'Read', type: 'sent' },
 ];
