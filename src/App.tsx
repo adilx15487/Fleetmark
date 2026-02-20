@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
 import { ToastProvider } from './context/ToastContext'
+import { ScheduleProvider } from './context/ScheduleContext'
 import ProtectedRoute from './components/ProtectedRoute'
 import useDocumentTitle from './hooks/useDocumentTitle'
 
@@ -73,6 +74,7 @@ function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
+        <ScheduleProvider>
         <ToastProvider>
         <Suspense fallback={<PageLoader />}>
         <Routes>
@@ -121,6 +123,7 @@ function App() {
         </Routes>
         </Suspense>
         </ToastProvider>
+        </ScheduleProvider>
       </AuthProvider>
     </BrowserRouter>
   )

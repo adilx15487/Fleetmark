@@ -1,20 +1,22 @@
 import { useState, useMemo } from 'react';
-import { Search, MapPin, Clock, Users, ArrowRight, Check, CalendarDays, Ticket, ChevronLeft, Bus as BusIcon } from 'lucide-react';
+import { Search, MapPin, Clock, Users, ArrowRight, Check, CalendarDays, Ticket, ChevronLeft, Bus as BusIcon, AlertTriangle, Pause, Play } from 'lucide-react';
 import { availableRoutes, generateSeatMap, type Seat } from '../../data/passengerMockData';
 import { useToast } from '../../context/ToastContext';
+import { useSchedule, to12Hour, type GeneratedSlot } from '../../context/ScheduleContext';
 
 type Step = 1 | 2 | 3;
 
-const stepLabels = ['Choose Route', 'Choose Seat', 'Confirm'];
+const stepLabels = ['Choose Route', 'Choose Seat & Time', 'Confirm'];
 
 const ReserveASeat = () => {
   const { toast } = useToast();
+  const { config, generatedSlots, serviceStatus } = useSchedule();
   const [step, setStep] = useState<Step>(1);
   const [search, setSearch] = useState('');
   const [selectedRouteId, setSelectedRouteId] = useState<string | null>(null);
   const [seats] = useState<Seat[]>(() => generateSeatMap());
   const [selectedSeat, setSelectedSeat] = useState<string | null>(null);
-  const [selectedTime, setSelectedTime] = useState('');
+  const [selectedSlot, setSelectedSlot] = useState<GeneratedSlot | null>(null);
   const [selectedDate, setSelectedDate] = useState('');
   const [confirmed, setConfirmed] = useState(false);
   const [stepError, setStepError] = useState('');
@@ -30,8 +32,9 @@ const ReserveASeat = () => {
 
   const handleSelectRoute = (id: string) => {
     setSelectedRouteId(id);
-    const route = availableRoutes.find((r) => r.id === id);
-    if (route) setSelectedTime(route.departureTimes[0]);
+    // Auto-select first active slot
+    const firstActive = generatedSlots.find((s) => s.status === 'active');
+    setSelectedSlot(firstActive || null);
     setStep(2);
   };
 
@@ -44,8 +47,12 @@ const ReserveASeat = () => {
   };
 
   const handleContinueToConfirm = () => {
-    if (!selectedSeat && !selectedDate) {
-      setStepError('Please select a seat and a date to continue.');
+    if (!selectedSeat && !selectedDate && !selectedSlot) {
+      setStepError('Please select a seat, time slot, and date to continue.');
+      return;
+    }
+    if (!selectedSlot) {
+      setStepError('Please select a departure time slot.');
       return;
     }
     if (!selectedSeat) {
@@ -69,13 +76,65 @@ const ReserveASeat = () => {
     setStep(1);
     setSelectedRouteId(null);
     setSelectedSeat(null);
-    setSelectedTime('');
+    setSelectedSlot(null);
     setSelectedDate('');
     setConfirmed(false);
   };
 
+  const isServiceRunning = serviceStatus.state === 'running';
+
   return (
     <div className="space-y-6">
+      {/* Operating Hours Banner */}
+      <div className={`rounded-2xl px-5 py-4 border ${
+        serviceStatus.state === 'running'
+          ? 'bg-emerald-50 border-emerald-200'
+          : serviceStatus.state === 'break'
+          ? 'bg-amber-50 border-amber-200'
+          : 'bg-red-50 border-red-200'
+      }`}>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+          <div className="flex items-center gap-3">
+            <Clock className={`w-5 h-5 shrink-0 ${
+              serviceStatus.state === 'running' ? 'text-emerald-600' : serviceStatus.state === 'break' ? 'text-amber-600' : 'text-red-500'
+            }`} />
+            <div>
+              <p className="text-sm font-semibold text-slate-700">
+                Operating hours: {to12Hour(config.operatingHours.startTime)} — {to12Hour(config.operatingHours.endTime)}
+                {config.operatingHours.overnight && <span className="text-slate-400 ml-1">(overnight)</span>}
+              </p>
+              {serviceStatus.state === 'running' && (
+                <p className="text-xs text-emerald-600">
+                  Buses are running — Next departure at {serviceStatus.nextDeparture}
+                </p>
+              )}
+              {serviceStatus.state === 'break' && (
+                <p className="text-xs text-amber-600">
+                  Break time — Buses resume at {serviceStatus.resumesAt}
+                </p>
+              )}
+              {serviceStatus.state === 'ended' && (
+                <p className="text-xs text-red-600">
+                  Service ended — Resumes at {serviceStatus.resumesAt}
+                </p>
+              )}
+            </div>
+          </div>
+          <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${
+            serviceStatus.state === 'running'
+              ? 'bg-emerald-100 text-emerald-700'
+              : serviceStatus.state === 'break'
+              ? 'bg-amber-100 text-amber-700'
+              : 'bg-red-100 text-red-700'
+          }`}>
+            <span className={`w-2 h-2 rounded-full ${
+              serviceStatus.state === 'running' ? 'bg-emerald-500 animate-pulse' : serviceStatus.state === 'break' ? 'bg-amber-500' : 'bg-red-500'
+            }`} />
+            {serviceStatus.state === 'running' ? 'Running' : serviceStatus.state === 'break' ? 'Break' : 'Offline'}
+          </span>
+        </div>
+      </div>
+
       {/* Stepper */}
       <div className="bg-white rounded-2xl border border-slate-200 p-5">
         <div className="flex items-center justify-between max-w-lg mx-auto">
@@ -136,7 +195,6 @@ const ReserveASeat = () => {
                   <ArrowRight className="w-4 h-4 text-slate-300 group-hover:text-primary-500 transition-colors shrink-0 mt-0.5" />
                 </div>
 
-                {/* Stops preview */}
                 <div className="flex items-center gap-1 text-xs text-slate-400 mb-3 flex-wrap">
                   {route.stops.map((stop, i) => (
                     <span key={stop} className="flex items-center gap-1">
@@ -150,10 +208,7 @@ const ReserveASeat = () => {
                 <div className="flex items-center justify-between text-xs">
                   <div className="flex items-center gap-1 text-slate-400">
                     <Clock className="w-3 h-3" />
-                    <span>{route.departureTimes[0]}</span>
-                    {route.departureTimes.length > 1 && (
-                      <span className="text-slate-300">+{route.departureTimes.length - 1} more</span>
-                    )}
+                    <span>Every {config.frequencyMinutes} min</span>
                   </div>
                   <div className="flex items-center gap-1">
                     <Users className="w-3 h-3 text-emerald-500" />
@@ -173,104 +228,155 @@ const ReserveASeat = () => {
         </div>
       )}
 
-      {/* Step 2 — Choose Seat */}
+      {/* Step 2 — Choose Seat & Time Slot */}
       {step === 2 && selectedRoute && (
         <div className="grid lg:grid-cols-3 gap-6">
           {/* Seat map */}
-          <div className="lg:col-span-2 bg-white rounded-2xl border border-slate-200 p-5">
-            <div className="flex items-center justify-between mb-4">
-              <button
-                onClick={() => setStep(1)}
-                className="flex items-center gap-1.5 text-sm font-medium text-slate-500 hover:text-primary-600 transition-colors"
-              >
-                <ChevronLeft className="w-4 h-4" />
-                Back
-              </button>
-              <h3 className="text-sm font-bold text-primary-900">{selectedRoute.name}</h3>
-            </div>
-
-            {/* Legend */}
-            <div className="flex items-center gap-4 mb-5 text-xs">
-              <div className="flex items-center gap-1.5">
-                <span className="w-5 h-5 rounded-md bg-emerald-100 border border-emerald-300" />
-                <span className="text-slate-500">Available</span>
+          <div className="lg:col-span-2 space-y-4">
+            {/* Time slot selection */}
+            <div className="bg-white rounded-2xl border border-slate-200 p-5">
+              <div className="flex items-center justify-between mb-4">
+                <button
+                  onClick={() => setStep(1)}
+                  className="flex items-center gap-1.5 text-sm font-medium text-slate-500 hover:text-primary-600 transition-colors"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                  Back
+                </button>
+                <h3 className="text-sm font-bold text-primary-900">{selectedRoute.name}</h3>
               </div>
-              <div className="flex items-center gap-1.5">
-                <span className="w-5 h-5 rounded-md bg-red-100 border border-red-300" />
-                <span className="text-slate-500">Reserved</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <span className="w-5 h-5 rounded-md bg-primary-500 border border-primary-600" />
-                <span className="text-slate-500">Your Pick</span>
-              </div>
-            </div>
 
-            {/* Bus front label */}
-            <div className="flex justify-center mb-3">
-              <div className="px-4 py-1.5 rounded-t-xl bg-slate-100 border border-b-0 border-slate-200 text-xs font-semibold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-                <BusIcon className="w-3.5 h-3.5" /> Front
-              </div>
-            </div>
+              <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Select Departure Time</h4>
 
-            {/* Seat grid */}
-            <div className="border border-slate-200 rounded-2xl p-4 max-w-xs mx-auto">
-              <div className="grid grid-cols-[1fr_auto_1fr] gap-y-2">
-                {Array.from({ length: 12 }, (_, row) => {
-                  const rowNum = row + 1;
-                  const rowSeats = seats.filter((s) => s.row === rowNum);
-                  const left = rowSeats.filter((s) => s.col === 'A' || s.col === 'B');
-                  const right = rowSeats.filter((s) => s.col === 'C' || s.col === 'D');
-
-                  const renderSeat = (seat: Seat) => {
-                    const isSelected = selectedSeat === seat.id;
-                    const isReserved = seat.status === 'reserved';
-                    return (
-                      <button
-                        key={seat.id}
-                        disabled={isReserved}
-                        onClick={() => handleSelectSeat(seat.id)}
-                        className={`w-10 h-10 rounded-lg text-xs font-bold transition-all ${
-                          isSelected
-                            ? 'bg-primary-500 text-white border-2 border-primary-600 shadow-md shadow-primary-500/30 scale-105'
-                            : isReserved
-                            ? 'bg-red-100 text-red-400 border border-red-200 cursor-not-allowed'
-                            : 'bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 hover:border-emerald-400 hover:scale-105'
-                        }`}
-                      >
-                        {seat.id}
-                      </button>
-                    );
-                  };
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 max-h-48 overflow-y-auto">
+                {generatedSlots.map((slot, i) => {
+                  const isSelected = selectedSlot?.time === slot.time;
+                  const isStopped = slot.status === 'stopped';
+                  const isFull = slot.status === 'active' && slot.availableSeats === 0;
+                  const isDisabled = isStopped || isFull;
 
                   return (
-                    <div key={rowNum} className="contents">
-                      <div className="flex gap-1.5 justify-end">{left.map(renderSeat)}</div>
-                      <div className="w-6" />
-                      <div className="flex gap-1.5">{right.map(renderSeat)}</div>
-                    </div>
+                    <button
+                      key={i}
+                      type="button"
+                      disabled={isDisabled}
+                      onClick={() => { setSelectedSlot(slot); setStepError(''); }}
+                      className={`relative flex flex-col items-center gap-1 px-3 py-3 rounded-xl border text-sm transition-all ${
+                        isSelected
+                          ? 'bg-primary-50 border-primary-400 ring-2 ring-primary-500/20 shadow-md'
+                          : isStopped
+                          ? 'bg-slate-50 border-slate-200 text-slate-400 cursor-not-allowed opacity-60'
+                          : isFull
+                          ? 'bg-red-50 border-red-200 text-red-400 cursor-not-allowed'
+                          : 'bg-white border-slate-200 hover:border-primary-300 hover:shadow-sm cursor-pointer'
+                      }`}
+                    >
+                      {isStopped ? (
+                        <Pause className="w-4 h-4 text-slate-300" />
+                      ) : isFull ? (
+                        <AlertTriangle className="w-4 h-4 text-red-400" />
+                      ) : (
+                        <Play className="w-4 h-4 text-emerald-500" />
+                      )}
+                      <span className={`font-bold text-xs ${isSelected ? 'text-primary-900' : isStopped ? 'text-slate-400' : 'text-slate-700'}`}>
+                        {slot.label}
+                      </span>
+                      {isStopped ? (
+                        <span className="text-[10px] text-slate-300">Break</span>
+                      ) : (
+                        <span className={`text-[10px] ${isFull ? 'text-red-400' : 'text-emerald-500'}`}>
+                          {isFull ? 'Full' : `${slot.availableSeats} seats`}
+                        </span>
+                      )}
+                    </button>
                   );
                 })}
+              </div>
+            </div>
+
+            {/* Seat map */}
+            <div className="bg-white rounded-2xl border border-slate-200 p-5">
+              {/* Legend */}
+              <div className="flex items-center gap-4 mb-5 text-xs">
+                <div className="flex items-center gap-1.5">
+                  <span className="w-5 h-5 rounded-md bg-emerald-100 border border-emerald-300" />
+                  <span className="text-slate-500">Available</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <span className="w-5 h-5 rounded-md bg-red-100 border border-red-300" />
+                  <span className="text-slate-500">Reserved</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <span className="w-5 h-5 rounded-md bg-primary-500 border border-primary-600" />
+                  <span className="text-slate-500">Your Pick</span>
+                </div>
+              </div>
+
+              {/* Bus front label */}
+              <div className="flex justify-center mb-3">
+                <div className="px-4 py-1.5 rounded-t-xl bg-slate-100 border border-b-0 border-slate-200 text-xs font-semibold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                  <BusIcon className="w-3.5 h-3.5" /> Front
+                </div>
+              </div>
+
+              {/* Seat grid */}
+              <div className="border border-slate-200 rounded-2xl p-4 max-w-xs mx-auto">
+                <div className="grid grid-cols-[1fr_auto_1fr] gap-y-2">
+                  {Array.from({ length: 12 }, (_, row) => {
+                    const rowNum = row + 1;
+                    const rowSeats = seats.filter((s) => s.row === rowNum);
+                    const left = rowSeats.filter((s) => s.col === 'A' || s.col === 'B');
+                    const right = rowSeats.filter((s) => s.col === 'C' || s.col === 'D');
+
+                    const renderSeat = (seat: Seat) => {
+                      const isSelected = selectedSeat === seat.id;
+                      const isReserved = seat.status === 'reserved';
+                      return (
+                        <button
+                          key={seat.id}
+                          disabled={isReserved}
+                          onClick={() => handleSelectSeat(seat.id)}
+                          className={`w-10 h-10 rounded-lg text-xs font-bold transition-all ${
+                            isSelected
+                              ? 'bg-primary-500 text-white border-2 border-primary-600 shadow-md shadow-primary-500/30 scale-105'
+                              : isReserved
+                              ? 'bg-red-100 text-red-400 border border-red-200 cursor-not-allowed'
+                              : 'bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 hover:border-emerald-400 hover:scale-105'
+                          }`}
+                        >
+                          {seat.id}
+                        </button>
+                      );
+                    };
+
+                    return (
+                      <div key={rowNum} className="contents">
+                        <div className="flex gap-1.5 justify-end">{left.map(renderSeat)}</div>
+                        <div className="w-6" />
+                        <div className="flex gap-1.5">{right.map(renderSeat)}</div>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             </div>
           </div>
 
           {/* Side panel */}
           <div className="space-y-4">
-            {/* Date & time */}
+            {/* Trip details */}
             <div className="bg-white rounded-2xl border border-slate-200 p-5 space-y-4">
               <h4 className="text-sm font-bold text-primary-900">Trip Details</h4>
 
               <div>
                 <label className="block text-xs font-medium text-slate-500 mb-1.5">Departure Time</label>
-                <select
-                  value={selectedTime}
-                  onChange={(e) => setSelectedTime(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none cursor-pointer"
-                >
-                  {selectedRoute.departureTimes.map((t) => (
-                    <option key={t} value={t}>{t}</option>
-                  ))}
-                </select>
+                <div className={`px-4 py-2.5 rounded-xl border text-sm font-medium ${
+                  selectedSlot
+                    ? 'border-primary-300 bg-primary-50 text-primary-800'
+                    : 'border-slate-200 bg-slate-50 text-slate-400'
+                }`}>
+                  {selectedSlot ? selectedSlot.label : 'Select a time slot above'}
+                </div>
               </div>
 
               <div>
@@ -303,7 +409,7 @@ const ReserveASeat = () => {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-400">Time</span>
-                    <span className="font-medium text-primary-900">{selectedTime}</span>
+                    <span className="font-medium text-primary-900">{selectedSlot?.label || '—'}</span>
                   </div>
                 </div>
               ) : (
@@ -344,7 +450,7 @@ const ReserveASeat = () => {
                 { label: 'Bus', value: selectedRoute.assignedBus, icon: BusIcon },
                 { label: 'Seat', value: selectedSeat!, icon: Ticket },
                 { label: 'Date', value: selectedDate, icon: CalendarDays },
-                { label: 'Departure', value: selectedTime, icon: Clock },
+                { label: 'Departure', value: selectedSlot?.label || '—', icon: Clock },
               ].map((item) => (
                 <div key={item.label} className="flex items-center gap-3 p-3 rounded-xl bg-slate-50">
                   <item.icon className="w-4 h-4 text-primary-500 shrink-0" />

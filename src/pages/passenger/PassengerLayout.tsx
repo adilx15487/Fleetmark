@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import PassengerSidebar from '../../components/passenger/PassengerSidebar';
 import PassengerTopbar from '../../components/passenger/PassengerTopbar';
+import ScheduleStatusBanner from '../../components/passenger/ScheduleStatusBanner';
 import useDocumentTitle from '../../hooks/useDocumentTitle';
 
 const pageTitles: Record<string, string> = {
@@ -38,6 +39,7 @@ const PassengerLayout = () => {
       >
         <PassengerTopbar title={title} onMenuClick={() => setMobileOpen(true)} />
         <main className="p-4 sm:p-6" key={location.pathname}>
+          <ScheduleStatusBanner />
           <div className="animate-page-in">
             <Outlet />
           </div>

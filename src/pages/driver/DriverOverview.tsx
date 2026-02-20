@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import {
   MapPinned,
@@ -10,14 +10,16 @@ import {
   CheckCircle2,
   Loader2,
   ArrowRight,
+  Pause,
+  Timer,
 } from 'lucide-react';
 import {
   driverStats,
   currentShift,
-  todaysTrips,
   driverNotifications,
 } from '../../data/driverMockData';
 import { useAuth } from '../../context/AuthContext';
+import { useSchedule, to12Hour } from '../../context/ScheduleContext';
 import { useLoadingState } from '../../hooks/useLoadingState';
 import { SkeletonCard, SkeletonList } from '../../components/ui/Skeleton';
 import ErrorState from '../../components/ui/ErrorState';
@@ -39,9 +41,51 @@ const greeting = () => {
 
 const DriverOverview = () => {
   const { user } = useAuth();
+  const { generatedSlots, serviceStatus, config } = useSchedule();
   const { isLoading, isError, retry } = useLoadingState();
   const [onDuty, setOnDuty] = useState(currentShift.status === 'on-duty');
+  const [, setTick] = useState(0);
   const recentNotifs = driverNotifications.slice(0, 3);
+
+  // Refresh countdown every 30s
+  useEffect(() => {
+    const interval = setInterval(() => setTick((t) => t + 1), 30_000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Derive trip statuses from current time
+  const scheduleTrips = useMemo(() => {
+    const now = new Date();
+    const nowMins = now.getHours() * 60 + now.getMinutes();
+
+    return generatedSlots.map((slot) => {
+      const [h, m] = slot.time.split(':').map(Number);
+      const slotMins = h * 60 + m;
+
+      let displayStatus: 'Completed' | 'In Progress' | 'Upcoming' | 'Break';
+      if (slot.status === 'stopped') {
+        displayStatus = 'Break';
+      } else if (config.operatingHours.overnight) {
+        // For overnight schedules, handle the wrap-around
+        const afterMidnight = nowMins < 12 * 60;
+        const slotAfterMidnight = slotMins < 12 * 60;
+        if (afterMidnight && slotAfterMidnight) {
+          displayStatus = slotMins < nowMins ? 'Completed' : slotMins <= nowMins + 30 ? 'In Progress' : 'Upcoming';
+        } else if (!afterMidnight && !slotAfterMidnight) {
+          displayStatus = slotMins < nowMins ? 'Completed' : slotMins <= nowMins + 30 ? 'In Progress' : 'Upcoming';
+        } else {
+          displayStatus = afterMidnight ? 'Completed' : 'Upcoming';
+        }
+      } else {
+        displayStatus = slotMins < nowMins - 30 ? 'Completed' : slotMins <= nowMins + 30 ? 'In Progress' : 'Upcoming';
+      }
+
+      return { slot, displayStatus };
+    });
+  }, [generatedSlots, config.operatingHours.overnight]);
+
+  const activeTrips = scheduleTrips.filter((t) => t.displayStatus !== 'Break').length;
+  const breakTrips = scheduleTrips.filter((t) => t.displayStatus === 'Break').length;
 
   const stats = [
     {
@@ -57,10 +101,20 @@ const DriverOverview = () => {
       bg: 'bg-sky-50',
     },
     {
-      ...driverStats.nextDeparture,
-      icon: Clock,
-      color: 'text-emerald-500',
-      bg: 'bg-emerald-50',
+      label: 'Next Departure',
+      value: serviceStatus.state === 'running'
+        ? serviceStatus.nextDeparture
+        : serviceStatus.state === 'break'
+        ? 'On Break'
+        : 'Offline',
+      subtext: serviceStatus.state === 'running'
+        ? 'Upcoming'
+        : serviceStatus.state === 'break'
+        ? `Resumes ${serviceStatus.resumesAt}`
+        : `Resumes ${serviceStatus.resumesAt}`,
+      icon: serviceStatus.state === 'break' ? Timer : Clock,
+      color: serviceStatus.state === 'running' ? 'text-emerald-500' : serviceStatus.state === 'break' ? 'text-amber-500' : 'text-slate-400',
+      bg: serviceStatus.state === 'running' ? 'bg-emerald-50' : serviceStatus.state === 'break' ? 'bg-amber-50' : 'bg-slate-50',
     },
     {
       ...driverStats.busInfo,
@@ -171,26 +225,44 @@ const DriverOverview = () => {
         <div className="lg:col-span-3 bg-white rounded-2xl border border-slate-200 overflow-hidden">
           <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
             <h3 className="text-sm font-bold text-primary-900">Today's Schedule</h3>
-            <span className="text-xs text-slate-400">{todaysTrips.length} trips</span>
+            <div className="flex items-center gap-3 text-xs text-slate-400">
+              <span>{activeTrips} trips</span>
+              {breakTrips > 0 && (
+                <span className="text-amber-500">{breakTrips} break{breakTrips > 1 ? 's' : ''}</span>
+              )}
+              <span className="text-slate-300">
+                {to12Hour(config.operatingHours.startTime)} — {to12Hour(config.operatingHours.endTime)}
+              </span>
+            </div>
           </div>
-          <div className="divide-y divide-slate-100">
-            {todaysTrips.map((trip) => {
-              const style = tripStatusStyle[trip.status];
+          <div className="divide-y divide-slate-100 max-h-[460px] overflow-y-auto">
+            {scheduleTrips.map(({ slot, displayStatus }, i) => {
+              const isBreak = displayStatus === 'Break';
+              const style = isBreak
+                ? { text: 'text-amber-600', bg: 'bg-amber-50', border: 'border-amber-200', icon: Pause }
+                : tripStatusStyle[displayStatus];
               const StatusIcon = style.icon;
+
               return (
                 <div
-                  key={trip.id}
-                  className={`flex items-center gap-4 px-5 py-4 transition-colors ${
-                    trip.status === 'In Progress' ? 'bg-emerald-50/40' : 'hover:bg-slate-50/50'
+                  key={i}
+                  className={`flex items-center gap-4 px-5 py-3.5 transition-colors ${
+                    isBreak
+                      ? 'bg-amber-50/30'
+                      : displayStatus === 'In Progress'
+                      ? 'bg-emerald-50/40'
+                      : 'hover:bg-slate-50/50'
                   }`}
                 >
                   {/* Timeline dot */}
                   <div className="flex flex-col items-center shrink-0">
                     <div
                       className={`w-3 h-3 rounded-full border-2 ${
-                        trip.status === 'Completed'
+                        isBreak
+                          ? 'bg-amber-300 border-amber-400'
+                          : displayStatus === 'Completed'
                           ? 'bg-slate-300 border-slate-300'
-                          : trip.status === 'In Progress'
+                          : displayStatus === 'In Progress'
                           ? 'bg-emerald-500 border-emerald-500 animate-pulse'
                           : 'bg-white border-sky-400'
                       }`}
@@ -198,28 +270,39 @@ const DriverOverview = () => {
                   </div>
 
                   {/* Time */}
-                  <div className="w-20 shrink-0">
-                    <p className={`text-sm font-bold ${trip.status === 'Completed' ? 'text-slate-400' : 'text-primary-900'}`}>
-                      {trip.departureTime}
+                  <div className="w-24 shrink-0">
+                    <p className={`text-sm font-bold ${
+                      isBreak ? 'text-amber-600' : displayStatus === 'Completed' ? 'text-slate-400' : 'text-primary-900'
+                    }`}>
+                      {slot.label}
                     </p>
                   </div>
 
                   {/* Details */}
                   <div className="flex-1 min-w-0">
-                    <p className={`text-sm font-medium ${trip.status === 'Completed' ? 'text-slate-400' : 'text-primary-800'}`}>
-                      {trip.route}
-                    </p>
-                    <p className="text-xs text-slate-400">
-                      {trip.stops} stops · {trip.passengers} passengers
-                    </p>
+                    {isBreak ? (
+                      <div>
+                        <p className="text-sm font-medium text-amber-600">Break Period</p>
+                        <p className="text-xs text-amber-400">{slot.reason || 'Scheduled break'}</p>
+                      </div>
+                    ) : (
+                      <div>
+                        <p className={`text-sm font-medium ${displayStatus === 'Completed' ? 'text-slate-400' : 'text-primary-800'}`}>
+                          {currentShift.routeName}
+                        </p>
+                        <p className="text-xs text-slate-400">
+                          {slot.availableSeats}/{slot.totalSeats} seats available
+                        </p>
+                      </div>
+                    )}
                   </div>
 
                   {/* Status badge */}
                   <span
                     className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold border ${style.bg} ${style.text} ${style.border} shrink-0`}
                   >
-                    <StatusIcon className={`w-3 h-3 ${trip.status === 'In Progress' ? 'animate-spin' : ''}`} />
-                    <span className="hidden sm:inline">{trip.status}</span>
+                    <StatusIcon className={`w-3 h-3 ${displayStatus === 'In Progress' ? 'animate-spin' : ''}`} />
+                    <span className="hidden sm:inline">{displayStatus}</span>
                   </span>
                 </div>
               );
