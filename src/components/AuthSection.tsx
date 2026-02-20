@@ -1,7 +1,7 @@
 import { useState, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, useInView } from 'framer-motion';
-import { Mail, Lock, User, ChevronDown, Eye, EyeOff, LogIn, UserPlus, Loader2 } from 'lucide-react';
+import { Mail, Lock, User, ChevronDown, Eye, EyeOff, LogIn, UserPlus, Loader2, ExternalLink } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 
@@ -27,7 +27,7 @@ const AuthSection = () => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-80px' });
   const navigate = useNavigate();
-  const { login, isLoading, error, clearError, getDashboardPath } = useAuth();
+  const { login, loginWith42, isLoading, error, clearError, getDashboardPath } = useAuth();
   const { toast } = useToast();
 
   const [activeTab, setActiveTab] = useState<AuthTab>('login');
@@ -39,6 +39,7 @@ const AuthSection = () => {
   const [signupErrors, setSignupErrors] = useState<FormErrors>({});
   const [loginTouched, setLoginTouched] = useState<Record<string, boolean>>({});
   const [signupTouched, setSignupTouched] = useState<Record<string, boolean>>({});
+  const [is42Loading, setIs42Loading] = useState(false);
 
   // --- Validation helpers ---
   const validateLoginField = useCallback((field: string, value: string): string => {
@@ -135,6 +136,19 @@ const AuthSection = () => {
     toast('Account created successfully! 🎉');
     console.log('Signup submitted:', signupForm);
     // Will connect to backend API later
+  };
+
+  const handle42Login = async () => {
+    setIs42Loading(true);
+    clearError();
+    const outcome = await loginWith42();
+    setIs42Loading(false);
+    if (outcome.result === 'role-select') {
+      navigate('/auth/role-select');
+    } else if (outcome.result === 'dashboard') {
+      toast('Welcome back! 👋');
+      navigate(outcome.path);
+    }
   };
 
   const currentRole = activeTab === 'login' ? loginForm.role : signupForm.role;
@@ -252,6 +266,34 @@ const AuthSection = () => {
               </div>
 
               <div className="p-6 sm:p-8">
+                {/* 42 Intra OAuth Button */}
+                <button
+                  type="button"
+                  onClick={handle42Login}
+                  disabled={is42Loading || isLoading}
+                  className="w-full flex items-center justify-center gap-3 py-3.5 rounded-xl bg-gray-900 text-white font-semibold text-sm hover:bg-black transition-all duration-200 shadow-lg shadow-gray-900/25 active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed mb-6"
+                >
+                  {is42Loading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Connecting to 42…
+                    </>
+                  ) : (
+                    <>
+                      <span className="text-lg font-black tracking-tight">42</span>
+                      Continue with 42 Intra
+                      <ExternalLink className="w-3.5 h-3.5 opacity-50" />
+                    </>
+                  )}
+                </button>
+
+                {/* Divider */}
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="flex-1 h-px bg-slate-200" />
+                  <span className="text-xs text-slate-400 font-medium whitespace-nowrap">or login with email</span>
+                  <div className="flex-1 h-px bg-slate-200" />
+                </div>
+
                 {activeTab === 'login' ? (
                   <form onSubmit={handleLoginSubmit} className="space-y-5">
                     <div>

@@ -42,6 +42,8 @@ const DriverNotifications = lazy(() => import('./pages/driver/DriverNotification
 const DriverProfile = lazy(() => import('./pages/driver/DriverProfile'))
 
 const NotFound = lazy(() => import('./pages/NotFound'))
+const AuthCallback = lazy(() => import('./pages/AuthCallback'))
+const RoleSelection = lazy(() => import('./pages/RoleSelection'))
 
 /* ── Suspense fallback ── */
 const PageLoader = () => (
@@ -76,6 +78,10 @@ function App() {
         <Routes>
           {/* Public landing */}
           <Route path="/" element={<LandingPage />} />
+
+          {/* 42 OAuth callback & role selection */}
+          <Route path="/auth/callback" element={<AuthCallback />} />
+          <Route path="/auth/role-select" element={<RoleSelection />} />
 
           {/* Admin dashboard — protected */}
           <Route path="/admin" element={<ProtectedRoute allowedRole="admin"><AdminLayout /></ProtectedRoute>}>

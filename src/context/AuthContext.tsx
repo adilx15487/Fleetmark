@@ -2,6 +2,7 @@ import { createContext, useContext, useState, useCallback, type ReactNode } from
 
 // ── Types ──
 export type UserRole = 'admin' | 'passenger' | 'driver';
+export type AuthProvider42 = 'email' | '42';
 
 export interface AuthUser {
   name: string;
@@ -9,6 +10,9 @@ export interface AuthUser {
   role: UserRole;
   avatar: string;
   initials: string;
+  login42?: string;
+  campus?: string;
+  authProvider: AuthProvider42;
 }
 
 interface AuthContextType {
@@ -16,7 +20,10 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
+  needsRoleSelection: boolean;
   login: (email: string, password: string, role: UserRole) => Promise<boolean>;
+  loginWith42: () => Promise<{ result: 'role-select' } | { result: 'dashboard'; path: string } | { result: 'error' }>;
+  setUserRole: (role: UserRole) => void;
   logout: () => void;
   clearError: () => void;
   getDashboardPath: (role: UserRole) => string;
@@ -32,6 +39,7 @@ const MOCK_USERS: Record<string, { password: string; user: AuthUser }> = {
       role: 'admin',
       avatar: 'https://api.dicebear.com/9.x/avataaars/svg?seed=Adil&backgroundColor=b6e3f4&top=shortHair',
       initials: 'AB',
+      authProvider: 'email',
     },
   },
   'passenger@fleetmark.com': {
@@ -42,6 +50,7 @@ const MOCK_USERS: Record<string, { password: string; user: AuthUser }> = {
       role: 'passenger',
       avatar: 'https://api.dicebear.com/9.x/avataaars/svg?seed=Ahmed&backgroundColor=b6e3f4&top=shortHair',
       initials: 'AB',
+      authProvider: 'email',
     },
   },
   'driver@fleetmark.com': {
@@ -52,8 +61,20 @@ const MOCK_USERS: Record<string, { password: string; user: AuthUser }> = {
       role: 'driver',
       avatar: 'https://api.dicebear.com/9.x/avataaars/svg?seed=Karim&backgroundColor=c0aede&top=shortHair',
       initials: 'KA',
+      authProvider: 'email',
     },
   },
+};
+
+// ── Mock 42 user (simulates data from 42 API) ──
+const MOCK_42_USER: Omit<AuthUser, 'role'> & { role?: UserRole } = {
+  name: 'Adil Bourji',
+  email: 'abourji@student.1337.ma',
+  avatar: 'https://cdn.intra.42.fr/users/abourji.jpg',
+  initials: 'AB',
+  login42: 'abourji',
+  campus: '1337',
+  authProvider: '42',
 };
 
 // ── Helper ──
@@ -75,6 +96,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [needsRoleSelection, setNeedsRoleSelection] = useState(false);
 
   const login = useCallback(async (email: string, password: string, role: UserRole): Promise<boolean> => {
     setIsLoading(true);
@@ -96,10 +118,52 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return false;
   }, []);
 
+  const loginWith42 = useCallback(async (): Promise<{ result: 'role-select' } | { result: 'dashboard'; path: string } | { result: 'error' }> => {
+    setIsLoading(true);
+    setError(null);
+
+    // Mock: simulate 42 OAuth API delay (would normally redirect to 42 then callback)
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+
+    // Check if user already has a role stored from a previous 42 login
+    const storedUser = localStorage.getItem('fleetmark_42_user');
+    if (storedUser) {
+      const parsed = JSON.parse(storedUser) as AuthUser;
+      setUser(parsed);
+      localStorage.setItem('fleetmark_user', storedUser);
+      setIsLoading(false);
+      setNeedsRoleSelection(false);
+      return { result: 'dashboard', path: getDashboardPath(parsed.role) };
+    }
+
+    // First-time 42 user → no role yet, needs role selection
+    const partialUser: AuthUser = {
+      ...MOCK_42_USER,
+      role: 'passenger', // temporary default — will be overwritten by role selection
+    } as AuthUser;
+    setUser(partialUser);
+    setNeedsRoleSelection(true);
+    setIsLoading(false);
+    return { result: 'role-select' };
+  }, []);
+
+  const setUserRole = useCallback((role: UserRole) => {
+    setUser((prev) => {
+      if (!prev) return prev;
+      const updated = { ...prev, role };
+      localStorage.setItem('fleetmark_user', JSON.stringify(updated));
+      localStorage.setItem('fleetmark_42_user', JSON.stringify(updated));
+      return updated;
+    });
+    setNeedsRoleSelection(false);
+  }, []);
+
   const logout = useCallback(() => {
     setUser(null);
     setError(null);
+    setNeedsRoleSelection(false);
     localStorage.removeItem('fleetmark_user');
+    localStorage.removeItem('fleetmark_42_user');
   }, []);
 
   const clearError = useCallback(() => setError(null), []);
@@ -111,7 +175,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         isAuthenticated: !!user,
         isLoading,
         error,
+        needsRoleSelection,
         login,
+        loginWith42,
+        setUserRole,
         logout,
         clearError,
         getDashboardPath,

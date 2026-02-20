@@ -70,15 +70,29 @@ const Sidebar = ({ collapsed, onToggle, mobileOpen, onMobileClose }: SidebarProp
       {/* Profile section at bottom */}
       <div className="border-t border-primary-700/30 px-3 py-4 shrink-0">
         <div className={`flex items-center gap-3 ${collapsed ? 'justify-center' : ''}`}>
-          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-accent-400 to-primary-500 flex items-center justify-center text-white text-sm font-bold shrink-0">
-            {user?.initials || 'AB'}
-          </div>
+          {user?.authProvider === '42' && user?.avatar ? (
+            <img src={user.avatar} alt={user.name} className="w-9 h-9 rounded-full bg-slate-600 shrink-0 object-cover" />
+          ) : (
+            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-accent-400 to-primary-500 flex items-center justify-center text-white text-sm font-bold shrink-0">
+              {user?.initials || 'AB'}
+            </div>
+          )}
           {!collapsed && (
             <div className="min-w-0">
               <p className="text-sm font-semibold text-white truncate">{user?.name || 'Admin'}</p>
-              <span className="inline-block px-2 py-0.5 rounded text-[10px] font-semibold bg-accent-400/20 text-accent-400 uppercase tracking-wider">
-                Admin
-              </span>
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <span className="inline-block px-2 py-0.5 rounded text-[10px] font-semibold bg-accent-400/20 text-accent-400 uppercase tracking-wider">
+                  Admin
+                </span>
+                {user?.authProvider === '42' && user?.campus && (
+                  <span className="inline-block px-2 py-0.5 rounded text-[10px] font-semibold bg-white/10 text-white/70 uppercase tracking-wider">
+                    {user.campus}
+                  </span>
+                )}
+              </div>
+              {user?.authProvider === '42' && user?.login42 && (
+                <p className="text-[10px] text-primary-300 truncate mt-0.5">@{user.login42}</p>
+              )}
             </div>
           )}
         </div>
