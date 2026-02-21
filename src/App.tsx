@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
 import { ToastProvider } from './context/ToastContext'
 import { ScheduleProvider } from './context/ScheduleContext'
+import { ReservationProvider } from './context/ReservationContext'
 import ProtectedRoute from './components/ProtectedRoute'
 import useDocumentTitle from './hooks/useDocumentTitle'
 
@@ -75,6 +76,7 @@ function App() {
     <BrowserRouter>
       <AuthProvider>
         <ScheduleProvider>
+        <ReservationProvider>
         <ToastProvider>
         <Suspense fallback={<PageLoader />}>
         <Routes>
@@ -123,6 +125,7 @@ function App() {
         </Routes>
         </Suspense>
         </ToastProvider>
+        </ReservationProvider>
         </ScheduleProvider>
       </AuthProvider>
     </BrowserRouter>

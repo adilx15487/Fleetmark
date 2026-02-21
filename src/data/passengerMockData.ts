@@ -141,12 +141,14 @@ export interface PassengerNotification {
 }
 
 export const passengerNotifications: PassengerNotification[] = [
-  { id: 'PN-001', type: 'reservation', title: 'Reservation Confirmed', message: 'Your seat 14A on Night Shuttle Route 1 for Feb 20 has been confirmed.', time: '10 min ago', read: false },
-  { id: 'PN-002', type: 'delay', title: 'Bus 2 Delayed', message: 'Bus 2 on Route 2 is running 10 minutes late.', time: '1 hour ago', read: false },
-  { id: 'PN-003', type: 'route_change', title: 'Break Reminder', message: 'Nightly break 2:00 AM — 3:00 AM. No service during this period.', time: '3 hours ago', read: false },
-  { id: 'PN-004', type: 'reservation', title: 'Reservation Confirmed', message: 'Your seat 6D on Night Shuttle Route 1 for Feb 22 has been confirmed.', time: '5 hours ago', read: true },
-  { id: 'PN-005', type: 'cancellation', title: 'Ride Cancelled', message: 'Your reservation R-007 on Route 1 for Feb 15 has been cancelled per your request.', time: 'Yesterday', read: true },
-  { id: 'PN-006', type: 'system', title: 'Welcome to Fleetmark!', message: 'Your 1337 account has been set up. Start reserving seats on the night shuttle.', time: '3 days ago', read: true },
-  { id: 'PN-007', type: 'delay', title: 'Bus 1 Inspection', message: 'Bus 1 passed its scheduled inspection. Service unaffected.', time: '4 days ago', read: true },
-  { id: 'PN-008', type: 'route_change', title: 'Stops Updated', message: 'Official shuttle stops are revised once per year at la rentrée.', time: '1 week ago', read: true },
+  { id: 'PN-001', type: 'reservation', title: '🚌 Reminder: Bus departs in 1 hour', message: 'Your bus departs at 10:00 PM tonight. Don\'t forget!', time: '5 min ago', read: false },
+  { id: 'PN-002', type: 'reservation', title: '⏰ Bus departs in 30 minutes!', message: 'Your bus departs at 10:00 PM. Head to school now.', time: '35 min ago', read: false },
+  { id: 'PN-003', type: 'system', title: '🟢 11:00 PM slot now open', message: 'The 11:00 PM departure is now open for reservation!', time: '1 hour ago', read: false },
+  { id: 'PN-004', type: 'route_change', title: 'Break Reminder', message: 'Nightly break 2:00 AM — 3:00 AM. No service during this period.', time: '3 hours ago', read: true },
+  { id: 'PN-005', type: 'system', title: '🌙 Night shuttle is now active', message: 'You can reserve up to 3 trips tonight. Service runs 10 PM — 6 AM.', time: '5 hours ago', read: true },
+  { id: 'PN-006', type: 'cancellation', title: 'Reservation Cancelled', message: 'Your 1:00 AM reservation for Feb 20 has been cancelled per your request.', time: 'Yesterday', read: true },
+  { id: 'PN-007', type: 'reservation', title: '🚫 Reservation limit reached', message: 'You\'ve used all 3 reservations for tonight. Resets tomorrow at 10 PM.', time: 'Yesterday', read: true },
+  { id: 'PN-008', type: 'system', title: 'Welcome to Fleetmark!', message: 'Your 1337 account has been set up. Start reserving trips on the night shuttle.', time: '3 days ago', read: true },
+  { id: 'PN-009', type: 'delay', title: 'Bus 1 Inspection', message: 'Bus 1 passed its scheduled inspection. Service unaffected.', time: '4 days ago', read: true },
+  { id: 'PN-010', type: 'route_change', title: 'Stops Updated', message: 'Official shuttle stops are revised once per year at la rentrée.', time: '1 week ago', read: true },
 ];
