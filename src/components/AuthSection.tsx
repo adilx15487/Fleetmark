@@ -1,7 +1,7 @@
 import { useState, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, useInView } from 'framer-motion';
-import { Mail, Lock, User, ChevronDown, Eye, EyeOff, LogIn, UserPlus, Loader2, ExternalLink } from 'lucide-react';
+import { AtSign, Lock, User, ChevronDown, Eye, EyeOff, LogIn, UserPlus, Loader2, ExternalLink } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 
@@ -17,7 +17,7 @@ const fadeInUp = {
 type AuthTab = 'login' | 'signup';
 type Role = 'admin' | 'passenger' | 'driver';
 
-const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const usernameRegex = /^[a-zA-Z0-9_.-]{3,}$/;
 
 interface FormErrors {
   [key: string]: string;
@@ -32,7 +32,7 @@ const AuthSection = () => {
 
   const [activeTab, setActiveTab] = useState<AuthTab>('login');
   const [showPassword, setShowPassword] = useState(false);
-  const [loginForm, setLoginForm] = useState({ email: '', password: '', role: 'passenger' as Role });
+  const [loginForm, setLoginForm] = useState({ username: '', password: '', role: 'passenger' as Role });
   const [signupForm, setSignupForm] = useState({ fullName: '', email: '', password: '', confirmPassword: '', role: 'passenger' as Role });
   const [roleDropdownOpen, setRoleDropdownOpen] = useState(false);
   const [loginErrors, setLoginErrors] = useState<FormErrors>({});
@@ -44,9 +44,9 @@ const AuthSection = () => {
   // --- Validation helpers ---
   const validateLoginField = useCallback((field: string, value: string): string => {
     switch (field) {
-      case 'email':
-        if (!value.trim()) return 'Email is required';
-        if (!emailRegex.test(value)) return 'Enter a valid email address';
+      case 'username':
+        if (!value.trim()) return 'Username is required';
+        if (!usernameRegex.test(value)) return 'Enter a valid username (min 3 chars)';
         return '';
       case 'password':
         if (!value) return 'Password is required';
@@ -66,7 +66,7 @@ const AuthSection = () => {
         return '';
       case 'email':
         if (!value.trim()) return 'Email is required';
-        if (!emailRegex.test(value)) return 'Enter a valid email address';
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) return 'Enter a valid email address';
         return '';
       case 'password':
         if (!value) return 'Password is required';
@@ -95,11 +95,11 @@ const AuthSection = () => {
 
   const validateLoginForm = (): boolean => {
     const errors: FormErrors = {};
-    errors.email = validateLoginField('email', loginForm.email);
+    errors.username = validateLoginField('username', loginForm.username);
     errors.password = validateLoginField('password', loginForm.password);
     setLoginErrors(errors);
-    setLoginTouched({ email: true, password: true });
-    return !errors.email && !errors.password;
+    setLoginTouched({ username: true, password: true });
+    return !errors.username && !errors.password;
   };
 
   const validateSignupForm = (): boolean => {
@@ -123,7 +123,7 @@ const AuthSection = () => {
     e.preventDefault();
     if (!validateLoginForm()) return;
     clearError();
-    const success = await login(loginForm.email, loginForm.password, loginForm.role);
+    const success = await login(loginForm.username, loginForm.password, loginForm.role);
     if (success) {
       toast('Welcome back! 👋');
       navigate(getDashboardPath(loginForm.role));
@@ -290,34 +290,35 @@ const AuthSection = () => {
                 {/* Divider */}
                 <div className="flex items-center gap-4 mb-6">
                   <div className="flex-1 h-px bg-slate-200" />
-                  <span className="text-xs text-slate-400 font-medium whitespace-nowrap">or login with email</span>
+                  <span className="text-xs text-slate-400 font-medium whitespace-nowrap">or login with credentials</span>
                   <div className="flex-1 h-px bg-slate-200" />
                 </div>
 
                 {activeTab === 'login' ? (
                   <form onSubmit={handleLoginSubmit} className="space-y-5">
                     <div>
-                      <label className="block text-sm font-medium text-slate-700 mb-2">Email Address</label>
+                      <label className="block text-sm font-medium text-slate-700 mb-2">Username</label>
                       <div className="relative">
-                        <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300" />
+                        <AtSign className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300" />
                         <input
-                          type="email"
-                          value={loginForm.email}
+                          type="text"
+                          value={loginForm.username}
                           onChange={(e) => {
-                            setLoginForm({ ...loginForm, email: e.target.value });
-                            if (loginTouched.email) setLoginErrors((p) => ({ ...p, email: validateLoginField('email', e.target.value) }));
+                            setLoginForm({ ...loginForm, username: e.target.value });
+                            if (loginTouched.username) setLoginErrors((p) => ({ ...p, username: validateLoginField('username', e.target.value) }));
                           }}
-                          onBlur={() => handleLoginBlur('email')}
-                          placeholder="you@example.com"
+                          onBlur={() => handleLoginBlur('username')}
+                          placeholder="your_username"
+                          autoComplete="username"
                           className={`w-full pl-12 pr-4 py-3.5 rounded-xl border text-sm focus:ring-2 outline-none transition-all placeholder:text-slate-300 ${
-                            loginTouched.email && loginErrors.email
+                            loginTouched.username && loginErrors.username
                               ? 'border-red-300 focus:ring-red-500/20 focus:border-red-500'
                               : 'border-slate-200 focus:ring-primary-500/20 focus:border-primary-500'
                           }`}
                         />
                       </div>
-                      {loginTouched.email && loginErrors.email && (
-                        <p className="mt-1.5 text-xs text-red-500 font-medium">{loginErrors.email}</p>
+                      {loginTouched.username && loginErrors.username && (
+                        <p className="mt-1.5 text-xs text-red-500 font-medium">{loginErrors.username}</p>
                       )}
                     </div>
 
@@ -449,7 +450,7 @@ const AuthSection = () => {
                     <div>
                       <label className="block text-sm font-medium text-slate-700 mb-2">Email Address</label>
                       <div className="relative">
-                        <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300" />
+                        <AtSign className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300" />
                         <input
                           type="email"
                           value={signupForm.email}

@@ -1,11 +1,17 @@
-import { createContext, useContext, useState, useCallback, type ReactNode } from 'react';
+import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from 'react';
+import { USE_MOCK, STORAGE_KEYS } from '../config/api.config';
+import * as authService from '../services/auth.service';
+import { parseApiError } from '../lib/errorMapper';
+import type { User } from '../types/api';
 
 // ── Types ──
 export type UserRole = 'admin' | 'passenger' | 'driver';
 export type AuthProvider42 = 'email' | '42';
 
 export interface AuthUser {
+  id?: number;
   name: string;
+  username?: string;
   email: string;
   role: UserRole;
   avatar: string;
@@ -19,9 +25,10 @@ interface AuthContextType {
   user: AuthUser | null;
   isAuthenticated: boolean;
   isLoading: boolean;
+  isRestoring: boolean;
   error: string | null;
   needsRoleSelection: boolean;
-  login: (email: string, password: string, role: UserRole) => Promise<boolean>;
+  login: (username: string, password: string, role: UserRole) => Promise<boolean>;
   loginWith42: () => Promise<{ result: 'role-select' } | { result: 'dashboard'; path: string } | { result: 'error' }>;
   setUserRole: (role: UserRole) => void;
   logout: () => void;
@@ -29,12 +36,14 @@ interface AuthContextType {
   getDashboardPath: (role: UserRole) => string;
 }
 
-// ── Mock credentials ──
+// ── Mock credentials (used when VITE_USE_MOCK=true) ──
 const MOCK_USERS: Record<string, { password: string; user: AuthUser }> = {
-  'admin@fleetmark.com': {
+  'admin': {
     password: 'admin123',
     user: {
+      id: 1,
       name: 'Adil Bourji',
+      username: 'admin',
       email: 'admin@fleetmark.com',
       role: 'admin',
       avatar: 'https://api.dicebear.com/9.x/avataaars/svg?seed=Adil&backgroundColor=b6e3f4&top=shortHair',
@@ -42,10 +51,12 @@ const MOCK_USERS: Record<string, { password: string; user: AuthUser }> = {
       authProvider: 'email',
     },
   },
-  'passenger@fleetmark.com': {
+  'passenger': {
     password: 'pass123',
     user: {
+      id: 2,
       name: 'Ahmed Benali',
+      username: 'passenger',
       email: 'passenger@fleetmark.com',
       role: 'passenger',
       avatar: 'https://api.dicebear.com/9.x/avataaars/svg?seed=Ahmed&backgroundColor=b6e3f4&top=shortHair',
@@ -53,10 +64,12 @@ const MOCK_USERS: Record<string, { password: string; user: AuthUser }> = {
       authProvider: 'email',
     },
   },
-  'driver@fleetmark.com': {
+  'driver': {
     password: 'driver123',
     user: {
+      id: 3,
       name: 'Karim El Amrani',
+      username: 'driver',
       email: 'driver@fleetmark.com',
       role: 'driver',
       avatar: 'https://api.dicebear.com/9.x/avataaars/svg?seed=Karim&backgroundColor=c0aede&top=shortHair',
@@ -77,7 +90,7 @@ const MOCK_42_USER: Omit<AuthUser, 'role'> & { role?: UserRole } = {
   authProvider: '42',
 };
 
-// ── Helper ──
+// ── Helpers ──
 export const getDashboardPath = (role: UserRole): string => {
   switch (role) {
     case 'admin': return '/admin/overview';
@@ -86,60 +99,115 @@ export const getDashboardPath = (role: UserRole): string => {
   }
 };
 
+function apiUserToAuthUser(u: User): AuthUser {
+  const initials = u.username.slice(0, 2).toUpperCase();
+  return {
+    id: u.id,
+    name: u.username,
+    username: u.username,
+    email: u.email,
+    role: u.role as UserRole,
+    avatar: `https://api.dicebear.com/9.x/avataaars/svg?seed=${u.username}&backgroundColor=b6e3f4&top=shortHair`,
+    initials,
+    authProvider: 'email',
+  };
+}
+
 // ── Context ──
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<AuthUser | null>(() => {
-    const stored = localStorage.getItem('fleetmark_user');
-    return stored ? JSON.parse(stored) : null;
-  });
+  const [user, setUser] = useState<AuthUser | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isRestoring, setIsRestoring] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [needsRoleSelection, setNeedsRoleSelection] = useState(false);
 
-  const login = useCallback(async (email: string, password: string, role: UserRole): Promise<boolean> => {
+  // ── Session restore on mount ──
+  useEffect(() => {
+    (async () => {
+      try {
+        if (USE_MOCK) {
+          const stored = localStorage.getItem(STORAGE_KEYS.USER);
+          if (stored) setUser(JSON.parse(stored));
+        } else {
+          const apiUser = await authService.restoreSession();
+          if (apiUser) setUser(apiUserToAuthUser(apiUser));
+        }
+      } catch {
+        // Silent fail — user stays logged out
+      } finally {
+        setIsRestoring(false);
+      }
+    })();
+  }, []);
+
+  // ── Login (username + password) ──
+  const login = useCallback(async (username: string, password: string, role: UserRole): Promise<boolean> => {
     setIsLoading(true);
     setError(null);
 
-    // Simulate API delay
-    await new Promise((resolve) => setTimeout(resolve, 800));
-
-    const entry = MOCK_USERS[email.toLowerCase()];
-    if (entry && entry.password === password && entry.user.role === role) {
-      setUser(entry.user);
-      localStorage.setItem('fleetmark_user', JSON.stringify(entry.user));
+    if (USE_MOCK) {
+      // Mock auth path
+      await new Promise((resolve) => setTimeout(resolve, 800));
+      const entry = MOCK_USERS[username.toLowerCase()];
+      if (entry && entry.password === password && entry.user.role === role) {
+        setUser(entry.user);
+        localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(entry.user));
+        setIsLoading(false);
+        return true;
+      }
+      setError('Invalid username or password. Please try again.');
       setIsLoading(false);
-      return true;
+      return false;
     }
 
-    setError('Invalid email or password. Please try again.');
-    setIsLoading(false);
-    return false;
+    // Real API auth path
+    try {
+      const { user: apiUser } = await authService.login(username, password);
+
+      // Verify role matches what user selected
+      if (apiUser.role !== role) {
+        authService.clearSession();
+        setError(`Your account has the "${apiUser.role}" role, but you selected "${role}".`);
+        setIsLoading(false);
+        return false;
+      }
+
+      setUser(apiUserToAuthUser(apiUser));
+      setIsLoading(false);
+      return true;
+    } catch (err) {
+      const parsed = parseApiError(err);
+      setError(parsed.status === 401
+        ? 'Invalid username or password. Please try again.'
+        : parsed.message
+      );
+      setIsLoading(false);
+      return false;
+    }
   }, []);
 
+  // ── 42 OAuth (still mock — would need real 42 OAuth integration) ──
   const loginWith42 = useCallback(async (): Promise<{ result: 'role-select' } | { result: 'dashboard'; path: string } | { result: 'error' }> => {
     setIsLoading(true);
     setError(null);
 
-    // Mock: simulate 42 OAuth API delay (would normally redirect to 42 then callback)
     await new Promise((resolve) => setTimeout(resolve, 1500));
 
-    // Check if user already has a role stored from a previous 42 login
     const storedUser = localStorage.getItem('fleetmark_42_user');
     if (storedUser) {
       const parsed = JSON.parse(storedUser) as AuthUser;
       setUser(parsed);
-      localStorage.setItem('fleetmark_user', storedUser);
+      localStorage.setItem(STORAGE_KEYS.USER, storedUser);
       setIsLoading(false);
       setNeedsRoleSelection(false);
       return { result: 'dashboard', path: getDashboardPath(parsed.role) };
     }
 
-    // First-time 42 user → no role yet, needs role selection
     const partialUser: AuthUser = {
       ...MOCK_42_USER,
-      role: 'passenger', // temporary default — will be overwritten by role selection
+      role: 'passenger',
     } as AuthUser;
     setUser(partialUser);
     setNeedsRoleSelection(true);
@@ -151,7 +219,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setUser((prev) => {
       if (!prev) return prev;
       const updated = { ...prev, role };
-      localStorage.setItem('fleetmark_user', JSON.stringify(updated));
+      localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(updated));
       localStorage.setItem('fleetmark_42_user', JSON.stringify(updated));
       return updated;
     });
@@ -162,11 +230,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setUser(null);
     setError(null);
     setNeedsRoleSelection(false);
-    localStorage.removeItem('fleetmark_user');
+    authService.clearSession();
     localStorage.removeItem('fleetmark_42_user');
   }, []);
 
   const clearError = useCallback(() => setError(null), []);
+
+  // Show loading spinner while restoring session
+  if (isRestoring) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-white">
+        <div className="w-8 h-8 border-3 border-primary-200 border-t-primary-600 rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <AuthContext.Provider
@@ -174,6 +251,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         user,
         isAuthenticated: !!user,
         isLoading,
+        isRestoring,
         error,
         needsRoleSelection,
         login,

@@ -1,5 +1,6 @@
 import { lazy, Suspense } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { AuthProvider } from './context/AuthContext'
 import { ToastProvider } from './context/ToastContext'
 import { ScheduleProvider } from './context/ScheduleContext'
@@ -47,6 +48,17 @@ const NotFound = lazy(() => import('./pages/NotFound'))
 const AuthCallback = lazy(() => import('./pages/AuthCallback'))
 const RoleSelection = lazy(() => import('./pages/RoleSelection'))
 
+/* ── React Query client ── */
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 30_000,      // 30 seconds
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+  },
+})
+
 /* ── Suspense fallback ── */
 const PageLoader = () => (
   <div className="flex items-center justify-center min-h-[60vh]">
@@ -74,6 +86,7 @@ function LandingPage() {
 function App() {
   return (
     <BrowserRouter>
+      <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <ScheduleProvider>
         <ReservationProvider>
@@ -128,6 +141,7 @@ function App() {
         </ReservationProvider>
         </ScheduleProvider>
       </AuthProvider>
+      </QueryClientProvider>
     </BrowserRouter>
   )
 }
