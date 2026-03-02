@@ -36,6 +36,162 @@
 
 ---
 
+## 🎯 FT_TRANSCENDENCE — MODULE SCORING
+
+> **Minimum to pass:** 14 points · **125% target:** 19 points (14 mandatory + 5 bonus)
+> **Major module = 2pts** · **Minor module = 1pt** · **Max bonus = 5pts**
+
+---
+
+### ✅ MODULES WE ALREADY HAVE (current points)
+
+#### Web Category
+
+| Module | Type | Points | Status | Who |
+|--------|------|--------|--------|-----|
+| Use a frontend framework (React 18) | Minor | 1pt | ✅ Done | Adil |
+| Use a backend framework (Django DRF) | Minor | 1pt | ✅ Done | Mohamed / Abderrahman |
+| Public API (10+ secured endpoints) | Major | 2pts | ✅ Done | Mohamed / Abderrahman |
+| Notification system | Minor | 1pt | ✅ Done | Abderrahman |
+
+> **Web subtotal: 5pts**
+
+#### User Management Category
+
+| Module | Type | Points | Status | Who |
+|--------|------|--------|--------|-----|
+| Standard user management & auth | Major | 2pts | ✅ Done | Mohamed |
+| OAuth 2.0 — 42 Intra login | Minor | 1pt | 🔄 In Progress | Adil / Mohamed |
+| Advanced permissions (Admin / Driver / Passenger roles) | Major | 2pts | ✅ Done | Abderrahman |
+| Organization system (1337, enterprises, universities) | Major | 2pts | ✅ Done | Mohamed |
+
+> **User Management subtotal: 7pts**
+
+#### Data & Analytics Category
+
+| Module | Type | Points | Status | Who |
+|--------|------|--------|--------|-----|
+| Advanced analytics dashboard | Major | 2pts | ✅ Done | Adil |
+
+> **Data & Analytics subtotal: 2pts**
+
+---
+
+### 📊 CURRENT SCORE
+
+| Category | Points Earned |
+|----------|---------------|
+| Web | 5pts |
+| User Management | 7pts |
+| Data & Analytics | 2pts |
+| **TOTAL CURRENT** | **14pts** |
+
+**Progress toward goals:**
+```
+Mandatory (14pts): [██████████] 14/14 ✅ REACHED!
+Bonus (5pts):      [░░░░░░░░░░]  0/5  ⏳ Need more!
+125% Target:       [████████░░] 14/19 — 73%
+```
+
+---
+
+### ⏳ MODULES TO ADD FOR 125%
+
+We need **5 more points** for full 125% bonus.
+Below are the best options that **fit Fleetmark naturally:**
+
+#### OPTION A — DevOps (3pts) ← Aamir
+
+| Module | Type | Points | Effort | Who |
+|--------|------|--------|--------|-----|
+| Monitoring: Prometheus + Grafana | Major | 2pts | Medium | Aamir |
+| Health check + status page + backups | Minor | 1pt | Low | Aamir |
+
+> ✅ **Recommended** — perfect for Aamir's DevOps role
+
+#### OPTION B — Accessibility / i18n (2pts) ← Adil
+
+| Module | Type | Points | Effort | Who |
+|--------|------|--------|--------|-----|
+| Support 3 languages (AR + FR + EN) | Minor | 1pt | Medium | Adil |
+| RTL support (Arabic) | Minor | 1pt | Medium | Adil |
+
+> ✅ **Recommended** — fits Morocco / 1337 context perfectly (Arabic + French + English = real need!)
+
+#### OPTION C — Web extras (2pts)
+
+| Module | Type | Points | Effort | Who |
+|--------|------|--------|--------|-----|
+| PWA with offline support | Minor | 1pt | Medium | Adil |
+| Advanced search with filters | Minor | 1pt | Low | Adil |
+
+#### OPTION D — Cybersecurity (2pts)
+
+| Module | Type | Points | Effort | Who |
+|--------|------|--------|--------|-----|
+| WAF / ModSecurity + HashiCorp Vault | Major | 2pts | High | Aamir |
+
+#### OPTION E — Data extras (1pt)
+
+| Module | Type | Points | Effort | Who |
+|--------|------|--------|--------|-----|
+| Data export / import (CSV, PDF) | Minor | 1pt | Low | Adil |
+
+> Reports page already has an export button — low effort to complete.
+
+---
+
+### 🏆 RECOMMENDED COMBINATION FOR 125%
+
+Best combo that fits **Fleetmark + team skills:**
+
+| Module | Type | Points | Who |
+|--------|------|--------|-----|
+| Prometheus + Grafana monitoring | Major | 2pts | Aamir |
+| Health check + backups | Minor | 1pt | Aamir |
+| 3 languages (AR + FR + EN) | Minor | 1pt | Adil |
+| RTL support (Arabic) | Minor | 1pt | Adil |
+| **BONUS TOTAL** | | **5pts** | |
+
+**Why this combo:**
+- DevOps modules → perfect for Aamir's role
+- i18n + RTL → perfect for Morocco / 1337 context
+- All fit naturally into Fleetmark's use case
+- Realistic effort for remaining time
+
+---
+
+### 📈 FINAL SCORE PROJECTION
+
+| | Points |
+|--|--------|
+| Current mandatory modules | 14pts |
+| + Recommended bonus modules | +5pts |
+| **PROJECTED TOTAL** | **19pts** |
+
+```
+Mandatory:  [██████████] 14/14 ✅ 100% PASS
+Bonus:      [██████████]  5/5  ✅ 125% TARGET
+RESULT:     125% ACHIEVED 🏆
+```
+
+---
+
+### ⚠️ MODULES WE CANNOT CLAIM
+
+These modules are **NOT** in our project — do **not** claim them during evaluation:
+
+- ❌ Any gaming module (no game implemented)
+- ❌ AI Opponent (requires game)
+- ❌ Tournament system (requires game)
+- ❌ Blockchain (not relevant)
+- ❌ Real-time collaborative features (not in scope)
+- ❌ WebSockets / real-time (not implemented yet)
+
+> ⚠️ Non-functional modules = **0 points** AND can negatively impact evaluation!
+
+---
+
 ## ✅ WHAT IS 100% DONE
 
 ### Frontend — Landing Page (Adil)
