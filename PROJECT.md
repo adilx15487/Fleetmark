@@ -9,7 +9,7 @@
 | **Live URL** | [fleetmark.vercel.app](https://fleetmark.vercel.app/) |
 | **Repo** | [github.com/adilx15487/Fleetmark](https://github.com/adilx15487/Fleetmark) |
 | **Deployment** | Vercel — auto-deploy on push to `main` |
-| **Last Updated** | February 18, 2026 |
+| **Last Updated** | March 2, 2026 |
 
 ---
 
@@ -50,7 +50,18 @@
 | 1 | **Adil Bourji** | Frontend Developer |
 | 2 | **Mohamed Lahrech** | Backend Developer |
 | 3 | **Abderrahman Chakour** | Backend Developer |
-| 4 | **Aamir Tahtah** | DevOps & Security |
+| 4 | **Ayoub El Haouti** | Backend + Testing & Debugging |
+| 5 | **Aamir Tahtah** | DevOps & Security |
+
+### Team Focus Tracker
+
+| Name | Role | Focus This Week |
+|------|------|------------------|
+| Adil Bourji | Frontend | UI Polish + 42 OAuth frontend |
+| Mohamed Lahrech | Backend | 42 OAuth endpoint + API fixes |
+| Abderrahman Chakour | Backend | Production deploy prep |
+| Ayoub El Haouti | Backend + Testing | Fix bugs + test suite |
+| Aamir Tahtah | DevOps & Security | Railway deploy + SSL |
 
 ---
 
@@ -318,21 +329,48 @@ Production:   https://api.fleetmark.com/v1   (TBD)
 
 ## 7. Daily Task Tracker
 
-### 📅 Today — February 18, 2026
+### 📅 Today — March 2, 2026
 
-| # | Task | Status |
-|---|---|---|
-| 1 | ___________________________ | ⬜ |
-| 2 | ___________________________ | ⬜ |
-| 3 | ___________________________ | ⬜ |
+| # | Task | Assigned To | Status |
+|---|---|---|---|
+| 1 | Fix ValueError → LifecycleError bug | Ayoub | ⏳ Todo |
+| 2 | Install + config django-cors-headers | Ayoub | ⏳ Todo |
+| 3 | Re-run test suite → 42/42 pass | Ayoub | ⏳ Todo |
+| 4 | 42 OAuth frontend polish | Adil | 🔄 In Progress |
+| 5 | 42 OAuth backend endpoint fixes | Mohamed | 🔄 In Progress |
+| 6 | Production deploy prep | Abderrahman | ⏳ Todo |
+| 7 | Railway deploy + SSL | Aamir | ⏳ Todo |
+
+### 🧪 Ayoub El Haouti — Backend + Testing & Debugging
+
+| # | Task | Priority | Est. Time | Status |
+|---|------|----------|-----------|--------|
+| 1 | Fix ValueError→LifecycleError bug | 🔴 Critical | 5 min | ⏳ Todo |
+| 2 | Install + config django-cors-headers | 🔴 High | 10 min | ⏳ Todo |
+| 3 | Re-run test suite → 42/42 pass | 🔴 High | 30 min | ⏳ Todo |
+| 4 | Fix test script ordering (fail 3.1) | 🟡 Medium | 5 min | ⏳ Todo |
+| 5 | Write tests: 3/night reservation limit | 🟡 Medium | 1 hour | ⏳ Todo |
+| 6 | Write tests: 30min lock rule | 🟡 Medium | 1 hour | ⏳ Todo |
+| 7 | Write tests: home stop → bus assignment | 🟡 Medium | 1 hour | ⏳ Todo |
+| 8 | Test 42 OAuth full flow | 🟡 Medium | 2 hours | ⏳ Todo |
+| 9 | End-to-end test all 3 roles | 🟡 Medium | 2 hours | ⏳ Todo |
+| 10 | Mobile testing (real device) | 🟢 Low | 1 hour | ⏳ Todo |
+| 11 | Cross-browser testing | 🟢 Low | 1 hour | ⏳ Todo |
+| 12 | Security audit (JWT + permissions) | 🟢 Low | 2 hours | ⏳ Todo |
+
+**Ayoub's Priority Order:**
+1. Fix ValueError → LifecycleError bug (TODAY)
+2. Fix CORS (TODAY)
+3. Re-run tests → 42/42 (TODAY)
+4. Write new tests for 1337 specific rules
+5. End-to-end testing with 42 OAuth
+6. Mobile + browser testing before launch
 
 ### 🚧 Blocked By
 
 | Item | Waiting On | Since |
 |---|---|---|
-| API base URL / docs | Backend team | — |
-| Auth endpoint spec (JWT format, refresh flow) | Backend team | — |
-| Deployment domain / SSL | DevOps | — |
+| Deployment domain / SSL | DevOps (Aamir) | — |
 
 ### 📝 Notes & Decisions
 
@@ -340,7 +378,23 @@ Production:   https://api.fleetmark.com/v1   (TBD)
 - Using `vercel.json` rewrites for SPA client-side routing
 - Recharts for all data visualization (bar, line, pie/donut)
 - Sidebar collapses to icon-only mode on desktop, slides as drawer on mobile
-- Auth section on landing page logs to console — will connect to real API
+- 42 OAuth is implemented (real flow via intra.42.fr)
+- Backend API running on Django 4.2 + DRF + SimpleJWT
+- Ayoub El Haouti joined as 5th member — owns all testing & debugging
+- With 5 members, backend devs (Mohamed, Abderrahman) focus on features while Ayoub handles QA
+
+### 📅 Estimated Completion
+
+| Milestone | Target Date | Status |
+|---|---|---|
+| Backend API complete | March 5, 2026 | 🔄 In Progress |
+| 42 OAuth working end-to-end | March 3, 2026 | 🔄 In Progress |
+| All tests passing (42/42) | March 3, 2026 | ⏳ Todo (Ayoub) |
+| Production deployment (Railway) | March 7, 2026 | ⏳ Todo |
+| Mobile + cross-browser QA | March 8, 2026 | ⏳ Todo (Ayoub) |
+| **Launch ready** | **March 10, 2026** | ⏳ Todo |
+
+> With 5 team members (up from 4), testing is no longer a bottleneck. Ayoub handles all QA, freeing Mohamed and Abderrahman to focus purely on backend features and deployment prep.
 
 ---
 
@@ -351,6 +405,7 @@ Production:   https://api.fleetmark.com/v1   (TBD)
 | Adil Bourji | Frontend Developer | [github.com/adilx15487](https://github.com/adilx15487) | [linkedin.com/in/adil-bourji](https://linkedin.com/in/adil-bourji) | — |
 | Mohamed Lahrech | Backend Developer | [github.com/mohamedlahrech](https://github.com/mohamedlahrech) | [linkedin.com/in/mohamed-lahrech](https://linkedin.com/in/mohamed-lahrech) | — |
 | Abderrahman Chakour | Backend Developer | [github.com/achakour](https://github.com/achakour) | [linkedin.com/in/abderrahman-chakour](https://linkedin.com/in/abderrahman-chakour) | — |
+| Ayoub El Haouti | Backend + Testing & Debugging | [github.com/ayoubelhaouti](https://github.com/ayoubelhaouti) | [linkedin.com/in/ayoub-el-haouti](https://linkedin.com/in/ayoub-el-haouti) | — |
 | Aamir Tahtah | DevOps & Security | [github.com/aamirtahtah](https://github.com/aamirtahtah) | [linkedin.com/in/aamir-tahtah](https://linkedin.com/in/aamir-tahtah) | — |
 
 >> SOON ...! ⚠️ Update the links above with real profile URLs. NON IMPORTANT NOW!!
