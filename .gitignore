@@ -2,3 +2,11 @@ node_modules
 .env
 .env.local
 dist
+
+# Backend
+backend1/venv/
+backend1/__pycache__/
+backend1/**/__pycache__/
+backend1/db.sqlite3
+backend1/audit.log
+*.pyc

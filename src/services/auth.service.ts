@@ -126,4 +126,66 @@ export function clearSession() {
   localStorage.removeItem(STORAGE_KEYS.ACCESS_TOKEN);
   localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
   localStorage.removeItem(STORAGE_KEYS.USER);
+  localStorage.removeItem('fleetmark_42_user');
+}
+
+// ── 42 OAuth Helpers ──
+
+/** Build the 42 Intra authorization URL */
+export function get42AuthUrl(): string {
+  const clientId = import.meta.env.VITE_42_CLIENT_ID;
+  const redirectUri = import.meta.env.VITE_42_REDIRECT_URI;
+  return (
+    `https://api.intra.42.fr/oauth/authorize` +
+    `?client_id=${encodeURIComponent(clientId)}` +
+    `&redirect_uri=${encodeURIComponent(redirectUri)}` +
+    `&response_type=code` +
+    `&scope=public`
+  );
+}
+
+/** Response shape from POST /api/v1/accounts/42/callback/ */
+export interface OAuth42Response {
+  access: string;
+  refresh: string;
+  user: {
+    id: number;
+    username: string;
+    email: string;
+    role: string;
+    login42: string;
+    avatar42: string;
+    campus42: string;
+    displayname: string;
+    needs_role: boolean;
+    organization: { id: number; name: string } | null;
+  };
+}
+
+/** Exchange 42 authorization code for Fleetmark JWT tokens */
+export async function loginWith42Code(code: string): Promise<OAuth42Response> {
+  const { data } = await api.post<OAuth42Response>(API_ENDPOINTS.auth.oauth42Callback, { code });
+
+  // Store tokens
+  localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, data.access);
+  localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, data.refresh);
+  localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(data.user));
+
+  return data;
+}
+
+/** Set role for 42 user after first login */
+export async function setUserRole(role: string): Promise<OAuth42Response['user']> {
+  const { data } = await api.patch<OAuth42Response['user']>(API_ENDPOINTS.auth.setRole, { role });
+
+  // Update cached user
+  const cached = localStorage.getItem(STORAGE_KEYS.USER);
+  if (cached) {
+    const user = JSON.parse(cached);
+    user.role = data.role;
+    user.needs_role = data.needs_role;
+    localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(user));
+  }
+
+  return data;
 }

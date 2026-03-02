@@ -29,8 +29,8 @@ interface AuthContextType {
   error: string | null;
   needsRoleSelection: boolean;
   login: (username: string, password: string, role: UserRole) => Promise<boolean>;
-  loginWith42: () => Promise<{ result: 'role-select' } | { result: 'dashboard'; path: string } | { result: 'error' }>;
-  setUserRole: (role: UserRole) => void;
+  loginWith42: (code?: string) => Promise<{ result: 'role-select' } | { result: 'dashboard'; path: string } | { result: 'error'; message?: string }>;
+  setUserRole: (role: UserRole) => Promise<void>;
   logout: () => void;
   clearError: () => void;
   getDashboardPath: (role: UserRole) => string;
@@ -113,6 +113,23 @@ function apiUserToAuthUser(u: User): AuthUser {
   };
 }
 
+/** Convert 42 OAuth response user to AuthUser */
+function oauth42UserToAuthUser(u: authService.OAuth42Response['user']): AuthUser {
+  const initials = (u.login42 || u.username).slice(0, 2).toUpperCase();
+  return {
+    id: u.id,
+    name: u.displayname || u.username,
+    username: u.username,
+    email: u.email,
+    role: u.role as UserRole,
+    avatar: u.avatar42 || `https://api.dicebear.com/9.x/avataaars/svg?seed=${u.login42}&backgroundColor=b6e3f4&top=shortHair`,
+    initials,
+    login42: u.login42,
+    campus: u.campus42,
+    authProvider: '42',
+  };
+}
+
 // ── Context ──
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -131,8 +148,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           const stored = localStorage.getItem(STORAGE_KEYS.USER);
           if (stored) setUser(JSON.parse(stored));
         } else {
-          const apiUser = await authService.restoreSession();
-          if (apiUser) setUser(apiUserToAuthUser(apiUser));
+          // Check for cached 42 user first
+          const cached42 = localStorage.getItem('fleetmark_42_user');
+          if (cached42) {
+            const parsed = JSON.parse(cached42) as AuthUser;
+            setUser(parsed);
+            // Check if they still need role selection
+            const cachedUser = localStorage.getItem(STORAGE_KEYS.USER);
+            if (cachedUser) {
+              const u = JSON.parse(cachedUser);
+              if (u.needs_role) setNeedsRoleSelection(true);
+            }
+          } else {
+            const apiUser = await authService.restoreSession();
+            if (apiUser) setUser(apiUserToAuthUser(apiUser));
+          }
         }
       } catch {
         // Silent fail — user stays logged out
@@ -188,42 +218,89 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   }, []);
 
-  // ── 42 OAuth (still mock — would need real 42 OAuth integration) ──
-  const loginWith42 = useCallback(async (): Promise<{ result: 'role-select' } | { result: 'dashboard'; path: string } | { result: 'error' }> => {
+  // ── 42 OAuth ──
+  const loginWith42 = useCallback(async (code?: string): Promise<{ result: 'role-select' } | { result: 'dashboard'; path: string } | { result: 'error'; message?: string }> => {
     setIsLoading(true);
     setError(null);
 
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-
-    const storedUser = localStorage.getItem('fleetmark_42_user');
-    if (storedUser) {
-      const parsed = JSON.parse(storedUser) as AuthUser;
-      setUser(parsed);
-      localStorage.setItem(STORAGE_KEYS.USER, storedUser);
+    if (USE_MOCK) {
+      // Mock flow
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+      const storedUser = localStorage.getItem('fleetmark_42_user');
+      if (storedUser) {
+        const parsed = JSON.parse(storedUser) as AuthUser;
+        setUser(parsed);
+        localStorage.setItem(STORAGE_KEYS.USER, storedUser);
+        setIsLoading(false);
+        setNeedsRoleSelection(false);
+        return { result: 'dashboard', path: getDashboardPath(parsed.role) };
+      }
+      const partialUser: AuthUser = { ...MOCK_42_USER, role: 'passenger' } as AuthUser;
+      setUser(partialUser);
+      setNeedsRoleSelection(true);
       setIsLoading(false);
-      setNeedsRoleSelection(false);
-      return { result: 'dashboard', path: getDashboardPath(parsed.role) };
+      return { result: 'role-select' };
     }
 
-    const partialUser: AuthUser = {
-      ...MOCK_42_USER,
-      role: 'passenger',
-    } as AuthUser;
-    setUser(partialUser);
-    setNeedsRoleSelection(true);
-    setIsLoading(false);
-    return { result: 'role-select' };
+    // Real 42 OAuth flow
+    if (!code) {
+      setIsLoading(false);
+      return { result: 'error', message: 'No authorization code provided' };
+    }
+
+    try {
+      const data = await authService.loginWith42Code(code);
+      const authUser = oauth42UserToAuthUser(data.user);
+      setUser(authUser);
+
+      // Persist for session restore
+      localStorage.setItem('fleetmark_42_user', JSON.stringify(authUser));
+
+      if (data.user.needs_role) {
+        setNeedsRoleSelection(true);
+        setIsLoading(false);
+        return { result: 'role-select' };
+      }
+
+      setNeedsRoleSelection(false);
+      setIsLoading(false);
+      return { result: 'dashboard', path: getDashboardPath(authUser.role) };
+    } catch (err) {
+      const parsed = parseApiError(err);
+      setError(parsed.message || 'Failed to authenticate with 42');
+      setIsLoading(false);
+      return { result: 'error', message: parsed.message };
+    }
   }, []);
 
-  const setUserRole = useCallback((role: UserRole) => {
-    setUser((prev) => {
-      if (!prev) return prev;
-      const updated = { ...prev, role };
-      localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(updated));
-      localStorage.setItem('fleetmark_42_user', JSON.stringify(updated));
-      return updated;
-    });
-    setNeedsRoleSelection(false);
+  const setUserRole = useCallback(async (role: UserRole) => {
+    if (USE_MOCK) {
+      setUser((prev) => {
+        if (!prev) return prev;
+        const updated = { ...prev, role };
+        localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(updated));
+        localStorage.setItem('fleetmark_42_user', JSON.stringify(updated));
+        return updated;
+      });
+      setNeedsRoleSelection(false);
+      return;
+    }
+
+    // Real API: persist role to backend
+    try {
+      const updatedUser = await authService.setUserRole(role);
+      setUser((prev) => {
+        if (!prev) return prev;
+        const updated = { ...prev, role: updatedUser.role as UserRole };
+        localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify({ ...updatedUser, needs_role: false }));
+        localStorage.setItem('fleetmark_42_user', JSON.stringify(updated));
+        return updated;
+      });
+      setNeedsRoleSelection(false);
+    } catch (err) {
+      const parsed = parseApiError(err);
+      setError(parsed.message || 'Failed to set role');
+    }
   }, []);
 
   const logout = useCallback(() => {
@@ -231,7 +308,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setError(null);
     setNeedsRoleSelection(false);
     authService.clearSession();
-    localStorage.removeItem('fleetmark_42_user');
   }, []);
 
   const clearError = useCallback(() => setError(null), []);

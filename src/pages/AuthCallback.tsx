@@ -16,19 +16,23 @@ const AuthCallback = () => {
 
   useEffect(() => {
     const code = searchParams.get('code');
+    const errorParam = searchParams.get('error');
 
     const handleCallback = async () => {
+      if (errorParam) {
+        setState('error');
+        setErrorMsg(`42 denied access: ${errorParam}`);
+        return;
+      }
+
       if (!code) {
         setState('error');
         setErrorMsg('No authorization code received from 42.');
         return;
       }
 
-      // Mock: In production, this code would be sent to our backend
-      // which exchanges it for an access token with 42's API
-      console.log('42 OAuth callback code:', code);
-
-      const result = await loginWith42();
+      // Send code to backend for token exchange
+      const result = await loginWith42(code);
 
       if (result.result === 'role-select') {
         setState('success');
@@ -38,12 +42,13 @@ const AuthCallback = () => {
         setTimeout(() => navigate(result.path), 800);
       } else {
         setState('error');
-        setErrorMsg('Authentication failed. Please try again.');
+        setErrorMsg(result.message || 'Authentication failed. Please try again.');
       }
     };
 
     handleCallback();
-  }, [searchParams, loginWith42, navigate]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-primary-50 flex items-center justify-center p-4">

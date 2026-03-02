@@ -4,6 +4,7 @@ import { motion, useInView } from 'framer-motion';
 import { AtSign, Lock, User, ChevronDown, Eye, EyeOff, LogIn, UserPlus, Loader2, ExternalLink } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
+import { get42AuthUrl } from '../services/auth.service';
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 40 },
@@ -27,7 +28,7 @@ const AuthSection = () => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-80px' });
   const navigate = useNavigate();
-  const { login, loginWith42, isLoading, error, clearError, getDashboardPath } = useAuth();
+  const { login, isLoading, error, clearError, getDashboardPath } = useAuth();
   const { toast } = useToast();
 
   const [activeTab, setActiveTab] = useState<AuthTab>('login');
@@ -141,14 +142,8 @@ const AuthSection = () => {
   const handle42Login = async () => {
     setIs42Loading(true);
     clearError();
-    const outcome = await loginWith42();
-    setIs42Loading(false);
-    if (outcome.result === 'role-select') {
-      navigate('/auth/role-select');
-    } else if (outcome.result === 'dashboard') {
-      toast('Welcome back! 👋');
-      navigate(outcome.path);
-    }
+    // Redirect to 42 Intra OAuth authorization page
+    window.location.href = get42AuthUrl();
   };
 
   const currentRole = activeTab === 'login' ? loginForm.role : signupForm.role;

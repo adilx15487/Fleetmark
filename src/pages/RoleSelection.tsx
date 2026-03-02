@@ -45,12 +45,15 @@ const RoleSelection = () => {
     if (!selectedRole) return;
     setIsSubmitting(true);
 
-    // Simulate a brief save delay
-    await new Promise((r) => setTimeout(r, 600));
-
-    setUserRole(selectedRole);
-    toast(`Welcome to Fleetmark, ${user?.name?.split(' ')[0] || 'there'}! 🎉`);
-    navigate(getDashboardPath(selectedRole));
+    try {
+      await setUserRole(selectedRole);
+      toast(`Welcome to Fleetmark, ${user?.name?.split(' ')[0] || 'there'}! 🎉`);
+      navigate(getDashboardPath(selectedRole));
+    } catch {
+      toast('Failed to set role. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (

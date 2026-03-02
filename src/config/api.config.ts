@@ -8,6 +8,8 @@ export const API_ENDPOINTS = {
     token: `${BASE}/accounts/token/`,
     refresh: `${BASE}/accounts/token/refresh/`,
     verify: `${BASE}/accounts/token/verify/`,
+    oauth42Callback: `${BASE}/accounts/42/callback/`,
+    setRole: `${BASE}/accounts/set-role/`,
   },
 
   // ── Users ──
