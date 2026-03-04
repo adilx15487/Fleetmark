@@ -125,7 +125,7 @@ export interface User {
   id: string;
   name: string;
   email: string;
-  role: 'Admin' | 'Passenger' | 'Driver';
+  role: 'Admin' | 'Student' | 'Driver';
   organization: string;
   status: 'Active' | 'Inactive';
   joinedDate: string;
@@ -133,13 +133,13 @@ export interface User {
 
 export const users: User[] = [
   { id: 'U-001', name: 'Adil Bourji', email: 'adil@fleetmark.com', role: 'Admin', organization: 'Fleetmark HQ', status: 'Active', joinedDate: 'Jan 5, 2025' },
-  { id: 'U-002', name: 'Ahmed Benali', email: 'ahmed.b@university.edu', role: 'Passenger', organization: 'State University', status: 'Active', joinedDate: 'Feb 12, 2025' },
+  { id: 'U-002', name: 'Ahmed Benali', email: 'abenali@student.1337.ma', role: 'Student', organization: '1337 School', status: 'Active', joinedDate: 'Feb 12, 2025' },
   { id: 'U-003', name: 'Hassan Moukhtari', email: 'hassan.m@fleetmark.com', role: 'Driver', organization: 'Fleetmark HQ', status: 'Active', joinedDate: 'Jan 20, 2025' },
-  { id: 'U-004', name: 'Sara Oufkir', email: 'sara.o@enterprise.com', role: 'Passenger', organization: 'TechCorp Inc.', status: 'Active', joinedDate: 'Mar 3, 2025' },
+  { id: 'U-004', name: 'Sara Oufkir', email: 'soufkir@student.1337.ma', role: 'Student', organization: '1337 School', status: 'Active', joinedDate: 'Mar 3, 2025' },
   { id: 'U-005', name: 'Khalid Bennani', email: 'khalid.b@fleetmark.com', role: 'Driver', organization: 'Fleetmark HQ', status: 'Active', joinedDate: 'Jan 15, 2025' },
-  { id: 'U-006', name: 'Fatima Zahra', email: 'fatima.z@school.edu', role: 'Passenger', organization: 'National School', status: 'Inactive', joinedDate: 'Apr 1, 2025' },
-  { id: 'U-007', name: 'Youssef El Amrani', email: 'youssef.e@university.edu', role: 'Passenger', organization: 'State University', status: 'Active', joinedDate: 'Feb 28, 2025' },
-  { id: 'U-008', name: 'Leila Mansouri', email: 'leila.m@enterprise.com', role: 'Passenger', organization: 'TechCorp Inc.', status: 'Active', joinedDate: 'Mar 15, 2025' },
+  { id: 'U-006', name: 'Fatima Zahra', email: 'fzahra@student.1337.ma', role: 'Student', organization: '1337 School', status: 'Inactive', joinedDate: 'Apr 1, 2025' },
+  { id: 'U-007', name: 'Youssef El Amrani', email: 'yelamrani@student.1337.ma', role: 'Student', organization: '1337 School', status: 'Active', joinedDate: 'Feb 28, 2025' },
+  { id: 'U-008', name: 'Leila Mansouri', email: 'lmansouri@student.1337.ma', role: 'Student', organization: '1337 School', status: 'Active', joinedDate: 'Mar 15, 2025' },
   { id: 'U-009', name: 'Rachid Alami', email: 'rachid.a@fleetmark.com', role: 'Driver', organization: 'Fleetmark HQ', status: 'Active', joinedDate: 'Jan 10, 2025' },
   { id: 'U-010', name: 'Mohamed Lahrech', email: 'mohamed@fleetmark.com', role: 'Admin', organization: 'Fleetmark HQ', status: 'Active', joinedDate: 'Jan 5, 2025' },
 ];
@@ -212,7 +212,7 @@ export interface Notification {
 export const notifications: Notification[] = [
   { id: 'N-001', icon: 'success', title: 'Route 1 Updated', message: 'Night Shuttle Route 1 schedule has been confirmed for this week.', time: '5 min ago', status: 'Unread', type: 'received' },
   { id: 'N-002', icon: 'warning', title: 'Bus 1 Maintenance', message: 'Bus 1 is scheduled for inspection on Feb 25.', time: '1 hour ago', status: 'Unread', type: 'received' },
-  { id: 'N-003', icon: 'info', title: 'New Student Registered', message: 'Leila Mansouri registered as a Passenger.', time: '2 hours ago', status: 'Read', type: 'received' },
+  { id: 'N-003', icon: 'info', title: 'New Student Registered', message: 'Leila Mansouri registered as a Student.', time: '2 hours ago', status: 'Read', type: 'received' },
   { id: 'N-004', icon: 'alert', title: 'Overcapacity Alert', message: 'Route 1 bus approaching full capacity for tonight.', time: '3 hours ago', status: 'Unread', type: 'received' },
   { id: 'N-005', icon: 'info', title: 'Schedule Published', message: 'You published the night shuttle schedule for this week.', time: '5 hours ago', status: 'Read', type: 'sent' },
   { id: 'N-006', icon: 'success', title: 'Report Generated', message: 'Monthly ridership report has been generated.', time: 'Yesterday', status: 'Read', type: 'received' },

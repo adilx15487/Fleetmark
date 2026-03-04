@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap');
 @import "tailwindcss";
 
 @theme {
@@ -128,3 +129,40 @@ input[type="radio"],
 .animate-page-in {
   animation: page-fade-in 0.3s ease-out;
 }
+
+/* ── RTL Support ── */
+[dir="rtl"] * {
+  font-family: 'Cairo', 'Inter', system-ui, sans-serif;
+}
+
+[dir="rtl"] .sidebar {
+  left: auto;
+  right: 0;
+}
+
+[dir="rtl"] .ml-64 {
+  margin-left: 0;
+  margin-right: 16rem;
+}
+
+[dir="rtl"] .ml-0 {
+  margin-left: 0;
+  margin-right: 0;
+}
+
+/* RTL toast slide-in */
+[dir="rtl"] .animate-slide-in-right {
+  animation: slide-in-left 0.3s ease-out;
+}
+
+@keyframes slide-in-left {
+  from {
+    opacity: 0;
+    transform: translateX(-100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+

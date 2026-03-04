@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { Search, Bell, Menu, ChevronDown, User, Settings, LogOut } from 'lucide-react';
 import { passengerNotifications } from '../../data/passengerMockData';
 import { useAuth } from '../../context/AuthContext';
+import { useTranslation } from 'react-i18next';
+import LanguageSwitcher from '../LanguageSwitcher';
 
 interface TopbarProps {
   title: string;
@@ -15,6 +17,7 @@ const PassengerTopbar = ({ title, onMenuClick }: TopbarProps) => {
   const unreadCount = passengerNotifications.filter((n) => !n.read).length;
   const navigate = useNavigate();
   const { user, logout } = useAuth();
+  const { t } = useTranslation();
 
   const handleLogout = () => {
     logout();
@@ -52,10 +55,13 @@ const PassengerTopbar = ({ title, onMenuClick }: TopbarProps) => {
             <Search className="w-4 h-4 text-slate-400 mr-2 shrink-0" />
             <input
               type="text"
-              placeholder="Search routes or buses…"
+              placeholder={t('dashboard.common.searchRoutes')}
               className="bg-transparent text-sm text-slate-700 placeholder:text-slate-400 outline-none w-full"
             />
           </div>
+
+          {/* Language Switcher */}
+          <LanguageSwitcher dashboardMode />
 
           {/* Notification bell */}
           <button className="relative w-9 h-9 rounded-xl flex items-center justify-center text-slate-500 hover:bg-slate-100 transition-colors">
@@ -90,8 +96,8 @@ const PassengerTopbar = ({ title, onMenuClick }: TopbarProps) => {
                 </div>
                 <div className="py-1">
                   {[
-                    { icon: User, label: 'Profile' },
-                    { icon: Settings, label: 'Settings' },
+                    { icon: User, label: t('dashboard.common.profile') },
+                    { icon: Settings, label: t('dashboard.common.settings') },
                   ].map((item) => (
                     <button
                       key={item.label}
@@ -108,7 +114,7 @@ const PassengerTopbar = ({ title, onMenuClick }: TopbarProps) => {
                     className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 transition-colors"
                   >
                     <LogOut className="w-4 h-4" />
-                    Logout
+                    {t('dashboard.sidebar.logout')}
                   </button>
                 </div>
               </div>

@@ -3,20 +3,41 @@ import {
   Clock,
   Bus,
   Navigation,
-  Users,
-  CheckCircle2,
-  Circle,
   Milestone,
 } from 'lucide-react';
-import { driverRouteInfo, routeStops, todaysTrips } from '../../data/driverMockData';
-
-const stopStatusStyle = {
-  completed: { dot: 'bg-slate-300 border-slate-300', text: 'text-slate-400', line: 'bg-slate-300' },
-  current: { dot: 'bg-emerald-500 border-emerald-500 ring-4 ring-emerald-100', text: 'text-emerald-700 font-bold', line: 'bg-emerald-400' },
-  upcoming: { dot: 'bg-white border-sky-400', text: 'text-primary-800', line: 'bg-sky-200' },
-};
+import { useRoutes, useTrips, useBuses } from '../../hooks/useApi';
+import { useAuth } from '../../context/AuthContext';
+import { SkeletonCard, SkeletonTable } from '../../components/ui/Skeleton';
+import ErrorState from '../../components/ui/ErrorState';
+import EmptyState from '../../components/ui/EmptyState';
 
 const MyRoute = () => {
+  const { user } = useAuth();
+  const { data: routes = [], isLoading: routesLoading, isError: routesError, refetch: refetchRoutes } = useRoutes();
+  const { data: trips = [], isLoading: tripsLoading } = useTrips();
+  const { data: buses = [] } = useBuses();
+
+  const isLoading = routesLoading || tripsLoading;
+  const isError = routesError;
+
+  // Get the first route as the driver's assigned route
+  const myRoute = routes[0];
+  const myBus = myRoute ? buses.find((b) => b.id === myRoute.bus) : null;
+  const myTrips = myRoute ? trips.filter((t) => t.route === myRoute.id) : [];
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <SkeletonCard />
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          {Array.from({ length: 4 }, (_, i) => <SkeletonCard key={i} />)}
+        </div>
+      </div>
+    );
+  }
+
+  if (isError) return <ErrorState onRetry={() => refetchRoutes()} />;
+  if (!myRoute) return <EmptyState title="No route assigned" subtitle="You don't have an assigned route yet. Contact your administrator." />;
   return (
     <div className="space-y-6">
       {/* Route header */}
@@ -27,15 +48,15 @@ const MyRoute = () => {
               <MapPinned className="w-6 h-6 text-primary-600" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-primary-900">{driverRouteInfo.name}</h2>
+              <h2 className="text-xl font-bold text-primary-900">Route #{myRoute.id} — {myRoute.direction}</h2>
               <p className="text-sm text-slate-400 mt-0.5">
-                {driverRouteInfo.totalStops} stops · {driverRouteInfo.totalDistance} · ~{driverRouteInfo.estimatedDuration}
+                Bus: {myBus?.matricule || '—'} · Capacity: {myBus?.capacity || '—'} seats
               </p>
             </div>
           </div>
           <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-xl text-xs font-bold uppercase tracking-wider bg-emerald-50 text-emerald-600 border border-emerald-200 shrink-0">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            {driverRouteInfo.status}
+            Active
           </span>
         </div>
       </div>
@@ -43,10 +64,10 @@ const MyRoute = () => {
       {/* Route details cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { icon: Navigation, label: 'Total Distance', value: driverRouteInfo.totalDistance, color: 'text-primary-600', bg: 'bg-primary-50' },
-          { icon: Milestone, label: 'Total Stops', value: driverRouteInfo.totalStops, color: 'text-accent-500', bg: 'bg-sky-50' },
-          { icon: Clock, label: 'Est. Duration', value: driverRouteInfo.estimatedDuration, color: 'text-emerald-500', bg: 'bg-emerald-50' },
-          { icon: Bus, label: 'Assigned Bus', value: driverRouteInfo.assignedBus.split(' — ')[0], color: 'text-violet-500', bg: 'bg-violet-50' },
+          { icon: Navigation, label: 'Direction', value: myRoute.direction, color: 'text-primary-600', bg: 'bg-primary-50' },
+          { icon: Milestone, label: 'Route ID', value: `#${myRoute.id}`, color: 'text-accent-500', bg: 'bg-sky-50' },
+          { icon: Clock, label: 'Trips Today', value: `${myTrips.length} trips`, color: 'text-emerald-500', bg: 'bg-emerald-50' },
+          { icon: Bus, label: 'Assigned Bus', value: myBus?.matricule || '—', color: 'text-violet-500', bg: 'bg-violet-50' },
         ].map((card) => {
           const Icon = card.icon;
           return (
@@ -61,49 +82,15 @@ const MyRoute = () => {
         })}
       </div>
 
-      {/* Visual stop timeline */}
+      {/* Route info */}
       <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
         <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
-          <h3 className="text-sm font-bold text-primary-900">Stop Timeline</h3>
-          <span className="text-xs text-slate-400">
-            {routeStops.filter((s) => s.status === 'completed').length} of {routeStops.length} completed
-          </span>
+          <h3 className="text-sm font-bold text-primary-900">Route Info</h3>
         </div>
-
-        <div className="overflow-x-auto">
-          <div className="flex items-start gap-0 px-6 py-8 min-w-[800px]">
-            {routeStops.map((stop, i) => {
-              const style = stopStatusStyle[stop.status];
-              const isLast = i === routeStops.length - 1;
-              return (
-                <div key={stop.id} className="flex items-start flex-1 min-w-0">
-                  <div className="flex flex-col items-center">
-                    <div className={`w-4 h-4 rounded-full border-2 ${style.dot} shrink-0 z-10`}>
-                      {stop.status === 'completed' && (
-                        <CheckCircle2 className="w-3 h-3 text-white -mt-[1px] -ml-[1px]" />
-                      )}
-                      {stop.status === 'current' && (
-                        <Circle className="w-2 h-2 text-white mt-[1px] ml-[1px]" />
-                      )}
-                    </div>
-                    <div className="mt-2 text-center w-20">
-                      <p className={`text-[11px] leading-tight ${style.text}`}>{stop.name}</p>
-                      <p className="text-[10px] text-slate-300 mt-0.5">{stop.estimatedArrival}</p>
-                      {stop.passengerCount > 0 && (
-                        <span className="inline-flex items-center gap-0.5 mt-1 text-[10px] text-slate-400">
-                          <Users className="w-2.5 h-2.5" />
-                          {stop.passengerCount}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                  {!isLast && (
-                    <div className={`h-0.5 flex-1 mt-[7px] ${style.line}`} />
-                  )}
-                </div>
-              );
-            })}
-          </div>
+        <div className="px-6 py-8 flex flex-col gap-3 text-sm text-slate-600">
+          <p><span className="font-semibold text-primary-900">Direction:</span> {myRoute.direction}</p>
+          <p><span className="font-semibold text-primary-900">Bus:</span> {myBus?.matricule || '—'} (Capacity: {myBus?.capacity ?? '—'})</p>
+          <p><span className="font-semibold text-primary-900">Trips for this route:</span> {myTrips.length}</p>
         </div>
       </div>
 
@@ -138,35 +125,34 @@ const MyRoute = () => {
       {/* Today's trips */}
       <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
         <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
-          <h3 className="text-sm font-bold text-primary-900">Today's Trips</h3>
-          <span className="text-xs text-slate-400">{todaysTrips.length} trips scheduled</span>
+          <h3 className="text-sm font-bold text-primary-900">Trips</h3>
+          <span className="text-xs text-slate-400">{myTrips.length} trips</span>
         </div>
+        {myTrips.length === 0 ? (
+          <div className="text-center py-12 text-slate-400 text-sm">No trips scheduled for this route.</div>
+        ) : (
         <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead>
               <tr className="border-b border-slate-100">
-                <th className="px-5 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Time</th>
+                <th className="px-5 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Departure</th>
                 <th className="px-5 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Route</th>
-                <th className="px-5 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Stops</th>
-                <th className="px-5 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Passengers</th>
                 <th className="px-5 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Status</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {todaysTrips.map((trip) => {
+              {myTrips.map((trip) => {
                 const statusColors: Record<string, string> = {
-                  Completed: 'bg-slate-50 text-slate-500 border-slate-200',
-                  'In Progress': 'bg-emerald-50 text-emerald-600 border-emerald-200',
-                  Upcoming: 'bg-sky-50 text-sky-600 border-sky-200',
+                  CREATED: 'bg-sky-50 text-sky-600 border-sky-200',
+                  STARTED: 'bg-emerald-50 text-emerald-600 border-emerald-200',
+                  ENDED: 'bg-slate-50 text-slate-500 border-slate-200',
                 };
                 return (
                   <tr key={trip.id} className="hover:bg-slate-50/50 transition-colors">
-                    <td className="px-5 py-3.5 text-sm font-bold text-primary-900 whitespace-nowrap">{trip.departureTime}</td>
-                    <td className="px-5 py-3.5 text-sm text-slate-600">{trip.route}</td>
-                    <td className="px-5 py-3.5 text-sm text-slate-500">{trip.stops}</td>
-                    <td className="px-5 py-3.5 text-sm text-slate-500">{trip.passengers}</td>
+                    <td className="px-5 py-3.5 text-sm font-bold text-primary-900 whitespace-nowrap">{new Date(trip.depart_time).toLocaleString()}</td>
+                    <td className="px-5 py-3.5 text-sm text-slate-600">Route #{trip.route}</td>
                     <td className="px-5 py-3.5">
-                      <span className={`inline-block px-2.5 py-1 rounded-lg text-xs font-semibold border ${statusColors[trip.status]}`}>
+                      <span className={`inline-block px-2.5 py-1 rounded-lg text-xs font-semibold border ${statusColors[trip.status] || statusColors['CREATED']}`}>
                         {trip.status}
                       </span>
                     </td>
@@ -176,6 +162,7 @@ const MyRoute = () => {
             </tbody>
           </table>
         </div>
+        )}
       </div>
     </div>
   );

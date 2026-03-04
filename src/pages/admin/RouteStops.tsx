@@ -1,7 +1,13 @@
 import { useState, useRef, useEffect } from 'react';
 import { Plus, ChevronDown, ChevronUp, MapPin, Clock, Bus as BusIcon, AlertTriangle, Moon, Pause } from 'lucide-react';
-import { routes } from '../../data/mockData';
+import { useRoutes, useCreateRoute, useBuses } from '../../hooks/useApi';
+import type { ApiRoute } from '../../types/api';
 import Modal from '../../components/admin/Modal';
+import { SkeletonTable } from '../../components/ui/Skeleton';
+import ErrorState from '../../components/ui/ErrorState';
+import EmptyState from '../../components/ui/EmptyState';
+import { useToast } from '../../context/ToastContext';
+import { parseApiError } from '../../lib/errorMapper';
 
 const statusClasses: Record<string, string> = {
   Active: 'bg-emerald-50 text-emerald-600 border-emerald-200',
@@ -15,20 +21,43 @@ const routeAccents = [
 ];
 
 const RouteStops = () => {
-  const [expandedRoute, setExpandedRoute] = useState<string | null>(routes[0]?.id ?? null);
+  const { data: routes = [], isLoading, isError, refetch } = useRoutes();
+  const { data: buses = [] } = useBuses();
+  const createRoute = useCreateRoute();
+  const { toast } = useToast();
+  const [expandedRoute, setExpandedRoute] = useState<number | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [formData, setFormData] = useState({
-    name: '', stops: '', assignedBus: '', startTime: '', endTime: '',
+    bus: '', direction: '',
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log('Add route:', formData);
-    setModalOpen(false);
-    setFormData({ name: '', stops: '', assignedBus: '', startTime: '', endTime: '' });
+  // Expand first route by default
+  useEffect(() => {
+    if (routes.length > 0 && expandedRoute === null) {
+      setExpandedRoute(routes[0].id);
+    }
+  }, [routes, expandedRoute]);
+
+  const getBusMatricule = (busId: number) => {
+    const bus = buses.find((b) => b.id === busId);
+    return bus?.matricule || `Bus #${busId}`;
   };
 
-  const totalStops = routes.reduce((sum, r) => sum + r.stops.length, 0);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await createRoute.mutateAsync({ bus: Number(formData.bus), direction: formData.direction });
+      toast('Route added successfully!');
+      setModalOpen(false);
+      setFormData({ bus: '', direction: '' });
+    } catch (err) {
+      toast(parseApiError(err).message);
+    }
+  };
+
+  if (isLoading) return <SkeletonTable rows={4} cols={4} />;
+  if (isError) return <ErrorState onRetry={() => refetch()} />;
+  if (routes.length === 0) return <EmptyState title="No routes yet" subtitle="Create your first route to get started." action={{ label: 'Add Route', onClick: () => setModalOpen(true) }} />;
 
   return (
     <div className="space-y-6">
@@ -47,7 +76,7 @@ const RouteStops = () => {
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-xl font-bold text-primary-900">All Routes</h2>
-          <p className="text-sm text-slate-400 mt-1">{routes.length} routes · {totalStops} total stops</p>
+          <p className="text-sm text-slate-400 mt-1">{routes.length} routes</p>
         </div>
         <button
           onClick={() => setModalOpen(true)}
@@ -78,15 +107,15 @@ const RouteStops = () => {
                     <MapPin className={`w-5 h-5 ${accent.icon}`} />
                   </div>
                   <div>
-                    <h3 className="text-sm font-bold text-primary-900">{route.name}</h3>
+                    <h3 className="text-sm font-bold text-primary-900">Route #{route.id} — {route.direction}</h3>
                     <p className="text-xs text-slate-400 mt-0.5">
-                      {route.stops.length} stops · {route.stops[0]?.name} → {route.stops[route.stops.length - 1]?.name}
+                      Bus: {getBusMatricule(route.bus)}
                     </p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className={`hidden sm:inline-block px-2.5 py-1 rounded-lg text-xs font-semibold border ${statusClasses[route.status]}`}>
-                    {route.status}
+                  <span className={`hidden sm:inline-block px-2.5 py-1 rounded-lg text-xs font-semibold border ${statusClasses['Active']}`}>
+                    Active
                   </span>
                   {isExpanded ? (
                     <ChevronUp className="w-4 h-4 text-slate-400" />
@@ -105,30 +134,24 @@ const RouteStops = () => {
                       <BusIcon className="w-4 h-4 text-primary-500" />
                       <div>
                         <p className="text-xs text-slate-400">Assigned Bus</p>
-                        <p className="text-sm font-semibold text-primary-900">{route.assignedBus}</p>
+                        <p className="text-sm font-semibold text-primary-900">{getBusMatricule(route.bus)}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50">
                       <Moon className="w-4 h-4 text-indigo-500" />
                       <div>
-                        <p className="text-xs text-slate-400">Operating Hours</p>
-                        <p className="text-sm font-semibold text-primary-900">10:00 PM → 6:00 AM</p>
+                        <p className="text-xs text-slate-400">Direction</p>
+                        <p className="text-sm font-semibold text-primary-900">{route.direction}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50">
                       <Pause className="w-4 h-4 text-amber-500" />
                       <div>
-                        <p className="text-xs text-slate-400">Break Period</p>
-                        <p className="text-sm font-semibold text-primary-900">2:00 AM → 3:00 AM</p>
+                        <p className="text-xs text-slate-400">Route ID</p>
+                        <p className="text-sm font-semibold text-primary-900">#{route.id}</p>
                       </div>
                     </div>
                   </div>
-
-                  {/* Horizontal Stops Timeline */}
-                  <h4 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">
-                    Stops Timeline — {route.stops.length} stops
-                  </h4>
-                  <HorizontalTimeline stops={route.stops} accent={accent} />
                 </div>
               )}
             </div>
@@ -140,54 +163,27 @@ const RouteStops = () => {
       <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title="Add New Route">
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1.5">Route Name</label>
-            <input
-              type="text"
-              placeholder="e.g. Route F — Evening Express"
-              value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none transition-all placeholder:text-slate-300"
-            />
+            <label className="block text-sm font-medium text-slate-700 mb-1.5">Bus</label>
+            <select
+              value={formData.bus}
+              onChange={(e) => setFormData({ ...formData, bus: e.target.value })}
+              className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none transition-all bg-white"
+            >
+              <option value="">Select a bus…</option>
+              {buses.map((b) => (
+                <option key={b.id} value={b.id}>{b.matricule} (capacity: {b.capacity})</option>
+              ))}
+            </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1.5">Stops (comma-separated)</label>
-            <textarea
-              placeholder="e.g. Main Gate, Library, Labs, Dorms"
-              value={formData.stops}
-              onChange={(e) => setFormData({ ...formData, stops: e.target.value })}
-              rows={3}
-              className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none transition-all placeholder:text-slate-300 resize-none"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1.5">Assigned Bus</label>
+            <label className="block text-sm font-medium text-slate-700 mb-1.5">Direction</label>
             <input
               type="text"
-              placeholder="e.g. Bus 07"
-              value={formData.assignedBus}
-              onChange={(e) => setFormData({ ...formData, assignedBus: e.target.value })}
+              placeholder="e.g. Outbound / Inbound / Loop"
+              value={formData.direction}
+              onChange={(e) => setFormData({ ...formData, direction: e.target.value })}
               className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none transition-all placeholder:text-slate-300"
             />
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">Start Time</label>
-              <input
-                type="time"
-                value={formData.startTime}
-                onChange={(e) => setFormData({ ...formData, startTime: e.target.value })}
-                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none transition-all"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">End Time</label>
-              <input
-                type="time"
-                value={formData.endTime}
-                onChange={(e) => setFormData({ ...formData, endTime: e.target.value })}
-                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none transition-all"
-              />
-            </div>
           </div>
           <div className="flex justify-end gap-3 pt-2">
             <button type="button" onClick={() => setModalOpen(false)} className="px-5 py-2.5 rounded-xl border border-slate-200 text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors">
@@ -199,121 +195,6 @@ const RouteStops = () => {
           </div>
         </form>
       </Modal>
-    </div>
-  );
-};
-
-/* ────── Horizontal Scrollable Stops Timeline ────── */
-
-interface TimelineProps {
-  stops: { name: string; arrivalTime: string }[];
-  accent: typeof routeAccents[number];
-}
-
-const HorizontalTimeline = ({ stops, accent }: TimelineProps) => {
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const [canScrollLeft, setCanScrollLeft] = useState(false);
-  const [canScrollRight, setCanScrollRight] = useState(false);
-
-  const checkScroll = () => {
-    const el = scrollRef.current;
-    if (!el) return;
-    setCanScrollLeft(el.scrollLeft > 4);
-    setCanScrollRight(el.scrollLeft < el.scrollWidth - el.clientWidth - 4);
-  };
-
-  useEffect(() => {
-    checkScroll();
-    const el = scrollRef.current;
-    el?.addEventListener('scroll', checkScroll);
-    window.addEventListener('resize', checkScroll);
-    return () => {
-      el?.removeEventListener('scroll', checkScroll);
-      window.removeEventListener('resize', checkScroll);
-    };
-  }, []);
-
-  const scroll = (dir: 'left' | 'right') => {
-    scrollRef.current?.scrollBy({ left: dir === 'left' ? -200 : 200, behavior: 'smooth' });
-  };
-
-  // Format 24h to 12h
-  const to12h = (t: string) => {
-    const [h, m] = t.split(':').map(Number);
-    const suffix = h >= 12 ? 'PM' : 'AM';
-    return `${h % 12 || 12}:${String(m).padStart(2, '0')} ${suffix}`;
-  };
-
-  return (
-    <div className="relative group">
-      {/* Scroll shadow indicators */}
-      {canScrollLeft && (
-        <button
-          onClick={() => scroll('left')}
-          className="absolute left-0 top-0 bottom-0 w-10 z-10 bg-gradient-to-r from-white to-transparent flex items-center justify-start pl-1 opacity-0 group-hover:opacity-100 transition-opacity"
-          aria-label="Scroll left"
-        >
-          <ChevronDown className="w-4 h-4 text-slate-400 -rotate-90" />
-        </button>
-      )}
-      {canScrollRight && (
-        <button
-          onClick={() => scroll('right')}
-          className="absolute right-0 top-0 bottom-0 w-10 z-10 bg-gradient-to-l from-white to-transparent flex items-center justify-end pr-1 opacity-0 group-hover:opacity-100 transition-opacity"
-          aria-label="Scroll right"
-        >
-          <ChevronDown className="w-4 h-4 text-slate-400 rotate-90" />
-        </button>
-      )}
-
-      {/* Scrollable track */}
-      <div
-        ref={scrollRef}
-        className="overflow-x-auto scrollbar-thin pb-2"
-        style={{ scrollbarWidth: 'thin' }}
-      >
-        <div className="flex items-start gap-0 min-w-max px-2 pt-2">
-          {stops.map((stop, i) => {
-            const isFirst = i === 0;
-            const isLast = i === stops.length - 1;
-
-            return (
-              <div key={i} className="flex items-start">
-                {/* Stop node */}
-                <div className="flex flex-col items-center" style={{ width: '100px' }}>
-                  {/* Numbered dot */}
-                  <div
-                    className={`w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold text-white shadow-sm ${
-                      isFirst ? accent.dot : isLast ? 'bg-emerald-500' : accent.dotMid
-                    }`}
-                  >
-                    {i + 1}
-                  </div>
-
-                  {/* Stop name */}
-                  <p className="text-[11px] font-medium text-primary-900 text-center mt-1.5 leading-tight px-1 max-w-[96px]">
-                    {stop.name}
-                  </p>
-                  {/* Arrival time */}
-                  <p className="text-[10px] text-slate-400 font-mono mt-0.5">
-                    {to12h(stop.arrivalTime)}
-                  </p>
-                </div>
-
-                {/* Connector line */}
-                {!isLast && (
-                  <div className="flex items-center mt-[13px]">
-                    <div className={`w-8 h-[2px] ${accent.line}`} />
-                    <div className={`w-0 h-0 border-t-[3px] border-t-transparent border-b-[3px] border-b-transparent border-l-[5px] ${
-                      accent.line === 'bg-primary-300' ? 'border-l-primary-300' : 'border-l-sky-300'
-                    }`} />
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      </div>
     </div>
   );
 };

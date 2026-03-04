@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { driverNotifications } from '../../data/driverMockData';
 import { useAuth } from '../../context/AuthContext';
+import { useTranslation } from 'react-i18next';
 
 interface SidebarProps {
   collapsed: boolean;
@@ -19,16 +20,17 @@ interface SidebarProps {
   onMobileClose: () => void;
 }
 
-const navItems = [
-  { label: 'Overview', icon: Home, path: '/driver/overview' },
-  { label: 'My Route', icon: MapPinned, path: '/driver/route' },
-  { label: 'Passenger List', icon: Users, path: '/driver/passengers' },
-  { label: 'Notifications', icon: Bell, path: '/driver/notifications', badge: driverNotifications.filter((n) => !n.read).length },
-  { label: 'Profile Settings', icon: UserCog, path: '/driver/profile' },
-];
-
 const DriverSidebar = ({ collapsed, onToggle, mobileOpen, onMobileClose }: SidebarProps) => {
   const { user } = useAuth();
+  const { t } = useTranslation();
+
+  const navItems = [
+    { label: t('dashboard.sidebar.overview'), icon: Home, path: '/driver/overview' },
+    { label: t('dashboard.sidebar.myRoute'), icon: MapPinned, path: '/driver/route' },
+    { label: t('dashboard.sidebar.passengers'), icon: Users, path: '/driver/passengers' },
+    { label: t('dashboard.sidebar.notifications'), icon: Bell, path: '/driver/notifications', badge: driverNotifications.filter((n) => !n.read).length },
+    { label: t('dashboard.sidebar.profile'), icon: UserCog, path: '/driver/profile' },
+  ];
 
   const sidebarContent = (
     <div className="flex flex-col h-full">

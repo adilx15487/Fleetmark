@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { Camera, Save, Trash2, Eye, EyeOff, ChevronDown, Bus, MapPin, Ticket, ArrowRight, X } from 'lucide-react';
-import { passengerProfile } from '../../data/passengerMockData';
+import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { useReservation, ALL_STOPS, getBusForStop, isSharedStop, type BusAssignment } from '../../context/ReservationContext';
 
 const ProfileSettings = () => {
   const { toast } = useToast();
+  const { user } = useAuth();
   const {
     isOnboarded,
     transport,
@@ -18,11 +19,11 @@ const ProfileSettings = () => {
   const busInfo = getBusInfo();
 
   const [form, setForm] = useState({
-    name: passengerProfile.name,
-    email: passengerProfile.email,
-    phone: passengerProfile.phone,
-    organizationType: passengerProfile.organizationType,
-    organizationName: passengerProfile.organizationName,
+    name: user?.username || '',
+    email: user?.email || '',
+    phone: '',
+    organizationType: 'School' as string,
+    organizationName: '',
   });
 
   const [passwords, setPasswords] = useState({
@@ -98,8 +99,8 @@ const ProfileSettings = () => {
         <div className="flex items-center gap-6">
           <div className="relative">
             <img
-              src={passengerProfile.avatar}
-              alt={passengerProfile.name}
+              src={`https://api.dicebear.com/9.x/avataaars/svg?seed=${encodeURIComponent(user?.username || 'User')}&backgroundColor=b6e3f4&top=shortHair`}
+              alt={user?.username || 'User'}
               className="w-20 h-20 rounded-full bg-slate-200"
             />
             <button className="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-primary-600 text-white flex items-center justify-center border-2 border-white shadow-lg hover:bg-primary-700 transition-colors">
@@ -107,10 +108,10 @@ const ProfileSettings = () => {
             </button>
           </div>
           <div>
-            <h2 className="text-lg font-bold text-primary-900">{passengerProfile.name}</h2>
-            <p className="text-sm text-slate-400">{passengerProfile.email}</p>
+            <h2 className="text-lg font-bold text-primary-900">{user?.username || 'User'}</h2>
+            <p className="text-sm text-slate-400">{user?.email || ''}</p>
             <span className="inline-block mt-1.5 px-2.5 py-0.5 rounded-lg text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-600 border border-emerald-200">
-              Passenger
+              1337 Student
             </span>
           </div>
         </div>
@@ -214,32 +215,21 @@ const ProfileSettings = () => {
 
         <div className="grid sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-xs font-medium text-slate-500 mb-1.5">Organization Type</label>
-            <div className="relative">
-              <select
-                value={form.organizationType}
-                onChange={(e) =>
-                  setForm({
-                    ...form,
-                    organizationType: e.target.value as typeof form.organizationType,
-                  })
-                }
-                className={`${inputClass} appearance-none cursor-pointer bg-white`}
-              >
-                <option value="University">University</option>
-                <option value="Enterprise">Enterprise</option>
-                <option value="School">School</option>
-              </select>
-              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
-            </div>
-          </div>
-          <div>
-            <label className="block text-xs font-medium text-slate-500 mb-1.5">Organization Name</label>
+            <label className="block text-xs font-medium text-slate-500 mb-1.5">School</label>
             <input
               type="text"
-              value={form.organizationName}
-              onChange={(e) => setForm({ ...form, organizationName: e.target.value })}
-              className={inputClass}
+              value="1337 School"
+              disabled
+              className={`${inputClass} bg-slate-50 text-slate-400 cursor-not-allowed`}
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-slate-500 mb-1.5">Campus</label>
+            <input
+              type="text"
+              value="Ben Guerir"
+              disabled
+              className={`${inputClass} bg-slate-50 text-slate-400 cursor-not-allowed`}
             />
           </div>
         </div>

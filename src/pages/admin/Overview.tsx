@@ -4,7 +4,6 @@ import {
   Users,
   CalendarCheck,
   TrendingUp,
-  TrendingDown,
   Plus,
   FileText,
   Send,
@@ -15,8 +14,7 @@ import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, Legend,
 } from 'recharts';
-import { dashboardStats, dailyReservations, capacityData, recentActivities, routes } from '../../data/mockData';
-import { useLoadingState } from '../../hooks/useLoadingState';
+import { useBuses, useRoutes, useUsers, useReservations } from '../../hooks/useApi';
 import { SkeletonCard, SkeletonChart, SkeletonTable } from '../../components/ui/Skeleton';
 import ErrorState from '../../components/ui/ErrorState';
 
@@ -28,21 +26,53 @@ const statColors = [
   'bg-amber-500/10 text-amber-600',
 ];
 
-const statusClasses: Record<string, string> = {
-  Confirmed: 'bg-emerald-50 text-emerald-600 border-emerald-200',
-  Pending: 'bg-amber-50 text-amber-600 border-amber-200',
-  Cancelled: 'bg-red-50 text-danger-500 border-red-200',
-};
+const CAPACITY_COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#94A3B8'];
 
 const Overview = () => {
-  const { isLoading, isError, retry } = useLoadingState();
+  const { data: buses = [], isLoading: busLoading, isError: busError, refetch: busRefetch } = useBuses();
+  const { data: apiRoutes = [], isLoading: routeLoading } = useRoutes();
+  const { data: users = [], isLoading: userLoading } = useUsers();
+  const { data: reservations = [], isLoading: resLoading } = useReservations();
 
+  const isLoading = busLoading || routeLoading || userLoading || resLoading;
+  const isError = busError;
+
+  // Derive stats
   const stats = [
-    dashboardStats.totalBuses,
-    dashboardStats.activeRoutes,
-    dashboardStats.totalUsers,
-    dashboardStats.todayReservations,
+    { label: 'Total Buses', value: buses.length },
+    { label: 'Active Routes', value: apiRoutes.length },
+    { label: 'Total Users', value: users.length },
+    { label: 'Reservations', value: reservations.length },
   ];
+
+  // Derive daily reservations chart data from created_at
+  const dailyReservations = (() => {
+    const counts: Record<string, number> = {};
+    reservations.forEach((r) => {
+      const day = new Date(r.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      counts[day] = (counts[day] || 0) + 1;
+    });
+    return Object.entries(counts)
+      .map(([date, count]) => ({ date, reservations: count }))
+      .slice(-14); // last 14 days
+  })();
+
+  // Derive capacity donut from bus capacities
+  const capacityData = (() => {
+    const buckets = [
+      { name: '≤ 20 seats', min: 0, max: 20, fill: CAPACITY_COLORS[0] },
+      { name: '21-40 seats', min: 21, max: 40, fill: CAPACITY_COLORS[1] },
+      { name: '41-60 seats', min: 41, max: 60, fill: CAPACITY_COLORS[2] },
+      { name: '60+ seats', min: 61, max: Infinity, fill: CAPACITY_COLORS[3] },
+    ];
+    return buckets
+      .map((b) => ({
+        name: b.name,
+        value: buses.filter((bus) => bus.capacity >= b.min && bus.capacity <= b.max).length,
+        fill: b.fill,
+      }))
+      .filter((b) => b.value > 0);
+  })();
 
   if (isLoading) {
     return (
@@ -59,7 +89,7 @@ const Overview = () => {
     );
   }
 
-  if (isError) return <ErrorState onRetry={retry} />;
+  if (isError) return <ErrorState onRetry={busRefetch} />;
 
   return (
     <div className="space-y-6">
@@ -67,7 +97,6 @@ const Overview = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6">
         {stats.map((stat, i) => {
           const Icon = statIcons[i];
-          const isPositive = stat.change >= 0;
           return (
             <div
               key={stat.label}
@@ -77,11 +106,9 @@ const Overview = () => {
                 <div className={`w-11 h-11 rounded-xl flex items-center justify-center ${statColors[i]}`}>
                   <Icon className="w-5 h-5" />
                 </div>
-                <div className={`flex items-center gap-1 text-xs font-semibold px-2 py-1 rounded-lg ${
-                  isPositive ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-danger-500'
-                }`}>
-                  {isPositive ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
-                  {isPositive ? '+' : ''}{stat.change}%
+                <div className="flex items-center gap-1 text-xs font-semibold px-2 py-1 rounded-lg bg-emerald-50 text-emerald-600">
+                  <TrendingUp className="w-3 h-3" />
+                  Live
                 </div>
               </div>
               <p className="text-2xl font-bold text-primary-900">{stat.value.toLocaleString()}</p>
@@ -110,8 +137,8 @@ const Overview = () => {
         <div className="flex items-center gap-3 px-5 py-3.5 rounded-2xl bg-emerald-50 border border-emerald-200">
           <MapPinned className="w-5 h-5 text-emerald-500 shrink-0" />
           <div>
-            <p className="text-xs text-emerald-400">Total Stops</p>
-            <p className="text-sm font-bold text-emerald-800">{routes.reduce((sum, r) => sum + r.stops.length, 0)} across {routes.length} routes</p>
+            <p className="text-xs text-emerald-400">Active Routes</p>
+            <p className="text-sm font-bold text-emerald-800">{apiRoutes.length} routes</p>
           </div>
         </div>
       </div>
@@ -190,17 +217,17 @@ const Overview = () => {
         </div>
       </div>
 
-      {/* Recent Activity Table */}
+      {/* Recent Reservations Table */}
       <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
         <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
-          <h3 className="text-base font-bold text-primary-900">Recent Activity</h3>
-          <span className="text-xs text-slate-400">{recentActivities.length} entries</span>
+          <h3 className="text-base font-bold text-primary-900">Recent Reservations</h3>
+          <span className="text-xs text-slate-400">{reservations.length} entries</span>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-slate-50/80">
-                {['User', 'Route', 'Bus', 'Seat', 'Status', 'Time'].map((h) => (
+                {['Student', 'Trip', 'Date', 'Status'].map((h) => (
                   <th key={h} className="px-5 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
                     {h}
                   </th>
@@ -208,31 +235,23 @@ const Overview = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {recentActivities.map((a) => (
-                <tr key={a.id} className="hover:bg-slate-50/50 transition-colors">
-                  <td className="px-5 py-3.5 font-medium text-primary-900 whitespace-nowrap">{a.user}</td>
-                  <td className="px-5 py-3.5 text-slate-500 whitespace-nowrap">{a.route}</td>
-                  <td className="px-5 py-3.5 text-slate-500">{a.bus}</td>
-                  <td className="px-5 py-3.5 text-slate-500 font-mono">{a.seat}</td>
+              {reservations.slice(0, 10).map((r) => (
+                <tr key={r.id} className="hover:bg-slate-50/50 transition-colors">
+                  <td className="px-5 py-3.5 font-medium text-primary-900 whitespace-nowrap">{r.passenger_name}</td>
+                  <td className="px-5 py-3.5 text-slate-500">Trip #{r.trip}</td>
+                  <td className="px-5 py-3.5 text-slate-400">{new Date(r.created_at).toLocaleString()}</td>
                   <td className="px-5 py-3.5">
-                    <span className={`inline-block px-2.5 py-1 rounded-lg text-xs font-semibold border ${statusClasses[a.status]}`}>
-                      {a.status}
+                    <span className="inline-block px-2.5 py-1 rounded-lg text-xs font-semibold border bg-emerald-50 text-emerald-600 border-emerald-200">
+                      Confirmed
                     </span>
                   </td>
-                  <td className="px-5 py-3.5 text-slate-400">{a.time}</td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
-        {/* Pagination */}
         <div className="px-5 py-3 border-t border-slate-100 flex items-center justify-between">
-          <p className="text-xs text-slate-400">Showing 1-{recentActivities.length} of {recentActivities.length}</p>
-          <div className="flex gap-1">
-            <button className="px-3 py-1.5 rounded-lg text-xs font-medium bg-primary-600 text-white">1</button>
-            <button className="px-3 py-1.5 rounded-lg text-xs font-medium text-slate-500 hover:bg-slate-100">2</button>
-            <button className="px-3 py-1.5 rounded-lg text-xs font-medium text-slate-500 hover:bg-slate-100">3</button>
-          </div>
+          <p className="text-xs text-slate-400">Showing 1-{Math.min(10, reservations.length)} of {reservations.length}</p>
         </div>
       </div>
 

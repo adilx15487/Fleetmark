@@ -17,7 +17,7 @@ export const driverProfile = {
 // Driver stats
 export const driverStats = {
   assignedRoute: { value: 'Route 1', subtext: '19 stops', label: 'Assigned Route' },
-  passengersToday: { value: 34, label: 'Passengers Today' },
+  passengersToday: { value: 34, label: 'Students Tonight' },
   nextDeparture: { value: '10:00 PM', subtext: 'Tonight', label: 'Next Departure' },
   busInfo: { value: 'Bus 1', subtext: 'X-0001-NS · 50 seats', label: 'Bus Info' },
 };

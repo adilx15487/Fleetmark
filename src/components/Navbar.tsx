@@ -3,12 +3,15 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Menu, X, Bus, LayoutDashboard } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useTranslation } from 'react-i18next';
+import LanguageSwitcher from './LanguageSwitcher';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const { user, isAuthenticated, getDashboardPath } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -19,10 +22,10 @@ const Navbar = () => {
   }, []);
 
   const navLinks = [
-    { label: 'About', href: '#about' },
-    { label: 'Features', href: '#features' },
-    { label: 'Get Started', href: '#auth' },
-    { label: 'Subscribe', href: '#subscribe' },
+    { label: t('landing.nav.about'), href: '#about' },
+    { label: t('landing.nav.features'), href: '#features' },
+    { label: t('landing.nav.getStarted'), href: '#auth' },
+    { label: t('landing.nav.subscribe'), href: '#subscribe' },
   ];
 
   return (
@@ -47,11 +50,18 @@ const Navbar = () => {
                 scrolled ? 'text-accent-400' : 'text-white'
               }`} />
             </div>
-            <span className={`text-xl font-bold tracking-tight transition-colors duration-300 ${
-              scrolled ? 'text-primary-900' : 'text-white'
-            }`}>
-              Fleetmark
-            </span>
+            <div className="flex flex-col">
+              <span className={`text-xl font-bold tracking-tight leading-tight transition-colors duration-300 ${
+                scrolled ? 'text-primary-900' : 'text-white'
+              }`}>
+                Fleetmark
+              </span>
+              <span className={`text-[10px] font-medium tracking-wide transition-colors duration-300 ${
+                scrolled ? 'text-slate-400' : 'text-white/50'
+              }`}>
+                1337 School
+              </span>
+            </div>
           </a>
 
           {/* Desktop Navigation */}
@@ -71,6 +81,11 @@ const Navbar = () => {
             ))}
           </div>
 
+          {/* Language Switcher */}
+          <div className="hidden md:flex items-center">
+            <LanguageSwitcher />
+          </div>
+
           {/* Desktop CTA */}
           <div className="hidden md:flex items-center gap-3">
             {isAuthenticated && user ? (
@@ -83,7 +98,7 @@ const Navbar = () => {
                 }`}
               >
                 <LayoutDashboard className="w-4 h-4" />
-                Go to Dashboard
+                {t('landing.nav.dashboard')}
               </button>
             ) : (
               <>
@@ -95,7 +110,7 @@ const Navbar = () => {
                       : 'text-white hover:bg-white/10'
                   }`}
                 >
-                  Log In
+                  {t('landing.nav.login')}
                 </a>
                 <a
                   href="#auth"
@@ -105,7 +120,7 @@ const Navbar = () => {
                       : 'bg-white text-primary-800 hover:bg-white/90 shadow-lg shadow-black/10'
                   }`}
                 >
-                  Sign Up
+                  {t('landing.nav.signup')}
                 </a>
               </>
             )}
@@ -142,6 +157,9 @@ const Navbar = () => {
                 {link.label}
               </a>
             ))}
+            <div className="px-4 py-2">
+              <LanguageSwitcher />
+            </div>
             <div className="pt-4 flex gap-3">
               {isAuthenticated && user ? (
                 <button
@@ -149,7 +167,7 @@ const Navbar = () => {
                   className="flex-1 text-center inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-primary-700 text-white font-semibold hover:bg-primary-800 transition-colors shadow-lg shadow-primary-700/25"
                 >
                   <LayoutDashboard className="w-4 h-4" />
-                  Go to Dashboard
+                  {t('landing.nav.dashboard')}
                 </button>
               ) : (
                 <>
@@ -158,14 +176,14 @@ const Navbar = () => {
                     onClick={() => setIsOpen(false)}
                     className="flex-1 text-center px-4 py-3 rounded-xl border-2 border-primary-200 text-primary-700 font-semibold hover:bg-primary-50 transition-colors"
                   >
-                    Log In
+                    {t('landing.nav.login')}
                   </a>
                   <a
                     href="#auth"
                     onClick={() => setIsOpen(false)}
                     className="flex-1 text-center px-4 py-3 rounded-xl bg-primary-700 text-white font-semibold hover:bg-primary-800 transition-colors shadow-lg shadow-primary-700/25"
                   >
-                    Sign Up
+                    {t('landing.nav.signup')}
                   </a>
                 </>
               )}

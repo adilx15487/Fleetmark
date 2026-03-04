@@ -1,30 +1,31 @@
 import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { Search, MapPin, Clock, Users, ChevronDown, ChevronUp, Bus, Ticket } from 'lucide-react';
-import { availableRoutes } from '../../data/passengerMockData';
-import { useLoadingState } from '../../hooks/useLoadingState';
+import { useRoutes, useBuses } from '../../hooks/useApi';
 import { SkeletonList } from '../../components/ui/Skeleton';
 import ErrorState from '../../components/ui/ErrorState';
-
-type OrgFilter = 'All' | 'University' | 'Enterprise' | 'School';
+import EmptyState from '../../components/ui/EmptyState';
 
 const PassengerRoutes = () => {
-  const { isLoading, isError, retry } = useLoadingState();
+  const { data: routes = [], isLoading, isError, refetch } = useRoutes();
+  const { data: buses = [] } = useBuses();
   const [search, setSearch] = useState('');
-  const [orgFilter, setOrgFilter] = useState<OrgFilter>('All');
-  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [expandedId, setExpandedId] = useState<number | null>(null);
+
+  const getBus = (busId: number) => buses.find((b) => b.id === busId);
 
   const filtered = useMemo(() => {
-    return availableRoutes.filter((r) => {
-      const matchSearch = r.name.toLowerCase().includes(search.toLowerCase()) ||
-        r.stops.some((s) => s.toLowerCase().includes(search.toLowerCase()));
-      const matchOrg = orgFilter === 'All' || r.organization === orgFilter;
-      return matchSearch && matchOrg;
+    return routes.filter((r) => {
+      const bus = getBus(r.bus);
+      const matchSearch = r.direction.toLowerCase().includes(search.toLowerCase()) ||
+        (bus?.matricule || '').toLowerCase().includes(search.toLowerCase());
+      return matchSearch;
     });
-  }, [search, orgFilter]);
+  }, [search, routes, buses]);
 
   if (isLoading) return <SkeletonList items={5} />;
-  if (isError) return <ErrorState onRetry={retry} />;
+  if (isError) return <ErrorState onRetry={() => refetch()} />;
+  if (routes.length === 0) return <EmptyState title="No routes available" subtitle="Routes will appear here once created by admin." />;
 
   return (
     <div className="space-y-6">
@@ -41,19 +42,7 @@ const PassengerRoutes = () => {
           />
         </div>
         <div className="flex items-center gap-2">
-          {(['All', 'University', 'Enterprise', 'School'] as OrgFilter[]).map((org) => (
-            <button
-              key={org}
-              onClick={() => setOrgFilter(org)}
-              className={`px-4 py-2.5 rounded-xl text-sm font-medium transition-all whitespace-nowrap ${
-                orgFilter === org
-                  ? 'bg-primary-600 text-white shadow-md shadow-primary-600/20'
-                  : 'bg-white border border-slate-200 text-slate-600 hover:border-primary-300'
-              }`}
-            >
-              {org}
-            </button>
-          ))}
+          {/* Search is the only filter now */}
         </div>
       </div>
 
@@ -61,7 +50,7 @@ const PassengerRoutes = () => {
       <div className="space-y-4">
         {filtered.map((route) => {
           const isExpanded = expandedId === route.id;
-          const seatPercent = Math.round((route.availableSeats / route.totalSeats) * 100);
+          const bus = getBus(route.bus);
 
           return (
             <div
@@ -79,30 +68,17 @@ const PassengerRoutes = () => {
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
-                      <h3 className="text-sm font-bold text-primary-900">{route.name}</h3>
-                      <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider ${
-                        route.status === 'Active'
-                          ? 'bg-emerald-50 text-emerald-600'
-                          : 'bg-slate-100 text-slate-400'
-                      }`}>
-                        {route.status}
+                      <h3 className="text-sm font-bold text-primary-900">Route #{route.id} — {route.direction}</h3>
+                      <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-600">
+                        Active
                       </span>
                     </div>
                     <p className="text-xs text-slate-400 mt-0.5">
-                      {route.stops.length} stops · {route.assignedBus} · {route.organization}
+                      Bus: {bus?.matricule || '—'} · Capacity: {bus?.capacity || '—'} seats
                     </p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <div className="hidden sm:flex items-center gap-2">
-                    <div className="w-20 h-2 rounded-full bg-slate-100 overflow-hidden">
-                      <div
-                        className={`h-full rounded-full ${seatPercent > 50 ? 'bg-emerald-400' : seatPercent > 20 ? 'bg-amber-400' : 'bg-red-400'}`}
-                        style={{ width: `${seatPercent}%` }}
-                      />
-                    </div>
-                    <span className="text-xs font-semibold text-slate-500">{route.availableSeats} seats</span>
-                  </div>
                   {isExpanded ? (
                     <ChevronUp className="w-4 h-4 text-slate-400" />
                   ) : (
@@ -114,58 +90,39 @@ const PassengerRoutes = () => {
               {/* Expanded */}
               {isExpanded && (
                 <div className="px-5 pb-5 border-t border-slate-100 pt-4">
-                  {/* Stops timeline */}
-                  <div className="flex items-center gap-2 flex-wrap mb-5">
-                    {route.stops.map((stop, i) => (
-                      <div key={stop} className="flex items-center gap-2">
-                        <div className="flex items-center gap-1.5">
-                          <div className={`w-3 h-3 rounded-full ${
-                            i === 0 ? 'bg-primary-500' : i === route.stops.length - 1 ? 'bg-emerald-500' : 'bg-accent-400'
-                          } shadow-sm`} />
-                          <span className="text-sm font-medium text-primary-900">{stop}</span>
-                        </div>
-                        {i < route.stops.length - 1 && (
-                          <div className="w-6 h-px bg-slate-300" />
-                        )}
-                      </div>
-                    ))}
-                  </div>
-
                   {/* Info row */}
                   <div className="grid sm:grid-cols-3 gap-4 mb-5">
                     <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50">
                       <Clock className="w-4 h-4 text-primary-500" />
                       <div>
-                        <p className="text-xs text-slate-400">Departure Times</p>
-                        <p className="text-sm font-semibold text-primary-900">{route.departureTimes.join(', ')}</p>
+                        <p className="text-xs text-slate-400">Direction</p>
+                        <p className="text-sm font-semibold text-primary-900">{route.direction}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50">
                       <Users className="w-4 h-4 text-emerald-500" />
                       <div>
-                        <p className="text-xs text-slate-400">Available Seats</p>
-                        <p className="text-sm font-semibold text-primary-900">{route.availableSeats} / {route.totalSeats}</p>
+                        <p className="text-xs text-slate-400">Bus Capacity</p>
+                        <p className="text-sm font-semibold text-primary-900">{bus?.capacity || '—'} seats</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50">
                       <Bus className="w-4 h-4 text-accent-500" />
                       <div>
                         <p className="text-xs text-slate-400">Bus Assigned</p>
-                        <p className="text-sm font-semibold text-primary-900">{route.assignedBus}</p>
+                        <p className="text-sm font-semibold text-primary-900">{bus?.matricule || '—'}</p>
                       </div>
                     </div>
                   </div>
 
                   {/* Reserve button */}
-                  {route.status === 'Active' && (
-                    <Link
-                      to="/passenger/reserve"
-                      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary-600 text-white text-sm font-semibold hover:bg-primary-700 shadow-lg shadow-primary-600/20 transition-all active:scale-[0.98]"
-                    >
-                      <Ticket className="w-4 h-4" />
-                      Reserve a Seat
-                    </Link>
-                  )}
+                  <Link
+                    to="/passenger/reserve"
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary-600 text-white text-sm font-semibold hover:bg-primary-700 shadow-lg shadow-primary-600/20 transition-all active:scale-[0.98]"
+                  >
+                    <Ticket className="w-4 h-4" />
+                    Reserve a Seat
+                  </Link>
                 </div>
               )}
             </div>

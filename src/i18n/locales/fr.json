@@ -1,0 +1,195 @@
+{
+  "translation": {
+    "landing": {
+      "nav": {
+        "about": "À propos",
+        "features": "Fonctionnalités",
+        "getStarted": "Commencer",
+        "subscribe": "S'abonner",
+        "login": "Connexion",
+        "signup": "S'inscrire",
+        "dashboard": "Tableau de bord"
+      },
+      "hero": {
+        "badge": "Réservations ouvertes",
+        "title": "Transport Intelligent.",
+        "subtitle": "Réservé pour Vous.",
+        "description": "La plateforme de réservation de sièges pour la navette de nuit de 1337 School, Ben Guerir.",
+        "cta": "Commencer gratuitement",
+        "learnMore": "En savoir plus",
+        "stats": {
+          "riders": "Étudiants",
+          "routes": "Itinéraires",
+          "onTime": "22h — 6h"
+        }
+      },
+      "whoWeAre": {
+        "badge": "Qui sommes-nous",
+        "title": "L'équipe derrière",
+        "description": "Une équipe de développeurs réunis pour résoudre les défis réels du transport."
+      },
+      "features": {
+        "badge": "À propos du projet",
+        "title": "Résoudre les vrais problèmes",
+        "titleHighlight": "de transport avec des solutions intelligentes",
+        "description": "Des bus de nuit surchargés aux annulations de dernière minute — nous avons tout vu. Fleetmark s'attaque à ces problèmes pour les étudiants de 1337.",
+        "problemsLabel": "Problème",
+        "solutionsLabel": "Solution",
+        "problems": [
+          "Bus de nuit surchargés et mal gérés",
+          "Attribution injuste des sièges — premier arrivé, seul servi",
+          "Aucune visibilité sur les itinéraires, arrêts ou horaires de la navette",
+          "Mauvaise communication entre admins, chauffeurs et étudiants"
+        ],
+        "solutions": [
+          "Système de réservation de sièges avec contrôle de capacité — réservez votre siège à l'avance.",
+          "Attribution intelligente basée sur la demande et l'équité — une répartition juste pour chaque étudiant.",
+          "Visibilité des itinéraires et arrêts avec vue carte claire — voyez chaque arrêt de navette en un coup d'œil.",
+          "Signalement instantané et notifications en temps réel — étudiants et chauffeurs restent informés."
+        ],
+        "solutionTitles": [
+          "Réservation de sièges",
+          "Attribution intelligente",
+          "Visibilité des itinéraires",
+          "Signalement instantané"
+        ]
+      },
+      "auth": {
+        "badge": "Commencer",
+        "title": "Votre trajet vous attend.",
+        "subtitle": "Rejoignez Fleetmark aujourd'hui.",
+        "description": "Que vous soyez un administrateur, un étudiant 1337 cherchant un siège garanti ou un chauffeur — Fleetmark est conçu pour vous.",
+        "login": {
+          "tab": "Connexion",
+          "username": "Nom d'utilisateur",
+          "password": "Mot de passe",
+          "button": "Se connecter",
+          "loggingIn": "Connexion en cours…",
+          "noAccount": "Pas encore de compte ?",
+          "forgotPassword": "Mot de passe oublié ?",
+          "role": "Je suis..."
+        },
+        "signup": {
+          "tab": "S'inscrire",
+          "fullName": "Nom complet",
+          "email": "Adresse email",
+          "password": "Mot de passe",
+          "confirmPassword": "Confirmer le mot de passe",
+          "role": "Je suis...",
+          "button": "Créer un compte",
+          "hasAccount": "Déjà un compte ?"
+        },
+        "roles": {
+          "admin": "Admin / Organisateur",
+          "adminDesc": "Gérer la flotte, itinéraires et utilisateurs",
+          "passenger": "Étudiant 1337",
+          "passengerDesc": "Réserver votre siège et suivre la navette",
+          "driver": "Chauffeur",
+          "driverDesc": "Voir le calendrier et les étudiants"
+        },
+        "loginWith42": "Continuer avec 42 Intra",
+        "connecting42": "Connexion à 42…",
+        "orLoginWith": "ou connectez-vous avec vos identifiants",
+        "errors": {
+          "usernameRequired": "Le nom d'utilisateur est requis",
+          "usernameInvalid": "Entrez un nom d'utilisateur valide (min 3 caractères)",
+          "passwordRequired": "Le mot de passe est requis",
+          "passwordLength": "Le mot de passe doit contenir au moins 6 caractères",
+          "nameRequired": "Le nom complet est requis",
+          "nameLength": "Le nom doit contenir au moins 2 caractères",
+          "emailRequired": "L'email est requis",
+          "emailInvalid": "Entrez une adresse email valide",
+          "confirmRequired": "Veuillez confirmer votre mot de passe",
+          "passwordMismatch": "Les mots de passe ne correspondent pas"
+        }
+      },
+      "subscribe": {
+        "title": "Restez informé",
+        "description": "Soyez notifié des mises à jour de la navette, changements d'horaires et nouvelles fonctionnalités. Restez informé sur la navette de nuit de 1337.",
+        "placeholder": "Entrez votre adresse email",
+        "button": "S'abonner",
+        "subscribed": "Abonné !",
+        "noSpam": "Pas de spam. Désabonnement à tout moment."
+      },
+      "footer": {
+        "tagline": "Gestion de la navette de nuit pour 1337 School, Ben Guerir. Chaque trajet compte.",
+        "quickLinks": "Liens rapides",
+        "aboutUs": "À propos",
+        "resources": "Ressources",
+        "documentation": "1337 School",
+        "apiReference": "Réseau 42",
+        "supportCenter": "Centre d'aide",
+        "statusPage": "Nous contacter",
+        "legal": "Légal",
+        "privacy": "Politique de confidentialité",
+        "terms": "Conditions d'utilisation",
+        "cookies": "Politique des cookies",
+        "copyright": "© 2026 Fleetmark. Tous droits réservés.",
+        "bottomTagline": "Fait par les étudiants de 1337, pour les étudiants de 1337. 🏫 Ben Guerir, Maroc."
+      }
+    },
+    "dashboard": {
+      "sidebar": {
+        "overview": "Vue d'ensemble",
+        "buses": "Gestion des bus",
+        "routes": "Itinéraires et arrêts",
+        "users": "Gestion des utilisateurs",
+        "schedule": "Gestion des horaires",
+        "reports": "Rapports et analyses",
+        "notifications": "Notifications",
+        "profile": "Paramètres du profil",
+        "reserve": "Réserver une place",
+        "myReservations": "Mes réservations",
+        "myRoute": "Mon itinéraire",
+        "passengers": "Liste des étudiants",
+        "logout": "Déconnexion"
+      },
+      "common": {
+        "search": "Rechercher...",
+        "searchRoutes": "Rechercher itinéraires ou bus…",
+        "searchPassengers": "Rechercher étudiants ou arrêts…",
+        "save": "Enregistrer",
+        "cancel": "Annuler",
+        "confirm": "Confirmer",
+        "delete": "Supprimer",
+        "edit": "Modifier",
+        "add": "Ajouter",
+        "loading": "Chargement...",
+        "error": "Une erreur s'est produite",
+        "retry": "Réessayer",
+        "empty": "Rien ici pour l'instant",
+        "profile": "Profil",
+        "settings": "Paramètres"
+      },
+      "admin": {
+        "welcome": "Bon retour, Admin"
+      },
+      "passenger": {
+        "welcome": "Bon retour"
+      },
+      "driver": {
+        "welcome": "Bon retour, Chauffeur"
+      },
+      "status": {
+        "active": "Actif",
+        "inactive": "Inactif",
+        "confirmed": "Confirmé",
+        "pending": "En attente",
+        "cancelled": "Annulé",
+        "started": "En cours",
+        "ended": "Terminé"
+      },
+      "errors": {
+        "invalidCredentials": "Nom d'utilisateur ou mot de passe invalide",
+        "networkError": "Connexion échouée. Veuillez réessayer.",
+        "serverError": "Erreur serveur. Réessayez plus tard.",
+        "unauthorized": "Session expirée. Veuillez vous reconnecter.",
+        "forbidden": "Vous n'avez pas la permission.",
+        "notFound": "Non trouvé."
+      },
+      "toast": {
+        "langNotAvailable": "{{lang}} est disponible uniquement sur la page d'accueil"
+      }
+    }
+  }
+}

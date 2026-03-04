@@ -1,7 +1,10 @@
 import { motion } from 'framer-motion';
 import { ArrowRight, MapPin, Shield, Clock } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const Hero = () => {
+  const { t } = useTranslation();
+
   return (
     <section className="relative min-h-screen flex items-center overflow-hidden">
       {/* Background */}
@@ -53,7 +56,7 @@ const Hero = () => {
             >
               <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/10 text-accent-400 text-sm font-medium mb-6">
                 <span className="w-2 h-2 bg-accent-400 rounded-full animate-pulse" />
-                Now Accepting Reservations
+                {t('landing.hero.badge')}
               </span>
             </motion.div>
 
@@ -63,12 +66,10 @@ const Hero = () => {
               transition={{ duration: 0.6, delay: 0.3 }}
               className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-extrabold text-white leading-[1.1] tracking-tight"
             >
-              Smart
-              <br />
-              Transportation.
+              {t('landing.hero.title')}
               <br />
               <span className="bg-gradient-to-r from-accent-400 to-primary-300 bg-clip-text text-transparent">
-                Reserved for You.
+                {t('landing.hero.subtitle')}
               </span>
             </motion.h1>
 
@@ -78,8 +79,7 @@ const Hero = () => {
               transition={{ duration: 0.6, delay: 0.4 }}
               className="mt-6 text-lg sm:text-xl text-primary-200/80 max-w-xl mx-auto lg:mx-0 leading-relaxed"
             >
-              The modern seat reservation and fleet management platform for schools, 
-              universities, and enterprises. Never miss your ride again.
+              {t('landing.hero.description')}
             </motion.p>
 
             <motion.div
@@ -92,14 +92,14 @@ const Hero = () => {
                 href="#auth"
                 className="group inline-flex items-center justify-center gap-2 px-8 py-4 rounded-2xl bg-white text-primary-800 font-bold text-lg hover:bg-primary-50 transition-all duration-200 shadow-2xl shadow-black/20 hover:shadow-white/20"
               >
-                Get Started Free
+                {t('landing.hero.cta')}
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </a>
               <a
                 href="#features"
                 className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20 text-white font-semibold text-lg hover:bg-white/20 transition-all duration-200"
               >
-                Learn More
+                {t('landing.hero.learnMore')}
               </a>
             </motion.div>
 
@@ -111,9 +111,9 @@ const Hero = () => {
               className="mt-12 grid grid-cols-3 gap-4 sm:gap-8 max-w-md mx-auto lg:mx-0"
             >
               {[
-                { value: '500+', label: 'Active Riders' },
-                { value: '25+', label: 'Routes' },
-                { value: '99%', label: 'On Time' },
+                { value: '500+', label: t('landing.hero.stats.riders') },
+                { value: '25+', label: t('landing.hero.stats.routes') },
+                { value: '99%', label: t('landing.hero.stats.onTime') },
               ].map((stat) => (
                 <div key={stat.label} className="text-center lg:text-left">
                   <div className="text-2xl sm:text-3xl font-bold text-white">{stat.value}</div>
@@ -148,8 +148,8 @@ const Hero = () => {
                         <MapPin className="w-5 h-5 text-accent-400" />
                       </div>
                       <div>
-                        <p className="text-white font-semibold">Route A — Campus Express</p>
-                        <p className="text-primary-300/60 text-sm">Main Gate → Library → Labs → Dorms</p>
+                        <p className="text-white font-semibold">Night Shuttle — Route 1</p>
+                        <p className="text-primary-300/60 text-sm">OCP Saka → Nakhil → Kentra → La Gare</p>
                       </div>
                     </div>
                     <span className="px-3 py-1 rounded-full bg-success-500/20 text-success-500 text-xs font-semibold">
@@ -162,11 +162,11 @@ const Hero = () => {
                       <p className="text-xs text-primary-300/60 mt-1">Seats Left</p>
                     </div>
                     <div className="flex-1 bg-white/5 rounded-xl p-3 text-center">
-                      <p className="text-2xl font-bold text-accent-400">7:30</p>
-                      <p className="text-xs text-primary-300/60 mt-1">Next Departure</p>
+                      <p className="text-2xl font-bold text-accent-400">11:00</p>
+                      <p className="text-xs text-primary-300/60 mt-1">PM Tonight</p>
                     </div>
                     <div className="flex-1 bg-white/5 rounded-xl p-3 text-center">
-                      <p className="text-2xl font-bold text-white">4</p>
+                      <p className="text-2xl font-bold text-white">19</p>
                       <p className="text-xs text-primary-300/60 mt-1">Stops</p>
                     </div>
                   </div>
@@ -207,7 +207,7 @@ const Hero = () => {
                   </div>
                   <div>
                     <p className="text-sm font-semibold text-primary-900">Seat Confirmed!</p>
-                    <p className="text-xs text-slate-400">Route A — Seat 14A</p>
+                    <p className="text-xs text-slate-400">Route 1 — Seat 14A</p>
                   </div>
                 </div>
               </motion.div>

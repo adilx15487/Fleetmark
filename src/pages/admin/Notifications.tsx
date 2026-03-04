@@ -170,7 +170,7 @@ const Notifications = () => {
               className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none transition-all cursor-pointer"
             >
               <option>All Users</option>
-              <option>Passengers Only</option>
+              <option>Students Only</option>
               <option>Drivers Only</option>
               <option>Admins Only</option>
             </select>

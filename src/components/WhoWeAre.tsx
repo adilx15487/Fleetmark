@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { useInView } from 'framer-motion';
 import { useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Linkedin, Github, MessageCircle } from 'lucide-react';
 import { useHorizontalScroll } from '../hooks/useHorizontalScroll';
 import ScrollArrows from './ScrollArrows';
@@ -61,6 +62,17 @@ const teamMembers: TeamMember[] = [
     },
   },
   {
+    name: 'Ayoub El Haouti',
+    role: 'Backend + Testing & Debugging',
+    description: 'Ensures platform reliability through rigorous testing, bug fixing, and backend quality assurance.',
+    photo: 'https://api.dicebear.com/9.x/avataaars/svg?seed=Ayoub&backgroundColor=ffdfbf&top=shortHair&facialHair=beardLight',
+    socials: {
+      linkedin: 'https://linkedin.com',
+      github: 'https://github.com',
+      whatsapp: 'https://wa.me/',
+    },
+  },
+  {
     name: 'Aamir Tahtah',
     role: 'DevOps & Security',
     description: 'Manages deployment pipelines, infrastructure, and ensures the platform stays secure and reliable.',
@@ -77,6 +89,7 @@ const WhoWeAre = () => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
   const { scrollRef, canScrollLeft, canScrollRight, scrollBy } = useHorizontalScroll();
+  const { t } = useTranslation();
 
   return (
     <section id="about" className="py-24 lg:py-32 bg-white relative overflow-hidden">
@@ -94,7 +107,7 @@ const WhoWeAre = () => {
             custom={0}
             className="inline-block px-4 py-1.5 rounded-full bg-primary-50 text-primary-600 text-sm font-semibold mb-4"
           >
-            Who We Are
+            {t('landing.whoWeAre.badge')}
           </motion.span>
           <motion.h2
             variants={fadeInUp}
@@ -103,7 +116,7 @@ const WhoWeAre = () => {
             custom={1}
             className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-primary-900 leading-tight"
           >
-            Meet the Team Behind
+            {t('landing.whoWeAre.title')}
             <br />
             <span className="bg-gradient-to-r from-primary-600 to-accent-500 bg-clip-text text-transparent">
               Fleetmark
@@ -116,9 +129,7 @@ const WhoWeAre = () => {
             custom={2}
             className="mt-6 text-lg text-slate-500 leading-relaxed"
           >
-            We're a focused team of developers and engineers who came together to solve
-            real transportation challenges for schools, universities, and enterprises.
-            From frontend to backend to infrastructure — every piece is built with care.
+            {t('landing.whoWeAre.description')}
           </motion.p>
         </div>
 

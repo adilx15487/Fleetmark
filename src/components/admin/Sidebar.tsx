@@ -11,6 +11,7 @@ import {
   ChevronRight,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { useTranslation } from 'react-i18next';
 
 interface SidebarProps {
   collapsed: boolean;
@@ -19,18 +20,19 @@ interface SidebarProps {
   onMobileClose: () => void;
 }
 
-const navItems = [
-  { label: 'Overview', icon: LayoutDashboard, path: '/admin/overview' },
-  { label: 'Bus Management', icon: Bus, path: '/admin/buses' },
-  { label: 'Route & Stops', icon: MapPinned, path: '/admin/routes' },
-  { label: 'User Management', icon: Users, path: '/admin/users' },
-  { label: 'Schedule', icon: CalendarDays, path: '/admin/schedule' },
-  { label: 'Reports & Analytics', icon: BarChart3, path: '/admin/reports' },
-  { label: 'Notifications', icon: Bell, path: '/admin/notifications' },
-];
-
 const Sidebar = ({ collapsed, onToggle, mobileOpen, onMobileClose }: SidebarProps) => {
   const { user } = useAuth();
+  const { t } = useTranslation();
+
+  const navItems = [
+    { label: t('dashboard.sidebar.overview'), icon: LayoutDashboard, path: '/admin/overview' },
+    { label: t('dashboard.sidebar.buses'), icon: Bus, path: '/admin/buses' },
+    { label: t('dashboard.sidebar.routes'), icon: MapPinned, path: '/admin/routes' },
+    { label: t('dashboard.sidebar.users'), icon: Users, path: '/admin/users' },
+    { label: t('dashboard.sidebar.schedule'), icon: CalendarDays, path: '/admin/schedule' },
+    { label: t('dashboard.sidebar.reports'), icon: BarChart3, path: '/admin/reports' },
+    { label: t('dashboard.sidebar.notifications'), icon: Bell, path: '/admin/notifications' },
+  ];
 
   const sidebarContent = (
     <div className="flex flex-col h-full">

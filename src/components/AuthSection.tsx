@@ -5,6 +5,7 @@ import { AtSign, Lock, User, ChevronDown, Eye, EyeOff, LogIn, UserPlus, Loader2,
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { get42AuthUrl } from '../services/auth.service';
+import { useTranslation } from 'react-i18next';
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 40 },
@@ -30,6 +31,7 @@ const AuthSection = () => {
   const navigate = useNavigate();
   const { login, isLoading, error, clearError, getDashboardPath } = useAuth();
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   const [activeTab, setActiveTab] = useState<AuthTab>('login');
   const [showPassword, setShowPassword] = useState(false);
@@ -46,41 +48,41 @@ const AuthSection = () => {
   const validateLoginField = useCallback((field: string, value: string): string => {
     switch (field) {
       case 'username':
-        if (!value.trim()) return 'Username is required';
-        if (!usernameRegex.test(value)) return 'Enter a valid username (min 3 chars)';
+        if (!value.trim()) return t('landing.auth.errors.usernameRequired');
+        if (!usernameRegex.test(value)) return t('landing.auth.errors.usernameInvalid');
         return '';
       case 'password':
-        if (!value) return 'Password is required';
-        if (value.length < 6) return 'Password must be at least 6 characters';
+        if (!value) return t('landing.auth.errors.passwordRequired');
+        if (value.length < 6) return t('landing.auth.errors.passwordLength');
         return '';
       default:
         return '';
     }
-  }, []);
+  }, [t]);
 
   const validateSignupField = useCallback((field: string, value: string, form?: typeof signupForm): string => {
     const f = form || signupForm;
     switch (field) {
       case 'fullName':
-        if (!value.trim()) return 'Full name is required';
-        if (value.trim().length < 2) return 'Name must be at least 2 characters';
+        if (!value.trim()) return t('landing.auth.errors.nameRequired');
+        if (value.trim().length < 2) return t('landing.auth.errors.nameLength');
         return '';
       case 'email':
-        if (!value.trim()) return 'Email is required';
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) return 'Enter a valid email address';
+        if (!value.trim()) return t('landing.auth.errors.emailRequired');
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) return t('landing.auth.errors.emailInvalid');
         return '';
       case 'password':
-        if (!value) return 'Password is required';
-        if (value.length < 6) return 'Password must be at least 6 characters';
+        if (!value) return t('landing.auth.errors.passwordRequired');
+        if (value.length < 6) return t('landing.auth.errors.passwordLength');
         return '';
       case 'confirmPassword':
-        if (!value) return 'Please confirm your password';
-        if (value !== f.password) return 'Passwords do not match';
+        if (!value) return t('landing.auth.errors.confirmRequired');
+        if (value !== f.password) return t('landing.auth.errors.passwordMismatch');
         return '';
       default:
         return '';
     }
-  }, [signupForm]);
+  }, [signupForm, t]);
 
   const handleLoginBlur = (field: string) => {
     setLoginTouched((p) => ({ ...p, [field]: true }));
@@ -115,9 +117,9 @@ const AuthSection = () => {
   };
 
   const roles: { value: Role; label: string; description: string }[] = [
-    { value: 'admin', label: 'Admin / Organizer', description: 'Manage fleet, routes & users' },
-    { value: 'passenger', label: 'Student / Employee', description: 'Reserve seats & view routes' },
-    { value: 'driver', label: 'Driver', description: 'View schedule & passengers' },
+    { value: 'admin', label: t('landing.auth.roles.admin'), description: t('landing.auth.roles.adminDesc') },
+    { value: 'passenger', label: t('landing.auth.roles.passenger'), description: t('landing.auth.roles.passengerDesc') },
+    { value: 'driver', label: t('landing.auth.roles.driver'), description: t('landing.auth.roles.driverDesc') },
   ];
 
   const handleLoginSubmit = async (e: React.FormEvent) => {
@@ -175,7 +177,7 @@ const AuthSection = () => {
               custom={0}
               className="inline-block px-4 py-1.5 rounded-full bg-primary-50 text-primary-600 text-sm font-semibold mb-4"
             >
-              Get Started
+              {t('landing.auth.badge')}
             </motion.span>
             <motion.h2
               variants={fadeInUp}
@@ -184,10 +186,10 @@ const AuthSection = () => {
               custom={1}
               className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-primary-900 leading-tight"
             >
-              Your Ride Awaits.
+              {t('landing.auth.title')}
               <br />
               <span className="bg-gradient-to-r from-primary-600 to-accent-500 bg-clip-text text-transparent">
-                Join Fleetmark Today.
+                {t('landing.auth.subtitle')}
               </span>
             </motion.h2>
             <motion.p
@@ -197,8 +199,7 @@ const AuthSection = () => {
               custom={2}
               className="mt-6 text-lg text-slate-500 leading-relaxed"
             >
-              Whether you're an admin managing a fleet, a student looking for a guaranteed
-              seat, or a driver keeping your route on track — Fleetmark is designed for you.
+              {t('landing.auth.description')}
             </motion.p>
 
             {/* Role cards */}
@@ -224,6 +225,20 @@ const AuthSection = () => {
                 </div>
               ))}
             </motion.div>
+
+            {/* 1337 School badge */}
+            <motion.div
+              variants={fadeInUp}
+              initial="hidden"
+              animate={isInView ? 'visible' : 'hidden'}
+              custom={4}
+              className="mt-6"
+            >
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-100 border border-slate-200 text-sm text-slate-500">
+                <span>🏫</span>
+                <span>Currently serving <strong className="text-primary-700">1337 School</strong>, Ben Guerir</span>
+              </div>
+            </motion.div>
           </div>
 
           {/* Right: Auth Form */}
@@ -245,7 +260,7 @@ const AuthSection = () => {
                   }`}
                 >
                   <LogIn className="w-4 h-4" />
-                  Log In
+                  {t('landing.auth.login.tab')}
                 </button>
                 <button
                   onClick={() => { setActiveTab('signup'); setRoleDropdownOpen(false); }}
@@ -256,7 +271,7 @@ const AuthSection = () => {
                   }`}
                 >
                   <UserPlus className="w-4 h-4" />
-                  Sign Up
+                  {t('landing.auth.signup.tab')}
                 </button>
               </div>
 
@@ -271,12 +286,12 @@ const AuthSection = () => {
                   {is42Loading ? (
                     <>
                       <Loader2 className="w-4 h-4 animate-spin" />
-                      Connecting to 42…
+                      {t('landing.auth.connecting42')}
                     </>
                   ) : (
                     <>
                       <span className="text-lg font-black tracking-tight">42</span>
-                      Continue with 42 Intra
+                      {t('landing.auth.loginWith42')}
                       <ExternalLink className="w-3.5 h-3.5 opacity-50" />
                     </>
                   )}
@@ -285,14 +300,14 @@ const AuthSection = () => {
                 {/* Divider */}
                 <div className="flex items-center gap-4 mb-6">
                   <div className="flex-1 h-px bg-slate-200" />
-                  <span className="text-xs text-slate-400 font-medium whitespace-nowrap">or login with credentials</span>
+                  <span className="text-xs text-slate-400 font-medium whitespace-nowrap">{t('landing.auth.orLoginWith')}</span>
                   <div className="flex-1 h-px bg-slate-200" />
                 </div>
 
                 {activeTab === 'login' ? (
                   <form onSubmit={handleLoginSubmit} className="space-y-5">
                     <div>
-                      <label className="block text-sm font-medium text-slate-700 mb-2">Username</label>
+                      <label className="block text-sm font-medium text-slate-700 mb-2">{t('landing.auth.login.username')}</label>
                       <div className="relative">
                         <AtSign className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300" />
                         <input
@@ -318,7 +333,7 @@ const AuthSection = () => {
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-slate-700 mb-2">Password</label>
+                      <label className="block text-sm font-medium text-slate-700 mb-2">{t('landing.auth.login.password')}</label>
                       <div className="relative">
                         <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300" />
                         <input
@@ -351,7 +366,7 @@ const AuthSection = () => {
 
                     {/* Role Selector */}
                     <div>
-                      <label className="block text-sm font-medium text-slate-700 mb-2">I am a...</label>
+                      <label className="block text-sm font-medium text-slate-700 mb-2">{t('landing.auth.login.role')}</label>
                       <div className="relative">
                         <button
                           type="button"
@@ -397,28 +412,28 @@ const AuthSection = () => {
                       {isLoading ? (
                         <>
                           <Loader2 className="w-4 h-4 animate-spin" />
-                          Logging in…
+                          {t('landing.auth.login.loggingIn')}
                         </>
                       ) : (
-                        'Log In'
+                        t('landing.auth.login.button')
                       )}
                     </button>
 
                     <p className="text-center text-sm text-slate-400">
-                      Don't have an account?{' '}
+                      {t('landing.auth.login.noAccount')}{' '}
                       <button
                         type="button"
                         onClick={() => setActiveTab('signup')}
                         className="text-primary-600 font-semibold hover:text-primary-700"
                       >
-                        Sign up
+                        {t('landing.auth.signup.tab')}
                       </button>
                     </p>
                   </form>
                 ) : (
                   <form onSubmit={handleSignupSubmit} className="space-y-5">
                     <div>
-                      <label className="block text-sm font-medium text-slate-700 mb-2">Full Name</label>
+                      <label className="block text-sm font-medium text-slate-700 mb-2">{t('landing.auth.signup.fullName')}</label>
                       <div className="relative">
                         <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300" />
                         <input
@@ -443,7 +458,7 @@ const AuthSection = () => {
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-slate-700 mb-2">Email Address</label>
+                      <label className="block text-sm font-medium text-slate-700 mb-2">{t('landing.auth.signup.email')}</label>
                       <div className="relative">
                         <AtSign className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300" />
                         <input
@@ -468,7 +483,7 @@ const AuthSection = () => {
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-slate-700 mb-2">Password</label>
+                      <label className="block text-sm font-medium text-slate-700 mb-2">{t('landing.auth.signup.password')}</label>
                       <div className="relative">
                         <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300" />
                         <input
@@ -500,7 +515,7 @@ const AuthSection = () => {
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-slate-700 mb-2">Confirm Password</label>
+                      <label className="block text-sm font-medium text-slate-700 mb-2">{t('landing.auth.signup.confirmPassword')}</label>
                       <div className="relative">
                         <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300" />
                         <input
@@ -526,7 +541,7 @@ const AuthSection = () => {
 
                     {/* Role Selector */}
                     <div>
-                      <label className="block text-sm font-medium text-slate-700 mb-2">I am a...</label>
+                      <label className="block text-sm font-medium text-slate-700 mb-2">{t('landing.auth.signup.role')}</label>
                       <div className="relative">
                         <button
                           type="button"
@@ -562,17 +577,17 @@ const AuthSection = () => {
                       type="submit"
                       className="w-full py-3.5 rounded-xl bg-primary-700 text-white font-semibold text-sm hover:bg-primary-800 transition-all duration-200 shadow-lg shadow-primary-700/25 hover:shadow-primary-800/30 active:scale-[0.98]"
                     >
-                      Create Account
+                      {t('landing.auth.signup.button')}
                     </button>
 
                     <p className="text-center text-sm text-slate-400">
-                      Already have an account?{' '}
+                      {t('landing.auth.signup.hasAccount')}{' '}
                       <button
                         type="button"
                         onClick={() => setActiveTab('login')}
                         className="text-primary-600 font-semibold hover:text-primary-700"
                       >
-                        Log in
+                        {t('landing.auth.login.tab')}
                       </button>
                     </p>
                   </form>

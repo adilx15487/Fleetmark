@@ -67,7 +67,7 @@ export interface AvailableRoute {
   totalSeats: number;
   status: 'Active' | 'Inactive';
   assignedBus: string;
-  organization: 'University' | 'Enterprise' | 'School';
+  organization: '1337 School';
 }
 
 export const availableRoutes: AvailableRoute[] = [
@@ -86,7 +86,7 @@ export const availableRoutes: AvailableRoute[] = [
     totalSeats: 50,
     status: 'Active',
     assignedBus: '1337 Night Shuttle — Bus 1',
-    organization: 'School',
+    organization: '1337 School',
   },
   {
     id: 'RT-002',
@@ -100,7 +100,7 @@ export const availableRoutes: AvailableRoute[] = [
     totalSeats: 50,
     status: 'Active',
     assignedBus: '1337 Night Shuttle — Bus 2',
-    organization: 'School',
+    organization: '1337 School',
   },
 ];
 

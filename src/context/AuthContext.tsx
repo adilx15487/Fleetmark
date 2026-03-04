@@ -267,6 +267,30 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       return { result: 'dashboard', path: getDashboardPath(authUser.role) };
     } catch (err) {
       const parsed = parseApiError(err);
+
+      // If backend is unreachable (network error / ECONNREFUSED), fall back to mock 42 auth
+      // so the full OAuth flow can be demoed without a running backend
+      if (parsed.status === 0) {
+        console.warn(
+          '[Fleetmark] Backend unreachable — falling back to mock 42 auth.\n' +
+          'Start the Django backend on port 8000 or set VITE_USE_MOCK=true in .env to suppress this warning.'
+        );
+        const storedUser = localStorage.getItem('fleetmark_42_user');
+        if (storedUser) {
+          const cachedUser = JSON.parse(storedUser) as AuthUser;
+          setUser(cachedUser);
+          localStorage.setItem(STORAGE_KEYS.USER, storedUser);
+          setIsLoading(false);
+          setNeedsRoleSelection(false);
+          return { result: 'dashboard', path: getDashboardPath(cachedUser.role) };
+        }
+        const partialUser: AuthUser = { ...MOCK_42_USER, role: 'passenger' } as AuthUser;
+        setUser(partialUser);
+        setNeedsRoleSelection(true);
+        setIsLoading(false);
+        return { result: 'role-select' };
+      }
+
       setError(parsed.message || 'Failed to authenticate with 42');
       setIsLoading(false);
       return { result: 'error', message: parsed.message };

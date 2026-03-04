@@ -1,5 +1,6 @@
 import { motion, useInView } from 'framer-motion';
 import { useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Armchair,
   MapPinned,
@@ -20,43 +21,16 @@ const fadeInUp = {
   }),
 };
 
-interface ProblemSolutionPair {
-  problem: string;
-  solution: string;
-  solutionTitle: string;
-  icon: LucideIcon;
-}
-
-const pairs: ProblemSolutionPair[] = [
-  {
-    problem: 'Overcrowded and unmanaged buses',
-    solutionTitle: 'Seat Reservation',
-    solution: 'Seat reservation system with capacity control — reserve your seat in advance and never stand again.',
-    icon: Armchair,
-  },
-  {
-    problem: 'Unfair seat allocation — first come, only served',
-    solutionTitle: 'Smart Allocation',
-    solution: 'Smart bus allocation based on demand & fairness — AI-powered assignment that works for everyone.',
-    icon: Brain,
-  },
-  {
-    problem: 'No visibility on routes, stops, or schedules',
-    solutionTitle: 'Route Visibility',
-    solution: 'Route & stop visibility with clear map view — see every route, stop, and timing at a glance.',
-    icon: MapPinned,
-  },
-  {
-    problem: 'Poor communication between admins, drivers, and passengers',
-    solutionTitle: 'Instant Reporting',
-    solution: 'Instant reporting & real-time notifications — everyone stays informed, every step of the way.',
-    icon: Bell,
-  },
-];
+const pairIcons: LucideIcon[] = [Armchair, Brain, MapPinned, Bell];
 
 const Features = () => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-80px' });
+  const { t } = useTranslation();
+
+  const problems = t('landing.features.problems', { returnObjects: true }) as string[];
+  const solutions = t('landing.features.solutions', { returnObjects: true }) as string[];
+  const solutionTitles = t('landing.features.solutionTitles', { returnObjects: true }) as string[];
 
   return (
     <section id="features" className="py-24 lg:py-32 bg-slate-50 relative overflow-hidden">
@@ -73,7 +47,7 @@ const Features = () => {
             custom={0}
             className="inline-block px-4 py-1.5 rounded-full bg-primary-100 text-primary-700 text-sm font-semibold mb-4"
           >
-            What This Project Is About
+            {t('landing.features.badge')}
           </motion.span>
           <motion.h2
             variants={fadeInUp}
@@ -82,10 +56,10 @@ const Features = () => {
             custom={1}
             className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-primary-900 leading-tight"
           >
-            Solving Real Transport
+            {t('landing.features.title')}
             <br />
             <span className="bg-gradient-to-r from-primary-600 to-accent-500 bg-clip-text text-transparent">
-              Problems with Smart Solutions
+              {t('landing.features.titleHighlight')}
             </span>
           </motion.h2>
           <motion.p
@@ -95,16 +69,17 @@ const Features = () => {
             custom={2}
             className="mt-6 text-lg text-slate-500 leading-relaxed"
           >
-            From overcrowded buses to last-minute cancellations — we've seen it all.
-            Fleetmark tackles these pain points head-on with a suite of powerful features.
+            {t('landing.features.description')}
           </motion.p>
         </div>
 
         {/* Problem → Solution Pairs */}
         <div className="space-y-6">
-          {pairs.map((pair, index) => (
+          {Array.isArray(problems) && problems.map((problem, index) => {
+            const Icon = pairIcons[index] || Armchair;
+            return (
             <motion.div
-              key={pair.solutionTitle}
+              key={index}
               variants={fadeInUp}
               initial="hidden"
               animate={isInView ? 'visible' : 'hidden'}
@@ -119,9 +94,9 @@ const Features = () => {
                   </div>
                   <div>
                     <span className="inline-block px-2.5 py-0.5 rounded-md bg-red-50 text-danger-500 text-xs font-semibold uppercase tracking-wider mb-2">
-                      Problem
+                      {t('landing.features.problemsLabel')}
                     </span>
-                    <p className="text-slate-700 font-medium leading-relaxed">{pair.problem}</p>
+                    <p className="text-slate-700 font-medium leading-relaxed">{problem}</p>
                   </div>
                 </div>
 
@@ -154,17 +129,18 @@ const Features = () => {
                   </div>
                   <div>
                     <span className="inline-block px-2.5 py-0.5 rounded-md bg-emerald-50 text-success-500 text-xs font-semibold uppercase tracking-wider mb-2">
-                      Solution
+                      {t('landing.features.solutionsLabel')}
                     </span>
                     <p className="text-slate-600 leading-relaxed">
-                      <span className="font-semibold text-primary-900">{pair.solutionTitle}:</span>{' '}
-                      {pair.solution}
+                      <span className="font-semibold text-primary-900">{solutionTitles[index]}:</span>{' '}
+                      {solutions[index]}
                     </p>
                   </div>
                 </div>
               </div>
             </motion.div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </section>

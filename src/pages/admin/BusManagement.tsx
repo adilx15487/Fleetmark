@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { Plus, Pencil, Trash2, Search } from 'lucide-react';
-import { buses, type Bus } from '../../data/mockData';
+import { useBuses, useCreateBus, useDeleteBus } from '../../hooks/useApi';
+import type { Bus } from '../../types/api';
 import Modal from '../../components/admin/Modal';
-import { useLoadingState } from '../../hooks/useLoadingState';
 import { SkeletonTable } from '../../components/ui/Skeleton';
 import ErrorState from '../../components/ui/ErrorState';
+import EmptyState from '../../components/ui/EmptyState';
 import { useToast } from '../../context/ToastContext';
+import { parseApiError } from '../../lib/errorMapper';
 
 const statusClasses: Record<string, string> = {
   Active: 'bg-emerald-50 text-emerald-600 border-emerald-200',
@@ -16,32 +18,30 @@ const statusClasses: Record<string, string> = {
 interface FormErrors { [key: string]: string; }
 
 const BusManagement = () => {
-  const { isLoading, isError, retry } = useLoadingState();
+  const { data: buses = [], isLoading, isError, refetch } = useBuses();
+  const createBus = useCreateBus();
+  const deleteBus = useDeleteBus();
   const { toast } = useToast();
   const [search, setSearch] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
   const [formData, setFormData] = useState({
-    name: '', plateNumber: '', capacity: '', assignedRoute: '', driver: '', status: 'Active',
+    matricule: '', capacity: '', status: 'Active',
   });
   const [formErrors, setFormErrors] = useState<FormErrors>({});
   const [formTouched, setFormTouched] = useState<Record<string, boolean>>({});
 
   const filtered = buses.filter((b) =>
-    b.name.toLowerCase().includes(search.toLowerCase()) ||
-    b.id.toLowerCase().includes(search.toLowerCase()) ||
-    b.driver.toLowerCase().includes(search.toLowerCase())
+    b.matricule.toLowerCase().includes(search.toLowerCase()) ||
+    String(b.id).includes(search)
   );
 
   const validateField = (key: string, value: string): string => {
     switch (key) {
-      case 'name': return !value.trim() ? 'Bus name is required' : '';
-      case 'plateNumber': return !value.trim() ? 'Plate number is required' : '';
+      case 'matricule': return !value.trim() ? 'Matricule is required' : '';
       case 'capacity':
         if (!value.trim()) return 'Capacity is required';
         if (Number(value) <= 0) return 'Capacity must be greater than 0';
         return '';
-      case 'assignedRoute': return !value.trim() ? 'Route is required' : '';
-      case 'driver': return !value.trim() ? 'Driver is required' : '';
       default: return '';
     }
   };
@@ -56,25 +56,29 @@ const BusManagement = () => {
     if (formTouched[key]) setFormErrors((p) => ({ ...p, [key]: validateField(key, value) }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const errors: FormErrors = {};
-    const fields = ['name', 'plateNumber', 'capacity', 'assignedRoute', 'driver'];
+    const fields = ['matricule', 'capacity'];
     fields.forEach((k) => { errors[k] = validateField(k, (formData as Record<string, string>)[k]); });
     setFormErrors(errors);
     setFormTouched(Object.fromEntries(fields.map((k) => [k, true])));
     if (Object.values(errors).some((e) => e)) return;
 
-    console.log('Add bus:', formData);
-    toast('Bus added successfully!');
-    setModalOpen(false);
-    setFormData({ name: '', plateNumber: '', capacity: '', assignedRoute: '', driver: '', status: 'Active' });
-    setFormErrors({});
-    setFormTouched({});
+    try {
+      await createBus.mutateAsync({ matricule: formData.matricule, capacity: Number(formData.capacity) });
+      toast('Bus added successfully!');
+      setModalOpen(false);
+      setFormData({ matricule: '', capacity: '', status: 'Active' });
+      setFormErrors({});
+      setFormTouched({});
+    } catch (err) {
+      toast(parseApiError(err).message);
+    }
   };
 
   if (isLoading) return <SkeletonTable rows={6} cols={7} />;
-  if (isError) return <ErrorState onRetry={retry} />;
+  if (isError) return <ErrorState onRetry={() => refetch()} />;
 
   return (
     <div className="space-y-6">
@@ -111,7 +115,7 @@ const BusManagement = () => {
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-slate-50/80">
-                {['Bus ID', 'Name', 'Capacity', 'Assigned Route', 'Driver', 'Status', 'Actions'].map((h) => (
+                {['Bus ID', 'Matricule', 'Capacity', 'Status', 'Actions'].map((h) => (
                   <th key={h} className="px-5 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
                     {h}
                   </th>
@@ -122,13 +126,11 @@ const BusManagement = () => {
               {filtered.map((bus) => (
                 <tr key={bus.id} className="hover:bg-slate-50/50 transition-colors">
                   <td className="px-5 py-3.5 font-mono text-xs text-primary-600 font-semibold">{bus.id}</td>
-                  <td className="px-5 py-3.5 font-medium text-primary-900 whitespace-nowrap">{bus.name}</td>
+                  <td className="px-5 py-3.5 font-medium text-primary-900 whitespace-nowrap">{bus.matricule}</td>
                   <td className="px-5 py-3.5 text-slate-500">{bus.capacity} seats</td>
-                  <td className="px-5 py-3.5 text-slate-500 whitespace-nowrap">{bus.assignedRoute}</td>
-                  <td className="px-5 py-3.5 text-slate-500 whitespace-nowrap">{bus.driver}</td>
                   <td className="px-5 py-3.5">
-                    <span className={`inline-block px-2.5 py-1 rounded-lg text-xs font-semibold border ${statusClasses[bus.status]}`}>
-                      {bus.status}
+                    <span className={`inline-block px-2.5 py-1 rounded-lg text-xs font-semibold border ${statusClasses['Active']}`}>
+                      Active
                     </span>
                   </td>
                   <td className="px-5 py-3.5">
@@ -136,7 +138,17 @@ const BusManagement = () => {
                       <button className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-primary-600 hover:bg-primary-50 transition-colors">
                         <Pencil className="w-4 h-4" />
                       </button>
-                      <button className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-danger-500 hover:bg-red-50 transition-colors">
+                      <button
+                        onClick={async () => {
+                          try {
+                            await deleteBus.mutateAsync(bus.id);
+                            toast('Bus deleted successfully!');
+                          } catch (err) {
+                            toast(parseApiError(err).message);
+                          }
+                        }}
+                        className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-danger-500 hover:bg-red-50 transition-colors"
+                      >
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
@@ -155,11 +167,8 @@ const BusManagement = () => {
       <Modal isOpen={modalOpen} onClose={() => { setModalOpen(false); setFormErrors({}); setFormTouched({}); }} title="Add New Bus">
         <form onSubmit={handleSubmit} className="space-y-4">
           {[
-            { label: 'Bus Name', key: 'name', type: 'text', placeholder: 'e.g. Campus Cruiser' },
-            { label: 'Plate Number', key: 'plateNumber', type: 'text', placeholder: 'e.g. A-1234-BC' },
+            { label: 'Matricule', key: 'matricule', type: 'text', placeholder: 'e.g. X-0001-NS' },
             { label: 'Capacity', key: 'capacity', type: 'number', placeholder: 'e.g. 48' },
-            { label: 'Assigned Route', key: 'assignedRoute', type: 'text', placeholder: 'e.g. Route A' },
-            { label: 'Assigned Driver', key: 'driver', type: 'text', placeholder: 'e.g. Hassan Moukhtari' },
           ].map((field) => (
             <div key={field.key}>
               <label className="block text-sm font-medium text-slate-700 mb-1.5">{field.label}</label>

@@ -56,7 +56,7 @@ export async function refreshAccessToken(): Promise<string> {
   if (!refresh) throw new Error('No refresh token');
 
   const { data } = await axios.post(
-    `${import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000'}${API_ENDPOINTS.auth.refresh}`,
+    `${import.meta.env.VITE_API_BASE_URL || ''}${API_ENDPOINTS.auth.refresh}`,
     { refresh },
   );
 
@@ -72,7 +72,7 @@ export async function refreshAccessToken(): Promise<string> {
 export async function verifyToken(token: string): Promise<boolean> {
   try {
     await axios.post(
-      `${import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000'}${API_ENDPOINTS.auth.verify}`,
+      `${import.meta.env.VITE_API_BASE_URL || ''}${API_ENDPOINTS.auth.verify}`,
       { token },
     );
     return true;

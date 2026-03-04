@@ -1,22 +1,7 @@
 import { Link } from 'react-router-dom';
-import { Ticket, Bus, MapPin, Clock, ArrowRight, TrendingUp, XCircle, Bell, Check } from 'lucide-react';
-import {
-  passengerStats,
-  passengerNotifications,
-} from '../../data/passengerMockData';
+import { Ticket, Bus, MapPin, ArrowRight, TrendingUp, XCircle, Bell, Check } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useReservation } from '../../context/ReservationContext';
-import { useLoadingState } from '../../hooks/useLoadingState';
-import { SkeletonCard, SkeletonList } from '../../components/ui/Skeleton';
-import ErrorState from '../../components/ui/ErrorState';
-
-const notifIcon: Record<string, { color: string; bg: string }> = {
-  reservation: { color: 'text-emerald-500', bg: 'bg-emerald-50' },
-  route_change: { color: 'text-amber-500', bg: 'bg-amber-50' },
-  delay: { color: 'text-orange-500', bg: 'bg-orange-50' },
-  cancellation: { color: 'text-red-500', bg: 'bg-red-50' },
-  system: { color: 'text-sky-500', bg: 'bg-sky-50' },
-};
 
 const greeting = () => {
   const h = new Date().getHours();
@@ -27,44 +12,28 @@ const greeting = () => {
 
 const PassengerOverview = () => {
   const { user } = useAuth();
-  const { isLoading, isError, retry } = useLoadingState();
   const {
     isOnboarded,
     transport,
     tonightReservations,
     reservationsUsed,
     maxReservations,
+    pastReservations,
     getBusInfo,
   } = useReservation();
-  const recentNotifs = passengerNotifications.slice(0, 3);
 
   const activeTonight = tonightReservations.filter((r) => r.status === 'Confirmed');
   const nextTrip = activeTonight.length > 0 ? activeTonight[0] : null;
   const busInfo = getBusInfo();
 
+  const totalPastTrips = pastReservations.reduce((sum, n) => sum + n.reservations.length, 0);
+
   const stats = [
-    { ...passengerStats.totalRides, icon: TrendingUp, color: 'text-primary-600', bg: 'bg-primary-50' },
+    { value: totalPastTrips, label: 'Total Rides', icon: TrendingUp, color: 'text-primary-600', bg: 'bg-primary-50' },
     { value: `${reservationsUsed}/${maxReservations}`, label: 'Tonight', icon: Ticket, color: 'text-emerald-500', bg: 'bg-emerald-50' },
-    { ...passengerStats.cancelledRides, icon: XCircle, color: 'text-red-500', bg: 'bg-red-50' },
+    { value: pastReservations.length, label: 'Past Nights', icon: XCircle, color: 'text-red-500', bg: 'bg-red-50' },
     { value: transport?.homeStop || '—', label: 'Home Stop', icon: MapPin, color: 'text-pink-500', bg: 'bg-pink-50' },
   ];
-
-  if (isLoading) {
-    return (
-      <div className="space-y-6">
-        <div className="bg-white rounded-2xl border border-slate-200 p-8"><SkeletonCard /></div>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          {Array.from({ length: 4 }, (_, i) => <SkeletonCard key={i} />)}
-        </div>
-        <div className="grid lg:grid-cols-5 gap-6">
-          <SkeletonList className="lg:col-span-3" items={3} />
-          <SkeletonList className="lg:col-span-2" items={3} />
-        </div>
-      </div>
-    );
-  }
-
-  if (isError) return <ErrorState onRetry={retry} />;
 
   return (
     <div className="space-y-6">
@@ -76,7 +45,7 @@ const PassengerOverview = () => {
         <div className="relative z-10 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
           <div>
             <h2 className="text-2xl sm:text-3xl font-bold">
-              {greeting()}, {user?.name.split(' ')[0] || 'there'} 👋
+              {greeting()}, {user?.username || 'there'} 👋
             </h2>
             <p className="text-primary-200 mt-1 text-sm sm:text-base">
               {isOnboarded
@@ -209,30 +178,14 @@ const PassengerOverview = () => {
       {/* Notifications */}
       <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
         <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
-          <h3 className="text-sm font-bold text-primary-900">Recent Notifications</h3>
+          <h3 className="text-sm font-bold text-primary-900">Notifications</h3>
           <Link to="/passenger/notifications" className="text-xs font-semibold text-accent-500 hover:text-accent-600 transition-colors">
             View All →
           </Link>
         </div>
-        <div className="divide-y divide-slate-100">
-          {recentNotifs.map((n) => {
-            const style = notifIcon[n.type] || notifIcon.system;
-            return (
-              <div key={n.id} className="flex items-start gap-3 px-5 py-4 hover:bg-slate-50/50 transition-colors">
-                <div className={`w-9 h-9 rounded-xl ${style.bg} flex items-center justify-center shrink-0 mt-0.5`}>
-                  <Bell className={`w-4 h-4 ${style.color}`} />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2">
-                    <p className="text-sm font-semibold text-primary-900 truncate">{n.title}</p>
-                    {!n.read && <span className="w-2 h-2 rounded-full bg-accent-500 shrink-0" />}
-                  </div>
-                  <p className="text-xs text-slate-400 mt-0.5 line-clamp-1">{n.message}</p>
-                  <p className="text-[11px] text-slate-300 mt-1">{n.time}</p>
-                </div>
-              </div>
-            );
-          })}
+        <div className="px-5 py-8 text-center text-sm text-slate-400">
+          <Bell className="w-8 h-8 mx-auto mb-2 text-slate-300" />
+          No new notifications
         </div>
       </div>
     </div>

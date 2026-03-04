@@ -1,49 +1,59 @@
 import { useState, useMemo } from 'react';
 import { Search, UserPlus, Edit2, Trash2, ChevronDown } from 'lucide-react';
-import { users } from '../../data/mockData';
+import { useUsers, useCreateUser, useDeleteUser } from '../../hooks/useApi';
+import type { User } from '../../types/api';
 import Modal from '../../components/admin/Modal';
-import { useLoadingState } from '../../hooks/useLoadingState';
 import { SkeletonTable } from '../../components/ui/Skeleton';
 import ErrorState from '../../components/ui/ErrorState';
+import EmptyState from '../../components/ui/EmptyState';
+import { useToast } from '../../context/ToastContext';
+import { parseApiError } from '../../lib/errorMapper';
 
 const roleBadge: Record<string, string> = {
-  Admin: 'bg-purple-50 text-purple-600 border-purple-200',
-  Passenger: 'bg-sky-50 text-sky-600 border-sky-200',
-  Driver: 'bg-amber-50 text-amber-600 border-amber-200',
-};
-
-const statusDot: Record<string, string> = {
-  Active: 'bg-emerald-400',
-  Inactive: 'bg-slate-300',
-  Suspended: 'bg-red-400',
+  admin: 'bg-purple-50 text-purple-600 border-purple-200',
+  passenger: 'bg-sky-50 text-sky-600 border-sky-200',
+  driver: 'bg-amber-50 text-amber-600 border-amber-200',
 };
 
 const UserManagement = () => {
-  const { isLoading, isError, retry } = useLoadingState();
+  const { data: users = [], isLoading, isError, refetch } = useUsers();
+  const createUser = useCreateUser();
+  const deleteUser = useDeleteUser();
+  const { toast } = useToast();
   const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState('All');
   const [modalOpen, setModalOpen] = useState(false);
   const [formData, setFormData] = useState({
-    name: '', email: '', role: 'Passenger', organization: '',
+    username: '', email: '', password: '', role: 'passenger' as string,
   });
 
   const filtered = useMemo(() => {
     return users.filter((u) => {
-      const matchSearch = u.name.toLowerCase().includes(search.toLowerCase()) || u.email.toLowerCase().includes(search.toLowerCase());
-      const matchRole = roleFilter === 'All' || u.role === roleFilter;
+      const matchSearch = u.username.toLowerCase().includes(search.toLowerCase()) || u.email.toLowerCase().includes(search.toLowerCase());
+      const matchRole = roleFilter === 'All' || u.role === roleFilter.toLowerCase();
       return matchSearch && matchRole;
     });
-  }, [search, roleFilter]);
+  }, [search, roleFilter, users]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Invite user:', formData);
-    setModalOpen(false);
-    setFormData({ name: '', email: '', role: 'Passenger', organization: '' });
+    try {
+      await createUser.mutateAsync({
+        username: formData.username,
+        email: formData.email,
+        password: formData.password,
+        role: formData.role as 'admin' | 'driver' | 'passenger',
+      });
+      toast('User created successfully!');
+      setModalOpen(false);
+      setFormData({ username: '', email: '', password: '', role: 'passenger' });
+    } catch (err) {
+      toast(parseApiError(err).message);
+    }
   };
 
   if (isLoading) return <SkeletonTable rows={6} cols={7} />;
-  if (isError) return <ErrorState onRetry={retry} />;
+  if (isError) return <ErrorState onRetry={() => refetch()} />;
 
   return (
     <div className="space-y-6">
@@ -58,7 +68,7 @@ const UserManagement = () => {
           className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary-600 text-white text-sm font-semibold hover:bg-primary-700 shadow-lg shadow-primary-600/20 transition-all active:scale-[0.98]"
         >
           <UserPlus className="w-4 h-4" />
-          Invite User
+          Create User
         </button>
       </div>
 
@@ -83,7 +93,7 @@ const UserManagement = () => {
             >
               <option value="All">All Roles</option>
               <option value="Admin">Admin</option>
-              <option value="Passenger">Passenger</option>
+              <option value="Passenger">Student</option>
               <option value="Driver">Driver</option>
             </select>
             <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
@@ -112,33 +122,43 @@ const UserManagement = () => {
                   <td className="px-5 py-4">
                     <div className="flex items-center gap-3">
                       <img
-                        src={`https://api.dicebear.com/8.x/initials/svg?seed=${encodeURIComponent(u.name)}&backgroundColor=e0e7ff&textColor=3730a3`}
-                        alt={u.name}
+                        src={`https://api.dicebear.com/8.x/initials/svg?seed=${encodeURIComponent(u.username)}&backgroundColor=e0e7ff&textColor=3730a3`}
+                        alt={u.username}
                         className="w-8 h-8 rounded-full"
                       />
-                      <span className="text-sm font-semibold text-primary-900 whitespace-nowrap">{u.name}</span>
+                      <span className="text-sm font-semibold text-primary-900 whitespace-nowrap">{u.username}</span>
                     </div>
                   </td>
                   <td className="px-5 py-4 text-sm text-slate-500 hidden lg:table-cell">{u.email}</td>
                   <td className="px-5 py-4">
-                    <span className={`inline-block px-2.5 py-1 rounded-lg text-xs font-semibold border ${roleBadge[u.role]}`}>
+                    <span className={`inline-block px-2.5 py-1 rounded-lg text-xs font-semibold border ${roleBadge[u.role] || roleBadge['passenger']}`}>
                       {u.role}
                     </span>
                   </td>
-                  <td className="px-5 py-4 text-sm text-slate-500 hidden md:table-cell">{u.organization}</td>
+                  <td className="px-5 py-4 text-sm text-slate-500 hidden md:table-cell">{u.organization?.name || '—'}</td>
                   <td className="px-5 py-4">
                     <div className="flex items-center gap-2">
-                      <span className={`w-2 h-2 rounded-full ${statusDot[u.status]}`} />
-                      <span className="text-sm text-slate-600">{u.status}</span>
+                      <span className="w-2 h-2 rounded-full bg-emerald-400" />
+                      <span className="text-sm text-slate-600">Active</span>
                     </div>
                   </td>
-                  <td className="px-5 py-4 text-sm text-slate-400 hidden sm:table-cell whitespace-nowrap">{u.joinedDate}</td>
+                  <td className="px-5 py-4 text-sm text-slate-400 hidden sm:table-cell whitespace-nowrap">—</td>
                   <td className="px-5 py-4">
                     <div className="flex items-center justify-end gap-1">
                       <button className="p-2 rounded-lg hover:bg-primary-50 text-slate-400 hover:text-primary-600 transition-colors">
                         <Edit2 className="w-4 h-4" />
                       </button>
-                      <button className="p-2 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-500 transition-colors">
+                      <button
+                        onClick={async () => {
+                          try {
+                            await deleteUser.mutateAsync(u.id);
+                            toast('User deleted.');
+                          } catch (err) {
+                            toast(parseApiError(err).message);
+                          }
+                        }}
+                        className="p-2 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-500 transition-colors"
+                      >
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
@@ -156,31 +176,31 @@ const UserManagement = () => {
       </div>
 
       {/* Invite User Modal */}
-      <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title="Invite User">
+      <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title="Create User">
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1.5">Full Name</label>
-            <input type="text" placeholder="e.g. John Doe" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none transition-all placeholder:text-slate-300" />
+            <label className="block text-sm font-medium text-slate-700 mb-1.5">Username</label>
+            <input type="text" placeholder="e.g. john_doe" value={formData.username} onChange={(e) => setFormData({ ...formData, username: e.target.value })} className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none transition-all placeholder:text-slate-300" />
           </div>
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1.5">Email</label>
             <input type="email" placeholder="user@example.com" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none transition-all placeholder:text-slate-300" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1.5">Role</label>
-            <select value={formData.role} onChange={(e) => setFormData({ ...formData, role: e.target.value })} className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none transition-all cursor-pointer">
-              <option value="Admin">Admin</option>
-              <option value="Passenger">Passenger</option>
-              <option value="Driver">Driver</option>
-            </select>
+            <label className="block text-sm font-medium text-slate-700 mb-1.5">Password</label>
+            <input type="password" placeholder="••••••••" value={formData.password} onChange={(e) => setFormData({ ...formData, password: e.target.value })} className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none transition-all placeholder:text-slate-300" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1.5">Organization</label>
-            <input type="text" placeholder="e.g. ENSIAS University" value={formData.organization} onChange={(e) => setFormData({ ...formData, organization: e.target.value })} className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none transition-all placeholder:text-slate-300" />
+            <label className="block text-sm font-medium text-slate-700 mb-1.5">Role</label>
+            <select value={formData.role} onChange={(e) => setFormData({ ...formData, role: e.target.value })} className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none transition-all cursor-pointer">
+              <option value="admin">Admin</option>
+              <option value="passenger">Student</option>
+              <option value="driver">Driver</option>
+            </select>
           </div>
           <div className="flex justify-end gap-3 pt-2">
             <button type="button" onClick={() => setModalOpen(false)} className="px-5 py-2.5 rounded-xl border border-slate-200 text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors">Cancel</button>
-            <button type="submit" className="px-5 py-2.5 rounded-xl bg-primary-600 text-white text-sm font-semibold hover:bg-primary-700 shadow-lg shadow-primary-600/20 transition-all">Send Invite</button>
+            <button type="submit" className="px-5 py-2.5 rounded-xl bg-primary-600 text-white text-sm font-semibold hover:bg-primary-700 shadow-lg shadow-primary-600/20 transition-all">Create User</button>
           </div>
         </form>
       </Modal>

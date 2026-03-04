@@ -22,7 +22,7 @@ const PassengerLayout = () => {
   const location = useLocation();
 
   const title = pageTitles[location.pathname] || 'Dashboard';
-  useDocumentTitle(`${title} — Fleetmark`);
+  useDocumentTitle(`${title} — Fleetmark 1337`);
 
   return (
     <div className="min-h-screen bg-slate-50">

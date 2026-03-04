@@ -68,7 +68,7 @@ const PageLoader = () => (
 
 /* ── Landing page (all sections on one scroll) ── */
 function LandingPage() {
-  useDocumentTitle('Fleetmark — Smart Transportation')
+  useDocumentTitle('Fleetmark — 1337 Night Shuttle')
   return (
     <div className="min-h-screen bg-white">
       <Navbar />

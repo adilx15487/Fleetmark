@@ -2,6 +2,7 @@ import { useState, useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
 import { Send, Bell, Sparkles } from 'lucide-react';
 import { useToast } from '../context/ToastContext';
+import { useTranslation } from 'react-i18next';
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 40 },
@@ -18,6 +19,7 @@ const Subscribe = () => {
   const [email, setEmail] = useState('');
   const [subscribed, setSubscribed] = useState(false);
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -64,7 +66,7 @@ const Subscribe = () => {
             custom={1}
             className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white leading-tight"
           >
-            Stay Updated
+            {t('landing.subscribe.title')}
           </motion.h2>
 
           <motion.p
@@ -74,8 +76,7 @@ const Subscribe = () => {
             custom={2}
             className="mt-4 text-lg text-primary-200/70 max-w-xl mx-auto leading-relaxed"
           >
-            Get notified about new features, route updates, and important announcements.
-            Be the first to know when Fleetmark launches new capabilities.
+            {t('landing.subscribe.description')}
           </motion.p>
 
           <motion.form
@@ -92,7 +93,7 @@ const Subscribe = () => {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Enter your email address"
+                  placeholder={t('landing.subscribe.placeholder')}
                   required
                   className="w-full px-5 py-4 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20 text-white placeholder:text-white/40 text-sm focus:ring-2 focus:ring-accent-400/30 focus:border-accent-400/50 outline-none transition-all"
                 />
@@ -104,12 +105,12 @@ const Subscribe = () => {
                 {subscribed ? (
                   <>
                     <Sparkles className="w-4 h-4" />
-                    Subscribed!
+                    {t('landing.subscribe.subscribed')}
                   </>
                 ) : (
                   <>
                     <Send className="w-4 h-4" />
-                    Subscribe
+                    {t('landing.subscribe.button')}
                   </>
                 )}
               </button>
@@ -123,7 +124,7 @@ const Subscribe = () => {
             custom={4}
             className="mt-4 text-sm text-primary-300/50"
           >
-            No spam, ever. Unsubscribe anytime.
+            {t('landing.subscribe.noSpam')}
           </motion.p>
         </div>
       </div>

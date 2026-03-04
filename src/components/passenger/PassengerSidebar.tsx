@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { passengerNotifications } from '../../data/passengerMockData';
 import { useAuth } from '../../context/AuthContext';
+import { useTranslation } from 'react-i18next';
 
 interface SidebarProps {
   collapsed: boolean;
@@ -20,17 +21,18 @@ interface SidebarProps {
   onMobileClose: () => void;
 }
 
-const navItems = [
-  { label: 'Overview', icon: Home, path: '/passenger/overview' },
-  { label: 'Reserve a Seat', icon: Ticket, path: '/passenger/reserve' },
-  { label: 'My Reservations', icon: ClipboardList, path: '/passenger/reservations' },
-  { label: 'Routes & Stops', icon: MapPinned, path: '/passenger/routes' },
-  { label: 'Notifications', icon: Bell, path: '/passenger/notifications', badge: passengerNotifications.filter((n) => !n.read).length },
-  { label: 'Profile Settings', icon: UserCog, path: '/passenger/profile' },
-];
-
 const PassengerSidebar = ({ collapsed, onToggle, mobileOpen, onMobileClose }: SidebarProps) => {
   const { user } = useAuth();
+  const { t } = useTranslation();
+
+  const navItems = [
+    { label: t('dashboard.sidebar.overview'), icon: Home, path: '/passenger/overview' },
+    { label: t('dashboard.sidebar.reserve'), icon: Ticket, path: '/passenger/reserve' },
+    { label: t('dashboard.sidebar.myReservations'), icon: ClipboardList, path: '/passenger/reservations' },
+    { label: t('dashboard.sidebar.routes'), icon: MapPinned, path: '/passenger/routes' },
+    { label: t('dashboard.sidebar.notifications'), icon: Bell, path: '/passenger/notifications', badge: passengerNotifications.filter((n) => !n.read).length },
+    { label: t('dashboard.sidebar.profile'), icon: UserCog, path: '/passenger/profile' },
+  ];
 
   const sidebarContent = (
     <div className="flex flex-col h-full">
@@ -84,10 +86,10 @@ const PassengerSidebar = ({ collapsed, onToggle, mobileOpen, onMobileClose }: Si
           />
           {!collapsed && (
             <div className="min-w-0">
-              <p className="text-sm font-semibold text-white truncate">{user?.name || 'Passenger'}</p>
+              <p className="text-sm font-semibold text-white truncate">{user?.name || 'Student'}</p>
               <div className="flex items-center gap-1.5 flex-wrap">
                 <span className="inline-block px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-400/20 text-emerald-400 uppercase tracking-wider">
-                  Passenger
+                  1337 Student
                 </span>
                 {user?.authProvider === '42' && user?.campus && (
                   <span className="inline-block px-2 py-0.5 rounded text-[10px] font-semibold bg-white/10 text-white/70 uppercase tracking-wider">

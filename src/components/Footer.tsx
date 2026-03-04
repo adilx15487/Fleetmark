@@ -1,24 +1,27 @@
 import { Bus, ArrowUpRight } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const Footer = () => {
+  const { t } = useTranslation();
+
   const quickLinks = [
-    { label: 'About Us', href: '#about' },
-    { label: 'Features', href: '#features' },
-    { label: 'Get Started', href: '#auth' },
-    { label: 'Subscribe', href: '#subscribe' },
+    { label: t('landing.footer.aboutUs'), href: '#about' },
+    { label: t('landing.nav.features'), href: '#features' },
+    { label: t('landing.nav.getStarted'), href: '#auth' },
+    { label: t('landing.nav.subscribe'), href: '#subscribe' },
   ];
 
   const resources = [
-    { label: 'Documentation', href: '#' },
-    { label: 'API Reference', href: '#' },
-    { label: 'Support Center', href: '#' },
-    { label: 'Status Page', href: '#' },
+    { label: t('landing.footer.documentation'), href: 'https://1337.ma' },
+    { label: t('landing.footer.apiReference'), href: 'https://42.fr' },
+    { label: t('landing.footer.supportCenter'), href: '#' },
+    { label: t('landing.footer.statusPage'), href: '#' },
   ];
 
   const legal = [
-    { label: 'Privacy Policy', href: '#' },
-    { label: 'Terms of Service', href: '#' },
-    { label: 'Cookie Policy', href: '#' },
+    { label: t('landing.footer.privacy'), href: '#' },
+    { label: t('landing.footer.terms'), href: '#' },
+    { label: t('landing.footer.cookies'), href: '#' },
   ];
 
   return (
@@ -38,15 +41,14 @@ const Footer = () => {
               <span className="text-xl font-bold tracking-tight">Fleetmark</span>
             </a>
             <p className="mt-4 text-sm text-primary-300/60 leading-relaxed max-w-xs">
-              Smart transportation management for schools, universities, and enterprises.
-              Making every ride count.
+              {t('landing.footer.tagline')}
             </p>
           </div>
 
           {/* Quick Links */}
           <div>
             <h4 className="text-sm font-semibold text-white/90 uppercase tracking-wider mb-5">
-              Quick Links
+              {t('landing.footer.quickLinks')}
             </h4>
             <ul className="space-y-3">
               {quickLinks.map((link) => (
@@ -66,7 +68,7 @@ const Footer = () => {
           {/* Resources */}
           <div>
             <h4 className="text-sm font-semibold text-white/90 uppercase tracking-wider mb-5">
-              Resources
+              {t('landing.footer.resources')}
             </h4>
             <ul className="space-y-3">
               {resources.map((link) => (
@@ -86,7 +88,7 @@ const Footer = () => {
           {/* Legal */}
           <div>
             <h4 className="text-sm font-semibold text-white/90 uppercase tracking-wider mb-5">
-              Legal
+              {t('landing.footer.legal')}
             </h4>
             <ul className="space-y-3">
               {legal.map((link) => (
@@ -107,10 +109,10 @@ const Footer = () => {
         {/* Bottom bar */}
         <div className="py-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-sm text-primary-300/50">
-            © 2026 Fleetmark. All rights reserved.
+            {t('landing.footer.copyright')}
           </p>
           <p className="text-sm text-primary-300/40">
-            Smart Transportation. Reserved for You.
+            {t('landing.footer.bottomTagline')}
           </p>
         </div>
       </div>

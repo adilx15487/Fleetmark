@@ -1,0 +1,195 @@
+{
+  "translation": {
+    "landing": {
+      "nav": {
+        "about": "About",
+        "features": "Features",
+        "getStarted": "Get Started",
+        "subscribe": "Subscribe",
+        "login": "Log In",
+        "signup": "Sign Up",
+        "dashboard": "Go to Dashboard"
+      },
+      "hero": {
+        "badge": "Now Accepting Reservations",
+        "title": "Smart Transportation.",
+        "subtitle": "Reserved for You.",
+        "description": "The night shuttle seat reservation platform built for 1337 School, Ben Guerir.",
+        "cta": "Get Started Free",
+        "learnMore": "Learn More",
+        "stats": {
+          "riders": "Students",
+          "routes": "Routes",
+          "onTime": "10PM — 6AM"
+        }
+      },
+      "whoWeAre": {
+        "badge": "Who We Are",
+        "title": "Meet the Team Behind",
+        "description": "We are a focused team of developers who came together to solve real transportation challenges."
+      },
+      "features": {
+        "badge": "What This Project Is About",
+        "title": "Solving Real Transport",
+        "titleHighlight": "Problems with Smart Solutions",
+        "description": "From overcrowded night buses to last-minute cancellations — we've seen it all. Fleetmark tackles these pain points head-on for 1337 students.",
+        "problemsLabel": "Problem",
+        "solutionsLabel": "Solution",
+        "problems": [
+          "Overcrowded and unmanaged night buses",
+          "Unfair seat allocation — first come, only served",
+          "No visibility on shuttle routes, stops, or schedules",
+          "Poor communication between admins, drivers, and students"
+        ],
+        "solutions": [
+          "Seat reservation system with capacity control — reserve your seat in advance and never stand again.",
+          "Smart bus allocation based on demand & fairness — fair assignment that works for every student.",
+          "Route & stop visibility with clear map view — see every shuttle stop and timing at a glance.",
+          "Instant reporting & real-time notifications — students and drivers stay informed, every trip."
+        ],
+        "solutionTitles": [
+          "Seat Reservation",
+          "Smart Allocation",
+          "Route Visibility",
+          "Instant Reporting"
+        ]
+      },
+      "auth": {
+        "badge": "Get Started",
+        "title": "Your Ride Awaits.",
+        "subtitle": "Join Fleetmark Today.",
+        "description": "Whether you're an admin managing the shuttle, a 1337 student looking for a guaranteed seat, or a driver keeping your route on track — Fleetmark is built for you.",
+        "login": {
+          "tab": "Log In",
+          "username": "Username",
+          "password": "Password",
+          "button": "Log In",
+          "loggingIn": "Logging in…",
+          "noAccount": "Don't have an account?",
+          "forgotPassword": "Forgot password?",
+          "role": "I am a..."
+        },
+        "signup": {
+          "tab": "Sign Up",
+          "fullName": "Full Name",
+          "email": "Email Address",
+          "password": "Password",
+          "confirmPassword": "Confirm Password",
+          "role": "I am a...",
+          "button": "Create Account",
+          "hasAccount": "Already have an account?"
+        },
+        "roles": {
+          "admin": "Admin / Organizer",
+          "adminDesc": "Manage fleet, routes & users",
+          "passenger": "1337 Student",
+          "passengerDesc": "Reserve your seat & track the shuttle",
+          "driver": "Driver",
+          "driverDesc": "View schedule & students"
+        },
+        "loginWith42": "Continue with 42 Intra",
+        "connecting42": "Connecting to 42…",
+        "orLoginWith": "or login with credentials",
+        "errors": {
+          "usernameRequired": "Username is required",
+          "usernameInvalid": "Enter a valid username (min 3 chars)",
+          "passwordRequired": "Password is required",
+          "passwordLength": "Password must be at least 6 characters",
+          "nameRequired": "Full name is required",
+          "nameLength": "Name must be at least 2 characters",
+          "emailRequired": "Email is required",
+          "emailInvalid": "Enter a valid email address",
+          "confirmRequired": "Please confirm your password",
+          "passwordMismatch": "Passwords do not match"
+        }
+      },
+      "subscribe": {
+        "title": "Stay Updated",
+        "description": "Get notified about shuttle updates, schedule changes, and new features. Stay in the loop for 1337's night shuttle.",
+        "placeholder": "Enter your email address",
+        "button": "Subscribe",
+        "subscribed": "Subscribed!",
+        "noSpam": "No spam, ever. Unsubscribe anytime."
+      },
+      "footer": {
+        "tagline": "Night shuttle management for 1337 School, Ben Guerir. Making every ride count.",
+        "quickLinks": "Quick Links",
+        "aboutUs": "About Us",
+        "resources": "Resources",
+        "documentation": "1337 School",
+        "apiReference": "42 Network",
+        "supportCenter": "Support Center",
+        "statusPage": "Contact Us",
+        "legal": "Legal",
+        "privacy": "Privacy Policy",
+        "terms": "Terms of Service",
+        "cookies": "Cookie Policy",
+        "copyright": "© 2026 Fleetmark. All rights reserved.",
+        "bottomTagline": "Built by 1337 students, for 1337 students. 🏫 Ben Guerir, Morocco."
+      }
+    },
+    "dashboard": {
+      "sidebar": {
+        "overview": "Overview",
+        "buses": "Bus Management",
+        "routes": "Route & Stops",
+        "users": "User Management",
+        "schedule": "Schedule Management",
+        "reports": "Reports & Analytics",
+        "notifications": "Notifications",
+        "profile": "Profile Settings",
+        "reserve": "Reserve a Seat",
+        "myReservations": "My Reservations",
+        "myRoute": "My Route",
+        "passengers": "Student List",
+        "logout": "Logout"
+      },
+      "common": {
+        "search": "Search...",
+        "searchRoutes": "Search routes or buses…",
+        "searchPassengers": "Search students or stops…",
+        "save": "Save Changes",
+        "cancel": "Cancel",
+        "confirm": "Confirm",
+        "delete": "Delete",
+        "edit": "Edit",
+        "add": "Add",
+        "loading": "Loading...",
+        "error": "Something went wrong",
+        "retry": "Try Again",
+        "empty": "Nothing here yet",
+        "profile": "Profile",
+        "settings": "Settings"
+      },
+      "admin": {
+        "welcome": "Welcome back, Admin"
+      },
+      "passenger": {
+        "welcome": "Welcome back"
+      },
+      "driver": {
+        "welcome": "Welcome back, Driver"
+      },
+      "status": {
+        "active": "Active",
+        "inactive": "Inactive",
+        "confirmed": "Confirmed",
+        "pending": "Pending",
+        "cancelled": "Cancelled",
+        "started": "In Progress",
+        "ended": "Completed"
+      },
+      "errors": {
+        "invalidCredentials": "Invalid username or password",
+        "networkError": "Connection failed. Please try again.",
+        "serverError": "Server error. Try again later.",
+        "unauthorized": "Session expired. Please login again.",
+        "forbidden": "You don't have permission to do this.",
+        "notFound": "Not found."
+      },
+      "toast": {
+        "langNotAvailable": "{{lang}} is only available on the landing page"
+      }
+    }
+  }
+}

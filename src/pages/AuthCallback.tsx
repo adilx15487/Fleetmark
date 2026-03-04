@@ -7,7 +7,7 @@ import useDocumentTitle from '../hooks/useDocumentTitle';
 type CallbackState = 'authenticating' | 'success' | 'error';
 
 const AuthCallback = () => {
-  useDocumentTitle('Authenticating — Fleetmark');
+  useDocumentTitle('Authenticating — Fleetmark 1337');
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { loginWith42 } = useAuth();
@@ -42,7 +42,11 @@ const AuthCallback = () => {
         setTimeout(() => navigate(result.path), 800);
       } else {
         setState('error');
-        setErrorMsg(result.message || 'Authentication failed. Please try again.');
+        setErrorMsg(
+          result.message === 'Network error — please check your connection.'
+            ? 'Backend server is unreachable. Make sure the Django API is running on port 8000, or set VITE_USE_MOCK=true.'
+            : result.message || 'Authentication failed. Please try again.'
+        );
       }
     };
 

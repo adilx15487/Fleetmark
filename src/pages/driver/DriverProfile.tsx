@@ -1,17 +1,18 @@
 import { useState } from 'react';
 import { Camera, Save, Eye, EyeOff } from 'lucide-react';
-import { driverProfile } from '../../data/driverMockData';
+import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 
 const DriverProfile = () => {
+  const { user } = useAuth();
   const [form, setForm] = useState({
-    name: driverProfile.name,
-    email: driverProfile.email,
-    phone: driverProfile.phone,
-    licenseNumber: driverProfile.licenseNumber,
-    yearsOfExperience: driverProfile.yearsOfExperience,
-    assignedBus: driverProfile.assignedBus,
-    assignedRoute: driverProfile.assignedRoute,
+    name: user?.username || '',
+    email: user?.email || '',
+    phone: '',
+    licenseNumber: '',
+    yearsOfExperience: 0,
+    assignedBus: '—',
+    assignedRoute: '—',
   });
 
   const [passwords, setPasswords] = useState({
@@ -53,8 +54,8 @@ const DriverProfile = () => {
         <div className="flex items-center gap-6">
           <div className="relative">
             <img
-              src={driverProfile.avatar}
-              alt={driverProfile.name}
+              src={`https://api.dicebear.com/9.x/avataaars/svg?seed=${encodeURIComponent(user?.username || 'Driver')}&backgroundColor=c0aede&top=shortHair`}
+              alt={user?.username || 'Driver'}
               className="w-20 h-20 rounded-full bg-slate-200"
             />
             <button className="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-primary-600 text-white flex items-center justify-center border-2 border-white shadow-lg hover:bg-primary-700 transition-colors">
@@ -62,8 +63,8 @@ const DriverProfile = () => {
             </button>
           </div>
           <div>
-            <h2 className="text-lg font-bold text-primary-900">{driverProfile.name}</h2>
-            <p className="text-sm text-slate-400">{driverProfile.email}</p>
+            <h2 className="text-lg font-bold text-primary-900">{user?.username || 'Driver'}</h2>
+            <p className="text-sm text-slate-400">{user?.email || ''}</p>
             <span className="inline-block mt-1.5 px-2.5 py-0.5 rounded-lg text-[10px] font-bold uppercase tracking-wider bg-sky-50 text-sky-600 border border-sky-200">
               Driver
             </span>

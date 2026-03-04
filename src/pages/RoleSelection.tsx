@@ -9,8 +9,8 @@ import useDocumentTitle from '../hooks/useDocumentTitle';
 const roles: { value: UserRole; label: string; description: string; icon: typeof Users; color: string; bg: string }[] = [
   {
     value: 'passenger',
-    label: 'Student / Employee',
-    description: 'Reserve seats, view routes, and track your rides in real-time.',
+    label: '1337 Student',
+    description: 'Reserve seats, view routes, and track your shuttle in real-time.',
     icon: Users,
     color: 'text-emerald-600',
     bg: 'bg-emerald-50 border-emerald-200 hover:border-emerald-400 hover:shadow-emerald-100/50',
@@ -18,7 +18,7 @@ const roles: { value: UserRole; label: string; description: string; icon: typeof
   {
     value: 'admin',
     label: 'Admin / Organizer',
-    description: 'Manage fleet, create routes, handle schedules and monitor operations.',
+    description: 'Manage shuttle, create routes, handle schedules and monitor operations.',
     icon: Shield,
     color: 'text-amber-600',
     bg: 'bg-amber-50 border-amber-200 hover:border-amber-400 hover:shadow-amber-100/50',
@@ -26,7 +26,7 @@ const roles: { value: UserRole; label: string; description: string; icon: typeof
   {
     value: 'driver',
     label: 'Driver',
-    description: 'View your assigned route, passenger list, and daily schedule.',
+    description: 'View your assigned route, student list, and nightly schedule.',
     icon: Truck,
     color: 'text-sky-600',
     bg: 'bg-sky-50 border-sky-200 hover:border-sky-400 hover:shadow-sky-100/50',
@@ -34,7 +34,7 @@ const roles: { value: UserRole; label: string; description: string; icon: typeof
 ];
 
 const RoleSelection = () => {
-  useDocumentTitle('Choose Your Role — Fleetmark');
+  useDocumentTitle('Choose Your Role — Fleetmark 1337');
   const navigate = useNavigate();
   const { user, setUserRole, getDashboardPath } = useAuth();
   const { toast } = useToast();
