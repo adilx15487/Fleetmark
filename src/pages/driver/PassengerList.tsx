@@ -5,6 +5,7 @@ import type { Reservation } from '../../types/api';
 import { SkeletonCardGrid } from '../../components/ui/Skeleton';
 import ErrorState from '../../components/ui/ErrorState';
 import EmptyState from '../../components/ui/EmptyState';
+import { SnakeCard } from '../../components/ui/SnakeCard';
 
 type FilterTab = 'All';
 
@@ -18,7 +19,7 @@ const PassengerList = () => {
     if (search.trim()) {
       const q = search.toLowerCase();
       list = list.filter(
-        (p) => p.passenger_name.toLowerCase().includes(q) || String(p.trip).includes(q)
+        (p) => p.user_name.toLowerCase().includes(q) || String(p.trip).includes(q)
       );
     }
     return list;
@@ -39,6 +40,7 @@ const PassengerList = () => {
   return (
     <div className="space-y-6">
       {/* Header controls */}
+      <SnakeCard index={0}>
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-primary-50 flex items-center justify-center">
@@ -86,6 +88,7 @@ const PassengerList = () => {
           />
         </div>
       </div>
+      </SnakeCard>
 
       {/* Passenger grid */}
       {filtered.length === 0 ? (
@@ -96,11 +99,11 @@ const PassengerList = () => {
         />
       ) : (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filtered.map((p) => {
-            const initials = p.passenger_name.split(' ').map((w) => w[0]).join('').slice(0, 2).toUpperCase();
+          {filtered.map((p, i) => {
+            const initials = p.user_name.split(' ').map((w: string) => w[0]).join('').slice(0, 2).toUpperCase();
             return (
+              <SnakeCard index={i + 1} maxItems={8} key={p.id}>
               <div
-                key={p.id}
                 className="bg-white rounded-2xl border border-slate-200 p-5 hover:shadow-lg hover:shadow-primary-100/30 transition-shadow"
               >
                 <div className="flex items-center gap-4">
@@ -109,7 +112,7 @@ const PassengerList = () => {
                   </div>
 
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-bold text-primary-900 truncate">{p.passenger_name}</p>
+                    <p className="text-sm font-bold text-primary-900 truncate">{p.user_name}</p>
                     <p className="text-xs text-slate-400 mt-0.5">Trip #{p.trip}</p>
                   </div>
 
@@ -122,6 +125,7 @@ const PassengerList = () => {
                   <span className="truncate">{new Date(p.created_at).toLocaleDateString()}</span>
                 </div>
               </div>
+              </SnakeCard>
             );
           })}
         </div>

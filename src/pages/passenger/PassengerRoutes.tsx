@@ -5,6 +5,7 @@ import { useRoutes, useBuses } from '../../hooks/useApi';
 import { SkeletonList } from '../../components/ui/Skeleton';
 import ErrorState from '../../components/ui/ErrorState';
 import EmptyState from '../../components/ui/EmptyState';
+import { SnakeCard } from '../../components/ui/SnakeCard';
 
 const PassengerRoutes = () => {
   const { data: routes = [], isLoading, isError, refetch } = useRoutes();
@@ -30,6 +31,7 @@ const PassengerRoutes = () => {
   return (
     <div className="space-y-6">
       {/* Filters */}
+      <SnakeCard index={0}>
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
@@ -45,16 +47,17 @@ const PassengerRoutes = () => {
           {/* Search is the only filter now */}
         </div>
       </div>
+      </SnakeCard>
 
       {/* Route cards */}
       <div className="space-y-4">
-        {filtered.map((route) => {
+        {filtered.map((route, i) => {
           const isExpanded = expandedId === route.id;
           const bus = getBus(route.bus);
 
           return (
+            <SnakeCard index={i + 1} key={route.id}>
             <div
-              key={route.id}
               className="bg-white rounded-2xl border border-slate-200 overflow-hidden hover:shadow-lg hover:shadow-primary-100/30 transition-all"
             >
               {/* Header */}
@@ -126,6 +129,7 @@ const PassengerRoutes = () => {
                 </div>
               )}
             </div>
+            </SnakeCard>
           );
         })}
 

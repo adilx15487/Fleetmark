@@ -4,6 +4,7 @@ import { useToast } from '../../context/ToastContext';
 import { useSchedule, to12Hour, type GeneratedSlot } from '../../context/ScheduleContext';
 import { useReservation, type BusAssignment } from '../../context/ReservationContext';
 import StudentOnboarding from '../../components/passenger/StudentOnboarding';
+import { SnakeCard } from '../../components/ui/SnakeCard';
 
 const ReserveASeat = () => {
   const { toast } = useToast();
@@ -93,6 +94,7 @@ const ReserveASeat = () => {
   return (
     <div className="space-y-5">
       {/* Header info card */}
+      <SnakeCard index={0}>
       <div className="bg-gradient-to-br from-primary-700 via-primary-800 to-primary-900 rounded-2xl p-5 sm:p-6 text-white relative overflow-hidden">
         <div className="absolute top-0 right-0 w-56 h-56 bg-accent-400/10 rounded-full -translate-y-1/3 translate-x-1/3" />
         <div className="relative z-10">
@@ -127,6 +129,7 @@ const ReserveASeat = () => {
           </div>
         </div>
       </div>
+      </SnakeCard>
 
       {/* Reservation limit banners */}
       {reservationsUsed === maxReservations - 1 && canReserve && (
@@ -145,6 +148,7 @@ const ReserveASeat = () => {
       )}
 
       {/* Operating status */}
+      <SnakeCard index={1}>
       <div className={`rounded-xl px-4 py-3 border ${
         serviceStatus.state === 'running'
           ? 'bg-emerald-50 border-emerald-200'
@@ -170,8 +174,10 @@ const ReserveASeat = () => {
           </span>
         </div>
       </div>
+      </SnakeCard>
 
       {/* Time Slot Grid */}
+      <SnakeCard index={2}>
       <div>
         <h3 className="text-sm font-bold text-primary-900 mb-3">Choose Your Trip</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -274,9 +280,11 @@ const ReserveASeat = () => {
           })}
         </div>
       </div>
+      </SnakeCard>
 
       {/* Active reservations tonight (quick view) */}
       {activeTonight.length > 0 && (
+        <SnakeCard index={3}>
         <div className="bg-white rounded-2xl border border-slate-200 p-5">
           <h3 className="text-sm font-bold text-primary-900 mb-3">
             Tonight's Reservations ({activeTonight.length}/{maxReservations})
@@ -305,6 +313,7 @@ const ReserveASeat = () => {
             ))}
           </div>
         </div>
+        </SnakeCard>
       )}
 
       {/* Confirmation Modal */}

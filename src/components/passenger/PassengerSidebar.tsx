@@ -26,23 +26,23 @@ const PassengerSidebar = ({ collapsed, onToggle, mobileOpen, onMobileClose }: Si
   const { t } = useTranslation();
 
   const navItems = [
-    { label: t('dashboard.sidebar.overview'), icon: Home, path: '/passenger/overview' },
-    { label: t('dashboard.sidebar.reserve'), icon: Ticket, path: '/passenger/reserve' },
-    { label: t('dashboard.sidebar.myReservations'), icon: ClipboardList, path: '/passenger/reservations' },
-    { label: t('dashboard.sidebar.routes'), icon: MapPinned, path: '/passenger/routes' },
-    { label: t('dashboard.sidebar.notifications'), icon: Bell, path: '/passenger/notifications', badge: passengerNotifications.filter((n) => !n.read).length },
-    { label: t('dashboard.sidebar.profile'), icon: UserCog, path: '/passenger/profile' },
+    { label: t('dashboard.sidebar.overview'), icon: Home, path: '/student/overview' },
+    { label: t('dashboard.sidebar.reserve'), icon: Ticket, path: '/student/reserve' },
+    { label: t('dashboard.sidebar.myReservations'), icon: ClipboardList, path: '/student/reservations' },
+    { label: t('dashboard.sidebar.routes'), icon: MapPinned, path: '/student/routes' },
+    { label: t('dashboard.sidebar.notifications'), icon: Bell, path: '/student/notifications', badge: passengerNotifications.filter((n) => !n.read).length },
+    { label: t('dashboard.sidebar.profile'), icon: UserCog, path: '/student/profile' },
   ];
 
   const sidebarContent = (
     <div className="flex flex-col h-full">
       {/* Logo */}
-      <div className="flex items-center gap-3 px-4 h-16 border-b border-primary-700/30 shrink-0">
-        <div className="w-9 h-9 rounded-xl bg-accent-400/20 flex items-center justify-center shrink-0">
-          <Bus className="w-5 h-5 text-accent-400" />
+      <div className="flex items-center gap-3 px-4 h-16 shrink-0" style={{ borderBottom: '1px solid var(--sidebar-border)' }}>
+        <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style={{ backgroundColor: 'var(--accent-subtle)' }}>
+          <Bus className="w-5 h-5" style={{ color: 'var(--accent-primary)' }} />
         </div>
         {!collapsed && (
-          <span className="text-lg font-bold text-white tracking-tight whitespace-nowrap">
+          <span className="text-lg font-bold tracking-tight whitespace-nowrap" style={{ color: 'var(--text-primary)' }}>
             Fleetmark
           </span>
         )}
@@ -56,12 +56,12 @@ const PassengerSidebar = ({ collapsed, onToggle, mobileOpen, onMobileClose }: Si
             to={item.path}
             onClick={onMobileClose}
             className={({ isActive }) =>
-              `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 group ${
-                isActive
-                  ? 'bg-accent-400/15 text-accent-400'
-                  : 'text-primary-300/70 hover:bg-white/5 hover:text-white'
-              } ${collapsed ? 'justify-center' : ''}`
+              `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 group ${collapsed ? 'justify-center' : ''}`
             }
+            style={({ isActive }) => ({
+              backgroundColor: isActive ? 'var(--sidebar-item-active-bg)' : 'transparent',
+              color: isActive ? 'var(--sidebar-item-active-text)' : 'var(--sidebar-item)',
+            })}
           >
             <div className="relative shrink-0">
               <item.icon className="w-5 h-5" />
@@ -77,7 +77,7 @@ const PassengerSidebar = ({ collapsed, onToggle, mobileOpen, onMobileClose }: Si
       </nav>
 
       {/* Profile section at bottom */}
-      <div className="border-t border-primary-700/30 px-3 py-4 shrink-0">
+      <div className="px-3 py-4 shrink-0" style={{ borderTop: '1px solid var(--sidebar-border)' }}>
         <div className={`flex items-center gap-3 ${collapsed ? 'justify-center' : ''}`}>
           <img
             src={user?.avatar || ''}
@@ -86,19 +86,19 @@ const PassengerSidebar = ({ collapsed, onToggle, mobileOpen, onMobileClose }: Si
           />
           {!collapsed && (
             <div className="min-w-0">
-              <p className="text-sm font-semibold text-white truncate">{user?.name || 'Student'}</p>
+              <p className="text-sm font-semibold truncate" style={{ color: 'var(--text-primary)' }}>{user?.name || 'Student'}</p>
               <div className="flex items-center gap-1.5 flex-wrap">
-                <span className="inline-block px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-400/20 text-emerald-400 uppercase tracking-wider">
+                <span className="inline-block px-2 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wider" style={{ backgroundColor: 'var(--accent-subtle)', color: 'var(--accent-text)' }}>
                   1337 Student
                 </span>
-                {user?.authProvider === '42' && user?.campus && (
-                  <span className="inline-block px-2 py-0.5 rounded text-[10px] font-semibold bg-white/10 text-white/70 uppercase tracking-wider">
+                {user?.campus && (
+                  <span className="inline-block px-2 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wider" style={{ backgroundColor: 'var(--bg-tertiary)', color: 'var(--text-secondary)' }}>
                     {user.campus}
                   </span>
                 )}
               </div>
-              {user?.authProvider === '42' && user?.login42 && (
-                <p className="text-[10px] text-primary-300 truncate mt-0.5">@{user.login42}</p>
+              {user?.login42 && (
+                <p className="text-[10px] truncate mt-0.5" style={{ color: 'var(--text-tertiary)' }}>@{user.login42}</p>
               )}
             </div>
           )}
@@ -108,7 +108,8 @@ const PassengerSidebar = ({ collapsed, onToggle, mobileOpen, onMobileClose }: Si
       {/* Collapse toggle (desktop only) */}
       <button
         onClick={onToggle}
-        className="hidden lg:flex items-center justify-center h-10 border-t border-primary-700/30 text-primary-400 hover:text-white hover:bg-white/5 transition-colors"
+        className="hidden lg:flex items-center justify-center h-10 transition-colors"
+        style={{ borderTop: '1px solid var(--sidebar-border)', color: 'var(--sidebar-item)' }}
       >
         {collapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
       </button>
@@ -127,18 +128,20 @@ const PassengerSidebar = ({ collapsed, onToggle, mobileOpen, onMobileClose }: Si
 
       {/* Mobile sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 w-64 bg-primary-900 transform transition-transform duration-200 lg:hidden ${
+        className={`fixed inset-y-0 left-0 z-50 w-64 transform transition-transform duration-200 lg:hidden ${
           mobileOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
+        style={{ backgroundColor: 'var(--sidebar-bg)' }}
       >
         {sidebarContent}
       </aside>
 
       {/* Desktop sidebar */}
       <aside
-        className={`hidden lg:flex flex-col fixed inset-y-0 left-0 z-30 bg-primary-900 border-r border-primary-800/50 transition-all duration-200 ${
+        className={`hidden lg:flex flex-col fixed inset-y-0 left-0 z-30 transition-all duration-200 ${
           collapsed ? 'w-[72px]' : 'w-64'
         }`}
+        style={{ backgroundColor: 'var(--sidebar-bg)', borderRight: '1px solid var(--sidebar-border)' }}
       >
         {sidebarContent}
       </aside>

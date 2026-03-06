@@ -19,6 +19,7 @@ import { weeklySchedule } from '../../data/mockData';
 import Modal from '../../components/admin/Modal';
 import { useSchedule, to12Hour, type StoppedPeriod } from '../../context/ScheduleContext';
 import { useToast } from '../../context/ToastContext';
+import { SnakeCard } from '../../components/ui/SnakeCard';
 
 const DAY_LABELS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 const FREQUENCY_OPTIONS = [15, 30, 45, 60, 90, 120];
@@ -82,6 +83,7 @@ const ScheduleManagement = () => {
         </p>
       </div>
 
+      <SnakeCard index={0}>
       {/* ── Schedule Settings ── */}
       <div className="grid lg:grid-cols-3 gap-6">
 
@@ -329,7 +331,9 @@ const ScheduleManagement = () => {
           </button>
         </div>
       </div>
+      </SnakeCard>
 
+      <SnakeCard index={1}>
       {/* ── Timeline Preview ── */}
       <div className="bg-white rounded-2xl border border-slate-200 p-5">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
@@ -442,7 +446,9 @@ const ScheduleManagement = () => {
           ))}
         </div>
       </div>
+      </SnakeCard>
 
+      <SnakeCard index={2}>
       {/* ── Weekly Schedule (existing) ── */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
@@ -525,6 +531,7 @@ const ScheduleManagement = () => {
           ))}
         </div>
       </div>
+      </SnakeCard>
 
       {/* Add Slot Modal */}
       <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title="Add Time Slot">

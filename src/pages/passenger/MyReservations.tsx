@@ -7,6 +7,7 @@ import { SkeletonCardGrid } from '../../components/ui/Skeleton';
 import ErrorState from '../../components/ui/ErrorState';
 import EmptyState from '../../components/ui/EmptyState';
 import { useToast } from '../../context/ToastContext';
+import { SnakeCard } from '../../components/ui/SnakeCard';
 
 const MyReservations = () => {
   const { isLoading, isError, retry } = useLoadingState();
@@ -51,6 +52,7 @@ const MyReservations = () => {
   return (
     <div className="space-y-6">
       {/* Tonight's Reservations */}
+      <SnakeCard index={0}>
       <div className="bg-white rounded-2xl border border-slate-200 p-5">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-sm font-bold text-primary-900">
@@ -83,8 +85,9 @@ const MyReservations = () => {
         ) : (
           <div className="space-y-3">
             {/* Active */}
-            {activeTonight.map((res) => (
-              <div key={res.id} className="flex items-center justify-between p-4 rounded-xl bg-emerald-50 border border-emerald-200">
+            {activeTonight.map((res, i) => (
+              <SnakeCard index={i + 1} key={res.id} maxItems={8}>
+              <div className="flex items-center justify-between p-4 rounded-xl bg-emerald-50 border border-emerald-200">
                 <div className="flex items-center gap-3 min-w-0">
                   <div className="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center shrink-0">
                     <Clock className="w-5 h-5 text-emerald-600" />
@@ -111,11 +114,13 @@ const MyReservations = () => {
                   </button>
                 </div>
               </div>
+              </SnakeCard>
             ))}
 
             {/* Cancelled tonight */}
-            {cancelledTonight.map((res) => (
-              <div key={res.id} className="flex items-center gap-3 p-4 rounded-xl bg-slate-50 border border-slate-200 opacity-60">
+            {cancelledTonight.map((res, i) => (
+              <SnakeCard index={i + activeTonight.length + 1} key={res.id} maxItems={8}>
+              <div className="flex items-center gap-3 p-4 rounded-xl bg-slate-50 border border-slate-200 opacity-60">
                 <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center shrink-0">
                   <Clock className="w-5 h-5 text-slate-400" />
                 </div>
@@ -127,12 +132,15 @@ const MyReservations = () => {
                   Cancelled
                 </span>
               </div>
+              </SnakeCard>
             ))}
           </div>
         )}
       </div>
+      </SnakeCard>
 
       {/* Past Reservations */}
+      <SnakeCard index={activeTonight.length + cancelledTonight.length + 1}>
       <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
         <div className="px-5 py-4 border-b border-slate-100">
           <h3 className="text-sm font-bold text-primary-900">Past Nights</h3>
@@ -172,6 +180,7 @@ const MyReservations = () => {
           </div>
         )}
       </div>
+      </SnakeCard>
 
       {/* Cancel Confirmation Modal */}
       {cancelId && (

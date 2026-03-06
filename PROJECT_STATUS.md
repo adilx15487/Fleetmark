@@ -407,7 +407,7 @@ These modules are **NOT** in our project — do **not** claim them during evalua
 | 14 | Accessibility audit (ARIA, focus) | 🟢 Low | 2 hours | ⏳ Todo |
 
 **Adil's Priority Order:**
-1. Finish 42 OAuth end-to-end (TODAY)
+1. Finish 42 OAuth end-to-end
 2. Wire Admin pages to real API (Admin Bus, Routes, Users first)
 3. Wire Passenger pages to real API
 4. Wire Driver pages to real API

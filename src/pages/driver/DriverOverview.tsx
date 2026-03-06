@@ -16,6 +16,7 @@ import {
 import { useRoutes, useBuses, useReservations } from '../../hooks/useApi';
 import { useAuth } from '../../context/AuthContext';
 import { useSchedule, to12Hour } from '../../context/ScheduleContext';
+import { SnakeCard } from '../../components/ui/SnakeCard';
 
 const greeting = () => {
   const h = new Date().getHours();
@@ -125,6 +126,7 @@ const DriverOverview = () => {
   return (
     <div className="space-y-6">
       {/* Status banner */}
+      <SnakeCard index={0}>
       <div
         className={`rounded-2xl p-6 sm:p-8 relative overflow-hidden transition-colors duration-300 ${
           onDuty
@@ -168,14 +170,15 @@ const DriverOverview = () => {
           </button>
         </div>
       </div>
+      </SnakeCard>
 
       {/* Stats cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {stats.map((stat) => {
+        {stats.map((stat, i) => {
           const Icon = stat.icon;
           return (
+            <SnakeCard index={i + 1} key={stat.label}>
             <div
-              key={stat.label}
               className="bg-white rounded-2xl border border-slate-200 p-5 hover:shadow-lg hover:shadow-primary-100/30 transition-shadow"
             >
               <div className={`w-10 h-10 rounded-xl ${stat.bg} flex items-center justify-center mb-3`}>
@@ -187,6 +190,7 @@ const DriverOverview = () => {
               )}
               <p className="text-xs text-slate-400 mt-1">{stat.label}</p>
             </div>
+            </SnakeCard>
           );
         })}
       </div>
@@ -230,6 +234,7 @@ const DriverOverview = () => {
         </div>
       )}
 
+      <SnakeCard index={5}>
       <div className="grid lg:grid-cols-5 gap-6">
         {/* Today's schedule — wider */}
         <div className="lg:col-span-3 bg-white rounded-2xl border border-slate-200 overflow-hidden">
@@ -337,6 +342,7 @@ const DriverOverview = () => {
           </div>
         </div>
       </div>
+      </SnakeCard>
     </div>
   );
 };

@@ -3,7 +3,7 @@
 import axios from 'axios';
 import api from '../lib/axios';
 import { API_ENDPOINTS, STORAGE_KEYS } from '../config/api.config';
-import type { TokenPair, JwtPayload, User } from '../types/api';
+import type { JwtPayload, AuthCallbackResponse } from '../types/api';
 
 // ── Decode JWT payload (no library needed) ──
 export function decodeToken(token: string): JwtPayload {
@@ -26,28 +26,6 @@ export function isTokenExpired(token: string): boolean {
   } catch {
     return true;
   }
-}
-
-// ── Login with username + password ──
-export async function login(username: string, password: string): Promise<{ tokens: TokenPair; user: User }> {
-  // 1. Obtain JWT tokens
-  const { data: tokens } = await api.post<TokenPair>(API_ENDPOINTS.auth.token, {
-    username,
-    password,
-  });
-
-  // 2. Store tokens
-  localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, tokens.access);
-  localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, tokens.refresh);
-
-  // 3. Decode to get user_id, then fetch full profile
-  const { user_id } = decodeToken(tokens.access);
-  const { data: user } = await api.get<User>(API_ENDPOINTS.users.detail(user_id));
-
-  // 4. Cache user
-  localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(user));
-
-  return { tokens, user };
 }
 
 // ── Refresh access token ──
@@ -81,111 +59,39 @@ export async function verifyToken(token: string): Promise<boolean> {
   }
 }
 
-// ── Restore session on app load ──
-export async function restoreSession(): Promise<User | null> {
-  const access = localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
-  if (!access) return null;
-
-  // Fast check — if token not expired, use cached user
-  if (!isTokenExpired(access)) {
-    const cached = localStorage.getItem(STORAGE_KEYS.USER);
-    if (cached) return JSON.parse(cached) as User;
-
-    // Token valid but no cached user → fetch
-    try {
-      const { user_id } = decodeToken(access);
-      const { data: user } = await api.get<User>(API_ENDPOINTS.users.detail(user_id));
-      localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(user));
-      return user;
-    } catch {
-      return null;
-    }
-  }
-
-  // Token expired → try refresh
-  const refresh = localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN);
-  if (!refresh) {
-    clearSession();
-    return null;
-  }
-
-  try {
-    const newAccess = await refreshAccessToken();
-    const { user_id } = decodeToken(newAccess);
-    const { data: user } = await api.get<User>(API_ENDPOINTS.users.detail(user_id));
-    localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(user));
-    return user;
-  } catch {
-    clearSession();
-    return null;
-  }
-}
-
 // ── Logout — clear everything ──
 export function clearSession() {
   localStorage.removeItem(STORAGE_KEYS.ACCESS_TOKEN);
   localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
   localStorage.removeItem(STORAGE_KEYS.USER);
-  localStorage.removeItem('fleetmark_42_user');
 }
 
 // ── 42 OAuth Helpers ──
 
 /** Build the 42 Intra authorization URL */
-export function get42AuthUrl(): string {
+export function get42AuthUrl(state?: string): string {
   const clientId = import.meta.env.VITE_42_CLIENT_ID;
   const redirectUri = import.meta.env.VITE_42_REDIRECT_URI;
-  return (
+  let url =
     `https://api.intra.42.fr/oauth/authorize` +
     `?client_id=${encodeURIComponent(clientId)}` +
     `&redirect_uri=${encodeURIComponent(redirectUri)}` +
     `&response_type=code` +
-    `&scope=public`
-  );
-}
-
-/** Response shape from POST /api/v1/accounts/42/callback/ */
-export interface OAuth42Response {
-  access: string;
-  refresh: string;
-  user: {
-    id: number;
-    username: string;
-    email: string;
-    role: string;
-    login42: string;
-    avatar42: string;
-    campus42: string;
-    displayname: string;
-    needs_role: boolean;
-    organization: { id: number; name: string } | null;
-  };
+    `&scope=public`;
+  if (state) {
+    url += `&state=${encodeURIComponent(state)}`;
+  }
+  return url;
 }
 
 /** Exchange 42 authorization code for Fleetmark JWT tokens */
-export async function loginWith42Code(code: string): Promise<OAuth42Response> {
-  const { data } = await api.post<OAuth42Response>(API_ENDPOINTS.auth.oauth42Callback, { code });
+export async function loginWith42Code(code: string): Promise<AuthCallbackResponse> {
+  const { data } = await api.post<AuthCallbackResponse>(API_ENDPOINTS.auth.oauth42Callback, { code });
 
   // Store tokens
   localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, data.access);
   localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, data.refresh);
   localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(data.user));
-
-  return data;
-}
-
-/** Set role for 42 user after first login */
-export async function setUserRole(role: string): Promise<OAuth42Response['user']> {
-  const { data } = await api.patch<OAuth42Response['user']>(API_ENDPOINTS.auth.setRole, { role });
-
-  // Update cached user
-  const cached = localStorage.getItem(STORAGE_KEYS.USER);
-  if (cached) {
-    const user = JSON.parse(cached);
-    user.role = data.role;
-    user.needs_role = data.needs_role;
-    localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(user));
-  }
 
   return data;
 }

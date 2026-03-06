@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { Linkedin, Github, MessageCircle } from 'lucide-react';
 import { useHorizontalScroll } from '../hooks/useHorizontalScroll';
 import ScrollArrows from './ScrollArrows';
+import { SnakeCard } from './ui/SnakeCard';
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 40 },
@@ -92,11 +93,7 @@ const WhoWeAre = () => {
   const { t } = useTranslation();
 
   return (
-    <section id="about" className="py-24 lg:py-32 bg-white relative overflow-hidden">
-      {/* Subtle background decoration */}
-      <div className="absolute top-0 right-0 w-96 h-96 bg-primary-50 rounded-full blur-3xl opacity-50 -translate-y-1/2 translate-x-1/2" />
-      <div className="absolute bottom-0 left-0 w-96 h-96 bg-accent-400/5 rounded-full blur-3xl opacity-50 translate-y-1/2 -translate-x-1/2" />
-
+    <section id="about" className="py-24 lg:py-32 relative overflow-hidden" style={{ backgroundColor: 'var(--bg-secondary)' }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative" ref={ref}>
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-16 lg:mb-20">
@@ -105,7 +102,12 @@ const WhoWeAre = () => {
             initial="hidden"
             animate={isInView ? 'visible' : 'hidden'}
             custom={0}
-            className="inline-block px-4 py-1.5 rounded-full bg-primary-50 text-primary-600 text-sm font-semibold mb-4"
+            className="inline-block px-4 py-1.5 rounded-full text-sm font-semibold mb-4"
+            style={{
+              backgroundColor: 'var(--accent-subtle)',
+              color: 'var(--accent-text)',
+              border: '1px solid var(--border-subtle)',
+            }}
           >
             {t('landing.whoWeAre.badge')}
           </motion.span>
@@ -114,11 +116,12 @@ const WhoWeAre = () => {
             initial="hidden"
             animate={isInView ? 'visible' : 'hidden'}
             custom={1}
-            className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-primary-900 leading-tight"
+            className="text-3xl sm:text-4xl lg:text-5xl font-extrabold leading-tight"
+            style={{ color: 'var(--text-primary)' }}
           >
             {t('landing.whoWeAre.title')}
             <br />
-            <span className="bg-gradient-to-r from-primary-600 to-accent-500 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-accent-400 to-accent-600 bg-clip-text text-transparent">
               Fleetmark
             </span>
           </motion.h2>
@@ -127,7 +130,8 @@ const WhoWeAre = () => {
             initial="hidden"
             animate={isInView ? 'visible' : 'hidden'}
             custom={2}
-            className="mt-6 text-lg text-slate-500 leading-relaxed"
+            className="mt-6 text-lg leading-relaxed"
+            style={{ color: 'var(--text-secondary)' }}
           >
             {t('landing.whoWeAre.description')}
           </motion.p>
@@ -146,18 +150,34 @@ const WhoWeAre = () => {
             ref={scrollRef}
             className="flex gap-6 lg:gap-8 overflow-x-auto scroll-smooth snap-x snap-mandatory pb-4 -mb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           >
-            {teamMembers.map((member, index) => (
+            {teamMembers.map((member, i) => (
+              <SnakeCard key={member.name} index={i}>
               <motion.div
-                key={member.name}
                 variants={fadeInUp}
                 initial="hidden"
                 animate={isInView ? 'visible' : 'hidden'}
-                custom={index + 3}
-                className="group relative bg-white border border-slate-100 rounded-2xl p-6 lg:p-8 text-center hover:shadow-xl hover:shadow-primary-100/50 hover:border-primary-200 hover:-translate-y-1 transition-all duration-300 snap-start shrink-0 w-[85%] sm:w-[45%] lg:w-[calc((100%-6rem)/4)]"
+                custom={i + 3}
+                className="group relative rounded-2xl p-6 lg:p-8 text-center hover:-translate-y-1 transition-all duration-300 snap-start shrink-0 w-[85%] sm:w-[45%] lg:w-[calc((100%-6rem)/4)]"
+                style={{
+                  backgroundColor: 'var(--bg-card)',
+                  border: '1px solid var(--border-subtle)',
+                  boxShadow: 'var(--shadow-sm)',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.boxShadow = 'var(--shadow-md)';
+                  e.currentTarget.style.borderColor = 'var(--border-default)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.boxShadow = 'var(--shadow-sm)';
+                  e.currentTarget.style.borderColor = 'var(--border-subtle)';
+                }}
               >
               {/* Profile Photo */}
               <div className="relative mx-auto mb-5 w-24 h-24">
-                <div className="w-24 h-24 rounded-full overflow-hidden border-[3px] border-primary-100 group-hover:border-accent-400 transition-colors duration-300 shadow-lg shadow-primary-100/30">
+                <div
+                  className="w-24 h-24 rounded-full overflow-hidden group-hover:border-accent-400 transition-colors duration-300 shadow-lg"
+                  style={{ border: '3px solid var(--border-default)' }}
+                >
                   <img
                     src={member.photo}
                     alt={member.name}
@@ -165,15 +185,18 @@ const WhoWeAre = () => {
                   />
                 </div>
                 {/* Online indicator */}
-                <div className="absolute bottom-1 right-1 w-4 h-4 bg-success-500 border-2 border-white rounded-full" />
+                <div className="absolute bottom-1 right-1 w-4 h-4 bg-success-500 rounded-full" style={{ border: '2px solid var(--bg-card)' }} />
               </div>
 
               {/* Name & Role */}
-              <h3 className="text-lg font-bold text-primary-900 mb-1">{member.name}</h3>
-              <span className="inline-block px-3 py-1 rounded-full bg-primary-50 text-primary-600 text-xs font-semibold mb-3">
+              <h3 className="text-lg font-bold mb-1" style={{ color: 'var(--text-primary)' }}>{member.name}</h3>
+              <span
+                className="inline-block px-3 py-1 rounded-full text-xs font-semibold mb-3"
+                style={{ backgroundColor: 'var(--accent-subtle)', color: 'var(--accent-text)' }}
+              >
                 {member.role}
               </span>
-              <p className="text-slate-400 text-sm leading-relaxed mb-5">{member.description}</p>
+              <p className="text-sm leading-relaxed mb-5" style={{ color: 'var(--text-secondary)' }}>{member.description}</p>
 
               {/* Social Links */}
               <div className="flex items-center justify-center gap-3">
@@ -181,7 +204,8 @@ const WhoWeAre = () => {
                   href={member.socials.linkedin}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-9 h-9 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-[#0A66C2] hover:text-white transition-all duration-200 hover:shadow-md"
+                  className="w-9 h-9 rounded-xl flex items-center justify-center hover:bg-[#0A66C2] hover:text-white transition-all duration-200 hover:shadow-md"
+                  style={{ backgroundColor: 'var(--bg-tertiary)', color: 'var(--text-tertiary)' }}
                   aria-label={`${member.name} LinkedIn`}
                 >
                   <Linkedin className="w-4 h-4" />
@@ -190,7 +214,8 @@ const WhoWeAre = () => {
                   href={member.socials.github}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-9 h-9 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-[#24292F] hover:text-white transition-all duration-200 hover:shadow-md"
+                  className="w-9 h-9 rounded-xl flex items-center justify-center hover:bg-[#24292F] hover:text-white transition-all duration-200 hover:shadow-md"
+                  style={{ backgroundColor: 'var(--bg-tertiary)', color: 'var(--text-tertiary)' }}
                   aria-label={`${member.name} GitHub`}
                 >
                   <Github className="w-4 h-4" />
@@ -199,13 +224,15 @@ const WhoWeAre = () => {
                   href={member.socials.whatsapp}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-9 h-9 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-[#25D366] hover:text-white transition-all duration-200 hover:shadow-md"
+                  className="w-9 h-9 rounded-xl flex items-center justify-center hover:bg-[#25D366] hover:text-white transition-all duration-200 hover:shadow-md"
+                  style={{ backgroundColor: 'var(--bg-tertiary)', color: 'var(--text-tertiary)' }}
                   aria-label={`${member.name} WhatsApp`}
                 >
                   <MessageCircle className="w-4 h-4" />
                 </a>
               </div>
             </motion.div>
+            </SnakeCard>
           ))}
           </div>
         </div>

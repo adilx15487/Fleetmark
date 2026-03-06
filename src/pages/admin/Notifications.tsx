@@ -7,6 +7,7 @@ import { SkeletonList } from '../../components/ui/Skeleton';
 import ErrorState from '../../components/ui/ErrorState';
 import EmptyState from '../../components/ui/EmptyState';
 import { useToast } from '../../context/ToastContext';
+import { SnakeCard } from '../../components/ui/SnakeCard';
 
 const iconMap: Record<Notification['icon'], { Icon: typeof Info; color: string; bg: string }> = {
   info: { Icon: Info, color: 'text-sky-500', bg: 'bg-sky-50' },
@@ -80,6 +81,7 @@ const Notifications = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
+      <SnakeCard index={0}>
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-xl font-bold text-primary-900">Notifications</h2>
@@ -116,8 +118,10 @@ const Notifications = () => {
           </button>
         ))}
       </div>
+      </SnakeCard>
 
       {/* Notification list */}
+      <SnakeCard index={1}>
       <div className="space-y-3">
         {filtered.length === 0 ? (
           <EmptyState
@@ -158,6 +162,7 @@ const Notifications = () => {
           })
         )}
       </div>
+      </SnakeCard>
 
       {/* Send Notification Modal */}
       <Modal isOpen={modalOpen} onClose={() => { setModalOpen(false); setFormErrors({}); setFormTouched({}); }} title="Send Notification">

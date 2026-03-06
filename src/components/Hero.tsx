@@ -1,46 +1,25 @@
-import { motion } from 'framer-motion';
+import { motion, useScroll, useTransform } from 'framer-motion';
 import { ArrowRight, MapPin, Shield, Clock } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 const Hero = () => {
   const { t } = useTranslation();
+  const { scrollY } = useScroll();
+  const heroCardY = useTransform(scrollY, [0, 500], [0, -50]);
 
   return (
     <section className="relative min-h-screen flex items-center overflow-hidden">
-      {/* Background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-primary-900 via-primary-800 to-primary-700" />
+      {/* Background gradient from tokens */}
+      <div className="absolute inset-0" style={{ background: 'var(--hero-gradient)' }} />
 
-      {/* Decorative elements */}
+      {/* Subtle grid pattern overlay */}
       <div className="absolute inset-0 overflow-hidden">
-        {/* Animated gradient orbs */}
-        <div className="absolute top-1/4 -left-32 w-96 h-96 bg-accent-400/20 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-1/4 -right-32 w-96 h-96 bg-primary-500/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-accent-500/5 rounded-full blur-3xl" />
-
-        {/* Grid pattern overlay */}
         <div
-          className="absolute inset-0 opacity-[0.03]"
+          className="absolute inset-0 opacity-[0.04]"
           style={{
-            backgroundImage: `linear-gradient(rgba(255,255,255,.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.1) 1px, transparent 1px)`,
+            backgroundImage: `linear-gradient(var(--border-subtle) 1px, transparent 1px), linear-gradient(90deg, var(--border-subtle) 1px, transparent 1px)`,
             backgroundSize: '60px 60px',
           }}
-        />
-
-        {/* Floating route dots */}
-        <motion.div
-          animate={{ y: [0, -20, 0] }}
-          transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-          className="absolute top-[20%] left-[15%] w-3 h-3 bg-accent-400/40 rounded-full"
-        />
-        <motion.div
-          animate={{ y: [0, 15, 0] }}
-          transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut', delay: 0.5 }}
-          className="absolute top-[60%] right-[20%] w-2 h-2 bg-primary-300/40 rounded-full"
-        />
-        <motion.div
-          animate={{ y: [0, -10, 0] }}
-          transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
-          className="absolute bottom-[30%] left-[40%] w-4 h-4 bg-accent-400/20 rounded-full"
         />
       </div>
 
@@ -54,8 +33,15 @@ const Hero = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
             >
-              <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/10 text-accent-400 text-sm font-medium mb-6">
-                <span className="w-2 h-2 bg-accent-400 rounded-full animate-pulse" />
+              <span
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium mb-6"
+                style={{
+                  backgroundColor: 'var(--accent-subtle)',
+                  color: 'var(--accent-text)',
+                  border: '1px solid var(--border-subtle)',
+                }}
+              >
+                <span className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: 'var(--accent-primary)' }} />
                 {t('landing.hero.badge')}
               </span>
             </motion.div>
@@ -64,11 +50,12 @@ const Hero = () => {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.3 }}
-              className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-extrabold text-white leading-[1.1] tracking-tight"
+              className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-extrabold leading-[1.1] tracking-tight"
+              style={{ color: 'var(--text-primary)' }}
             >
               {t('landing.hero.title')}
               <br />
-              <span className="bg-gradient-to-r from-accent-400 to-primary-300 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-accent-400 to-accent-600 bg-clip-text text-transparent">
                 {t('landing.hero.subtitle')}
               </span>
             </motion.h1>
@@ -77,7 +64,8 @@ const Hero = () => {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.4 }}
-              className="mt-6 text-lg sm:text-xl text-primary-200/80 max-w-xl mx-auto lg:mx-0 leading-relaxed"
+              className="mt-6 text-lg sm:text-xl max-w-xl mx-auto lg:mx-0 leading-relaxed"
+              style={{ color: 'var(--text-secondary)' }}
             >
               {t('landing.hero.description')}
             </motion.p>
@@ -90,14 +78,40 @@ const Hero = () => {
             >
               <a
                 href="#auth"
-                className="group inline-flex items-center justify-center gap-2 px-8 py-4 rounded-2xl bg-white text-primary-800 font-bold text-lg hover:bg-primary-50 transition-all duration-200 shadow-2xl shadow-black/20 hover:shadow-white/20"
+                className="group inline-flex items-center justify-center gap-2 px-8 py-4 rounded-2xl font-bold text-lg transition-all duration-200"
+                style={{
+                  backgroundColor: 'var(--accent-primary)',
+                  color: '#ffffff',
+                  boxShadow: '0 4px 20px rgba(14, 165, 233, 0.3)',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = 'var(--accent-hover)';
+                  e.currentTarget.style.transform = 'translateY(-2px)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'var(--accent-primary)';
+                  e.currentTarget.style.transform = 'translateY(0)';
+                }}
               >
                 {t('landing.hero.cta')}
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </a>
               <a
                 href="#features"
-                className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20 text-white font-semibold text-lg hover:bg-white/20 transition-all duration-200"
+                className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-2xl font-semibold text-lg transition-all duration-200"
+                style={{
+                  backgroundColor: 'var(--bg-tertiary)',
+                  border: '1px solid var(--border-default)',
+                  color: 'var(--text-primary)',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = 'var(--border-strong)';
+                  e.currentTarget.style.backgroundColor = 'var(--bg-card)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = 'var(--border-default)';
+                  e.currentTarget.style.backgroundColor = 'var(--bg-tertiary)';
+                }}
               >
                 {t('landing.hero.learnMore')}
               </a>
@@ -116,8 +130,8 @@ const Hero = () => {
                 { value: '99%', label: t('landing.hero.stats.onTime') },
               ].map((stat) => (
                 <div key={stat.label} className="text-center lg:text-left">
-                  <div className="text-2xl sm:text-3xl font-bold text-white">{stat.value}</div>
-                  <div className="text-sm text-primary-300/70 mt-1">{stat.label}</div>
+                  <div className="text-2xl sm:text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>{stat.value}</div>
+                  <div className="text-sm mt-1" style={{ color: 'var(--text-tertiary)' }}>{stat.label}</div>
                 </div>
               ))}
             </motion.div>
@@ -128,28 +142,39 @@ const Hero = () => {
             initial={{ opacity: 0, x: 60 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}
+            style={{ y: heroCardY }}
             className="hidden lg:block"
           >
             <div className="relative">
               {/* Main dashboard preview card */}
-              <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-8 shadow-2xl">
+              <div
+                className="rounded-3xl p-8"
+                style={{
+                  backgroundColor: 'var(--bg-card)',
+                  border: '1px solid var(--border-subtle)',
+                  boxShadow: 'var(--shadow-lg)',
+                }}
+              >
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-3 h-3 rounded-full bg-danger-500/80" />
                   <div className="w-3 h-3 rounded-full bg-warning-500/80" />
                   <div className="w-3 h-3 rounded-full bg-success-500/80" />
-                  <span className="ml-2 text-white/40 text-sm">Fleetmark Dashboard</span>
+                  <span className="ml-2 text-sm" style={{ color: 'var(--text-tertiary)' }}>Fleetmark Dashboard</span>
                 </div>
 
                 {/* Mock route card */}
-                <div className="bg-white/10 rounded-2xl p-5 mb-4">
+                <div
+                  className="rounded-2xl p-5 mb-4"
+                  style={{ backgroundColor: 'var(--bg-tertiary)', border: '1px solid var(--border-subtle)' }}
+                >
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-3">
-                      <div className="p-2 bg-accent-400/20 rounded-xl">
-                        <MapPin className="w-5 h-5 text-accent-400" />
+                      <div className="p-2 rounded-xl" style={{ backgroundColor: 'var(--accent-subtle)' }}>
+                        <MapPin className="w-5 h-5" style={{ color: 'var(--accent-primary)' }} />
                       </div>
                       <div>
-                        <p className="text-white font-semibold">Night Shuttle — Route 1</p>
-                        <p className="text-primary-300/60 text-sm">OCP Saka → Nakhil → Kentra → La Gare</p>
+                        <p className="font-semibold" style={{ color: 'var(--text-primary)' }}>Night Shuttle — Route 1</p>
+                        <p className="text-sm" style={{ color: 'var(--text-tertiary)' }}>OCP Saka → Nakhil → Kentra → La Gare</p>
                       </div>
                     </div>
                     <span className="px-3 py-1 rounded-full bg-success-500/20 text-success-500 text-xs font-semibold">
@@ -157,39 +182,47 @@ const Hero = () => {
                     </span>
                   </div>
                   <div className="flex gap-3">
-                    <div className="flex-1 bg-white/5 rounded-xl p-3 text-center">
-                      <p className="text-2xl font-bold text-white">32</p>
-                      <p className="text-xs text-primary-300/60 mt-1">Seats Left</p>
-                    </div>
-                    <div className="flex-1 bg-white/5 rounded-xl p-3 text-center">
-                      <p className="text-2xl font-bold text-accent-400">11:00</p>
-                      <p className="text-xs text-primary-300/60 mt-1">PM Tonight</p>
-                    </div>
-                    <div className="flex-1 bg-white/5 rounded-xl p-3 text-center">
-                      <p className="text-2xl font-bold text-white">19</p>
-                      <p className="text-xs text-primary-300/60 mt-1">Stops</p>
-                    </div>
+                    {[
+                      { val: '32', label: 'Seats Left', accent: false },
+                      { val: '11:00', label: 'PM Tonight', accent: true },
+                      { val: '19', label: 'Stops', accent: false },
+                    ].map((item) => (
+                      <div
+                        key={item.label}
+                        className="flex-1 rounded-xl p-3 text-center"
+                        style={{ backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-subtle)' }}
+                      >
+                        <p className="text-2xl font-bold" style={{ color: item.accent ? 'var(--accent-primary)' : 'var(--text-primary)' }}>{item.val}</p>
+                        <p className="text-xs mt-1" style={{ color: 'var(--text-tertiary)' }}>{item.label}</p>
+                      </div>
+                    ))}
                   </div>
                 </div>
 
                 {/* Quick stats */}
                 <div className="grid grid-cols-2 gap-3">
-                  <div className="bg-white/10 rounded-xl p-4 flex items-center gap-3">
-                    <div className="p-2 bg-primary-500/20 rounded-lg">
-                      <Shield className="w-4 h-4 text-primary-300" />
+                  <div
+                    className="rounded-xl p-4 flex items-center gap-3"
+                    style={{ backgroundColor: 'var(--bg-tertiary)', border: '1px solid var(--border-subtle)' }}
+                  >
+                    <div className="p-2 rounded-lg" style={{ backgroundColor: 'var(--accent-subtle)' }}>
+                      <Shield className="w-4 h-4" style={{ color: 'var(--accent-primary)' }} />
                     </div>
                     <div>
-                      <p className="text-white font-semibold text-sm">Seat Reserved</p>
-                      <p className="text-primary-300/60 text-xs">Seat 14A</p>
+                      <p className="font-semibold text-sm" style={{ color: 'var(--text-primary)' }}>Seat Reserved</p>
+                      <p className="text-xs" style={{ color: 'var(--text-tertiary)' }}>Seat 14A</p>
                     </div>
                   </div>
-                  <div className="bg-white/10 rounded-xl p-4 flex items-center gap-3">
-                    <div className="p-2 bg-accent-400/20 rounded-lg">
-                      <Clock className="w-4 h-4 text-accent-400" />
+                  <div
+                    className="rounded-xl p-4 flex items-center gap-3"
+                    style={{ backgroundColor: 'var(--bg-tertiary)', border: '1px solid var(--border-subtle)' }}
+                  >
+                    <div className="p-2 rounded-lg" style={{ backgroundColor: 'var(--accent-subtle)' }}>
+                      <Clock className="w-4 h-4" style={{ color: 'var(--accent-primary)' }} />
                     </div>
                     <div>
-                      <p className="text-white font-semibold text-sm">ETA</p>
-                      <p className="text-primary-300/60 text-xs">12 minutes</p>
+                      <p className="font-semibold text-sm" style={{ color: 'var(--text-primary)' }}>ETA</p>
+                      <p className="text-xs" style={{ color: 'var(--text-tertiary)' }}>12 minutes</p>
                     </div>
                   </div>
                 </div>
@@ -199,31 +232,26 @@ const Hero = () => {
               <motion.div
                 animate={{ y: [0, -8, 0] }}
                 transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-                className="absolute -top-6 -right-6 bg-white rounded-2xl shadow-2xl p-4 border border-primary-100"
+                className="absolute -top-6 -right-6 rounded-2xl p-4"
+                style={{
+                  backgroundColor: 'var(--bg-card)',
+                  border: '1px solid var(--border-subtle)',
+                  boxShadow: 'var(--shadow-lg)',
+                }}
               >
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-success-500/10 rounded-xl flex items-center justify-center">
                     <span className="text-success-500 text-lg">✓</span>
                   </div>
                   <div>
-                    <p className="text-sm font-semibold text-primary-900">Seat Confirmed!</p>
-                    <p className="text-xs text-slate-400">Route 1 — Seat 14A</p>
+                    <p className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>Seat Confirmed!</p>
+                    <p className="text-xs" style={{ color: 'var(--text-tertiary)' }}>Route 1 — Seat 14A</p>
                   </div>
                 </div>
               </motion.div>
             </div>
           </motion.div>
         </div>
-      </div>
-
-      {/* Bottom wave separator */}
-      <div className="absolute bottom-0 left-0 right-0">
-        <svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full">
-          <path
-            d="M0 120L60 110C120 100 240 80 360 70C480 60 600 60 720 65C840 70 960 80 1080 85C1200 90 1320 90 1380 90L1440 90V120H1380C1320 120 1200 120 1080 120C960 120 840 120 720 120C600 120 480 120 360 120C240 120 120 120 60 120H0Z"
-            fill="white"
-          />
-        </svg>
       </div>
     </section>
   );

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Download, TrendingUp, MapPin, Clock, Users } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LineChart, Line, CartesianGrid, Legend } from 'recharts';
 import { ridesPerRoute, weeklyRidership, reportStats } from '../../data/mockData';
+import { SnakeCard } from '../../components/ui/SnakeCard';
 
 const statCards = [
   { label: 'Total Rides', value: reportStats.totalRides.toLocaleString(), icon: TrendingUp, color: 'bg-primary-500', lightColor: 'bg-primary-50' },
@@ -16,6 +17,7 @@ const Reports = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
+      <SnakeCard index={0}>
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-xl font-bold text-primary-900">Reports &amp; Analytics</h2>
@@ -43,8 +45,10 @@ const Reports = () => {
           </button>
         </div>
       </div>
+      </SnakeCard>
 
       {/* Stat cards */}
+      <SnakeCard index={1}>
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {statCards.map((card) => {
           const Icon = card.icon;
@@ -61,10 +65,12 @@ const Reports = () => {
           );
         })}
       </div>
+      </SnakeCard>
 
       {/* Charts row */}
       <div className="grid lg:grid-cols-2 gap-6">
         {/* Bar chart — rides per route */}
+        <SnakeCard index={2}>
         <div className="bg-white rounded-2xl border border-slate-200 p-5">
           <h3 className="text-sm font-bold text-primary-900 mb-4">Rides per Route</h3>
           <div className="h-[280px]">
@@ -81,8 +87,10 @@ const Reports = () => {
             </ResponsiveContainer>
           </div>
         </div>
+        </SnakeCard>
 
         {/* Line chart — weekly ridership */}
+        <SnakeCard index={3}>
         <div className="bg-white rounded-2xl border border-slate-200 p-5">
           <h3 className="text-sm font-bold text-primary-900 mb-4">Weekly Ridership Trend</h3>
           <div className="h-[280px]">
@@ -98,9 +106,11 @@ const Reports = () => {
             </ResponsiveContainer>
           </div>
         </div>
+        </SnakeCard>
       </div>
 
       {/* Top routes table */}
+      <SnakeCard index={4}>
       <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
         <div className="px-5 py-4 border-b border-slate-100">
           <h3 className="text-sm font-bold text-primary-900">Top Routes by Ridership</h3>
@@ -142,6 +152,7 @@ const Reports = () => {
           </table>
         </div>
       </div>
+      </SnakeCard>
     </div>
   );
 };

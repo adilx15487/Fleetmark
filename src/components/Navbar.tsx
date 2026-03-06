@@ -5,6 +5,7 @@ import { Menu, X, Bus, LayoutDashboard } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTranslation } from 'react-i18next';
 import LanguageSwitcher from './LanguageSwitcher';
+import ThemeToggle from './ui/ThemeToggle';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -33,32 +34,35 @@ const Navbar = () => {
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.6, ease: 'easeOut' }}
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled
-          ? 'bg-white/95 backdrop-blur-md shadow-lg border-b border-primary-100'
-          : 'bg-transparent'
-      }`}
+      className="fixed top-0 left-0 right-0 z-50 transition-all duration-300"
+      style={{
+        backgroundColor: scrolled ? 'var(--nav-bg)' : 'transparent',
+        borderBottom: scrolled ? '1px solid var(--nav-border)' : '1px solid transparent',
+        backdropFilter: scrolled ? 'blur(20px)' : 'none',
+        boxShadow: scrolled ? 'var(--shadow-sm)' : 'none',
+      }}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 lg:h-20">
           {/* Logo */}
           <a href="#" className="flex items-center gap-2 group">
-            <div className={`p-2 rounded-xl transition-colors duration-300 ${
-              scrolled ? 'bg-primary-800' : 'bg-white/10 backdrop-blur-sm'
-            }`}>
-              <Bus className={`w-6 h-6 transition-colors duration-300 ${
-                scrolled ? 'text-accent-400' : 'text-white'
-              }`} />
+            <div
+              className="p-2 rounded-xl transition-colors duration-300"
+              style={{ backgroundColor: 'var(--bg-tertiary)' }}
+            >
+              <Bus className="w-6 h-6" style={{ color: 'var(--accent-primary)' }} />
             </div>
             <div className="flex flex-col">
-              <span className={`text-xl font-bold tracking-tight leading-tight transition-colors duration-300 ${
-                scrolled ? 'text-primary-900' : 'text-white'
-              }`}>
+              <span
+                className="text-xl font-bold tracking-tight leading-tight transition-colors duration-300"
+                style={{ color: 'var(--text-primary)' }}
+              >
                 Fleetmark
               </span>
-              <span className={`text-[10px] font-medium tracking-wide transition-colors duration-300 ${
-                scrolled ? 'text-slate-400' : 'text-white/50'
-              }`}>
+              <span
+                className="text-[10px] font-medium tracking-wide transition-colors duration-300"
+                style={{ color: 'var(--text-tertiary)' }}
+              >
                 1337 School
               </span>
             </div>
@@ -70,32 +74,41 @@ const Navbar = () => {
               <a
                 key={link.label}
                 href={link.href}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                  scrolled
-                    ? 'text-slate-600 hover:text-primary-700 hover:bg-primary-50'
-                    : 'text-white/80 hover:text-white hover:bg-white/10'
-                }`}
+                className="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:opacity-100"
+                style={{ color: 'var(--text-secondary)' }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.color = 'var(--text-primary)';
+                  e.currentTarget.style.backgroundColor = 'var(--bg-tertiary)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.color = 'var(--text-secondary)';
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                }}
               >
                 {link.label}
               </a>
             ))}
           </div>
 
-          {/* Language Switcher */}
-          <div className="hidden md:flex items-center">
-            <LanguageSwitcher />
-          </div>
-
-          {/* Desktop CTA */}
+          {/* Right controls */}
           <div className="hidden md:flex items-center gap-3">
+            <LanguageSwitcher />
+            <ThemeToggle />
+
             {isAuthenticated && user ? (
               <button
                 onClick={() => navigate(getDashboardPath(user.role))}
-                className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 ${
-                  scrolled
-                    ? 'bg-primary-700 text-white hover:bg-primary-800 shadow-lg shadow-primary-700/25'
-                    : 'bg-white text-primary-800 hover:bg-white/90 shadow-lg shadow-black/10'
-                }`}
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200"
+                style={{
+                  backgroundColor: 'var(--accent-primary)',
+                  color: '#fff',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = 'var(--accent-hover)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'var(--accent-primary)';
+                }}
               >
                 <LayoutDashboard className="w-4 h-4" />
                 {t('landing.nav.dashboard')}
@@ -104,21 +117,32 @@ const Navbar = () => {
               <>
                 <a
                   href="#auth"
-                  className={`px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 ${
-                    scrolled
-                      ? 'text-primary-700 hover:bg-primary-50'
-                      : 'text-white hover:bg-white/10'
-                  }`}
+                  className="px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200"
+                  style={{ color: 'var(--text-secondary)' }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.color = 'var(--text-primary)';
+                    e.currentTarget.style.backgroundColor = 'var(--bg-tertiary)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.color = 'var(--text-secondary)';
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                  }}
                 >
                   {t('landing.nav.login')}
                 </a>
                 <a
                   href="#auth"
-                  className={`px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 ${
-                    scrolled
-                      ? 'bg-primary-700 text-white hover:bg-primary-800 shadow-lg shadow-primary-700/25'
-                      : 'bg-white text-primary-800 hover:bg-white/90 shadow-lg shadow-black/10'
-                  }`}
+                  className="px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200"
+                  style={{
+                    backgroundColor: 'var(--accent-primary)',
+                    color: '#fff',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = 'var(--accent-hover)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = 'var(--accent-primary)';
+                  }}
                 >
                   {t('landing.nav.signup')}
                 </a>
@@ -127,14 +151,16 @@ const Navbar = () => {
           </div>
 
           {/* Mobile menu button */}
-          <button
-            onClick={() => setIsOpen(!isOpen)}
-            className={`md:hidden p-2 rounded-lg transition-colors ${
-              scrolled ? 'text-primary-800 hover:bg-primary-50' : 'text-white hover:bg-white/10'
-            }`}
-          >
-            {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-          </button>
+          <div className="md:hidden flex items-center gap-2">
+            <ThemeToggle />
+            <button
+              onClick={() => setIsOpen(!isOpen)}
+              className="p-2 rounded-lg transition-colors"
+              style={{ color: 'var(--text-primary)' }}
+            >
+              {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -144,7 +170,11 @@ const Navbar = () => {
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -10 }}
-          className="md:hidden bg-white border-t border-primary-100 shadow-xl"
+          className="md:hidden backdrop-blur-xl shadow-xl"
+          style={{
+            backgroundColor: 'var(--nav-bg)',
+            borderTop: '1px solid var(--border-subtle)',
+          }}
         >
           <div className="px-4 py-6 space-y-2">
             {navLinks.map((link) => (
@@ -152,7 +182,16 @@ const Navbar = () => {
                 key={link.label}
                 href={link.href}
                 onClick={() => setIsOpen(false)}
-                className="block px-4 py-3 rounded-xl text-slate-700 hover:bg-primary-50 hover:text-primary-700 font-medium transition-colors"
+                className="block px-4 py-3 rounded-xl font-medium transition-colors"
+                style={{ color: 'var(--text-secondary)' }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = 'var(--bg-tertiary)';
+                  e.currentTarget.style.color = 'var(--text-primary)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                  e.currentTarget.style.color = 'var(--text-secondary)';
+                }}
               >
                 {link.label}
               </a>
@@ -164,7 +203,8 @@ const Navbar = () => {
               {isAuthenticated && user ? (
                 <button
                   onClick={() => { setIsOpen(false); navigate(getDashboardPath(user.role)); }}
-                  className="flex-1 text-center inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-primary-700 text-white font-semibold hover:bg-primary-800 transition-colors shadow-lg shadow-primary-700/25"
+                  className="flex-1 text-center inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-semibold transition-colors"
+                  style={{ backgroundColor: 'var(--accent-primary)', color: '#fff' }}
                 >
                   <LayoutDashboard className="w-4 h-4" />
                   {t('landing.nav.dashboard')}
@@ -174,14 +214,19 @@ const Navbar = () => {
                   <a
                     href="#auth"
                     onClick={() => setIsOpen(false)}
-                    className="flex-1 text-center px-4 py-3 rounded-xl border-2 border-primary-200 text-primary-700 font-semibold hover:bg-primary-50 transition-colors"
+                    className="flex-1 text-center px-4 py-3 rounded-xl font-semibold transition-colors"
+                    style={{
+                      border: '2px solid var(--border-default)',
+                      color: 'var(--text-primary)',
+                    }}
                   >
                     {t('landing.nav.login')}
                   </a>
                   <a
                     href="#auth"
                     onClick={() => setIsOpen(false)}
-                    className="flex-1 text-center px-4 py-3 rounded-xl bg-primary-700 text-white font-semibold hover:bg-primary-800 transition-colors shadow-lg shadow-primary-700/25"
+                    className="flex-1 text-center px-4 py-3 rounded-xl font-semibold transition-colors"
+                    style={{ backgroundColor: 'var(--accent-primary)', color: '#fff' }}
                   >
                     {t('landing.nav.signup')}
                   </a>

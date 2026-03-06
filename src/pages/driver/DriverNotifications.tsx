@@ -9,6 +9,7 @@ import {
   CheckCheck,
 } from 'lucide-react';
 import { driverNotifications, type DriverNotification } from '../../data/driverMockData';
+import { SnakeCard } from '../../components/ui/SnakeCard';
 
 const typeConfig: Record<
   DriverNotification['type'],
@@ -43,6 +44,7 @@ const DriverNotificationsPage = () => {
   return (
     <div className="space-y-6">
       {/* Header row */}
+      <SnakeCard index={0}>
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="flex items-center gap-2">
           <Filter className="w-4 h-4 text-slate-400" />
@@ -76,6 +78,7 @@ const DriverNotificationsPage = () => {
           </button>
         )}
       </div>
+      </SnakeCard>
 
       {/* Notification list */}
       {filtered.length === 0 ? (
@@ -84,13 +87,13 @@ const DriverNotificationsPage = () => {
         </div>
       ) : (
         <div className="space-y-3">
-          {filtered.map((n) => {
+          {filtered.map((n, i) => {
             const { Icon, color, bg } = typeConfig[n.type];
             const isUnread = !readIds.has(n.id);
 
             return (
+              <SnakeCard index={i + 1} maxItems={8} key={n.id}>
               <div
-                key={n.id}
                 onClick={() => {
                   if (isUnread) setReadIds((prev) => new Set([...prev, n.id]));
                 }}
@@ -110,6 +113,7 @@ const DriverNotificationsPage = () => {
                 </div>
                 <span className="text-xs text-slate-400 whitespace-nowrap shrink-0 mt-0.5">{n.time}</span>
               </div>
+              </SnakeCard>
             );
           })}
         </div>

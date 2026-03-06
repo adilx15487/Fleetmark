@@ -17,6 +17,7 @@ import {
 import { useBuses, useRoutes, useUsers, useReservations } from '../../hooks/useApi';
 import { SkeletonCard, SkeletonChart, SkeletonTable } from '../../components/ui/Skeleton';
 import ErrorState from '../../components/ui/ErrorState';
+import { SnakeCard } from '../../components/ui/SnakeCard';
 
 const statIcons = [Bus, MapPinned, Users, CalendarCheck];
 const statColors = [
@@ -98,22 +99,23 @@ const Overview = () => {
         {stats.map((stat, i) => {
           const Icon = statIcons[i];
           return (
-            <div
-              key={stat.label}
-              className="bg-white rounded-2xl border border-slate-200 p-5 hover:shadow-lg hover:shadow-primary-100/30 transition-all duration-200"
-            >
-              <div className="flex items-start justify-between mb-4">
-                <div className={`w-11 h-11 rounded-xl flex items-center justify-center ${statColors[i]}`}>
-                  <Icon className="w-5 h-5" />
+            <SnakeCard key={stat.label} index={i}>
+              <div
+                className="bg-white rounded-2xl border border-slate-200 p-5 hover:shadow-lg hover:shadow-primary-100/30 transition-all duration-200"
+              >
+                <div className="flex items-start justify-between mb-4">
+                  <div className={`w-11 h-11 rounded-xl flex items-center justify-center ${statColors[i]}`}>
+                    <Icon className="w-5 h-5" />
+                  </div>
+                  <div className="flex items-center gap-1 text-xs font-semibold px-2 py-1 rounded-lg bg-emerald-50 text-emerald-600">
+                    <TrendingUp className="w-3 h-3" />
+                    Live
+                  </div>
                 </div>
-                <div className="flex items-center gap-1 text-xs font-semibold px-2 py-1 rounded-lg bg-emerald-50 text-emerald-600">
-                  <TrendingUp className="w-3 h-3" />
-                  Live
-                </div>
+                <p className="text-2xl font-bold text-primary-900">{stat.value.toLocaleString()}</p>
+                <p className="text-sm text-slate-400 mt-1">{stat.label}</p>
               </div>
-              <p className="text-2xl font-bold text-primary-900">{stat.value.toLocaleString()}</p>
-              <p className="text-sm text-slate-400 mt-1">{stat.label}</p>
-            </div>
+            </SnakeCard>
           );
         })}
       </div>
@@ -146,7 +148,8 @@ const Overview = () => {
       {/* Charts Row */}
       <div className="grid lg:grid-cols-5 gap-6">
         {/* Line chart */}
-        <div className="lg:col-span-3 bg-white rounded-2xl border border-slate-200 p-5">
+        <SnakeCard index={4} className="lg:col-span-3">
+        <div className="bg-white rounded-2xl border border-slate-200 p-5">
           <h3 className="text-base font-bold text-primary-900 mb-4">Daily Reservations</h3>
           <div className="h-72">
             <ResponsiveContainer width="100%" height="100%">
@@ -174,9 +177,11 @@ const Overview = () => {
             </ResponsiveContainer>
           </div>
         </div>
+        </SnakeCard>
 
         {/* Donut chart */}
-        <div className="lg:col-span-2 bg-white rounded-2xl border border-slate-200 p-5">
+        <SnakeCard index={5} className="lg:col-span-2">
+        <div className="bg-white rounded-2xl border border-slate-200 p-5">
           <h3 className="text-base font-bold text-primary-900 mb-4">Bus Capacity Usage</h3>
           <div className="h-72">
             <ResponsiveContainer width="100%" height="100%">
@@ -215,9 +220,11 @@ const Overview = () => {
             </ResponsiveContainer>
           </div>
         </div>
+        </SnakeCard>
       </div>
 
       {/* Recent Reservations Table */}
+      <SnakeCard index={6}>
       <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
         <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
           <h3 className="text-base font-bold text-primary-900">Recent Reservations</h3>
@@ -237,7 +244,7 @@ const Overview = () => {
             <tbody className="divide-y divide-slate-100">
               {reservations.slice(0, 10).map((r) => (
                 <tr key={r.id} className="hover:bg-slate-50/50 transition-colors">
-                  <td className="px-5 py-3.5 font-medium text-primary-900 whitespace-nowrap">{r.passenger_name}</td>
+                  <td className="px-5 py-3.5 font-medium text-primary-900 whitespace-nowrap">{r.user_name}</td>
                   <td className="px-5 py-3.5 text-slate-500">Trip #{r.trip}</td>
                   <td className="px-5 py-3.5 text-slate-400">{new Date(r.created_at).toLocaleString()}</td>
                   <td className="px-5 py-3.5">
@@ -254,8 +261,10 @@ const Overview = () => {
           <p className="text-xs text-slate-400">Showing 1-{Math.min(10, reservations.length)} of {reservations.length}</p>
         </div>
       </div>
+      </SnakeCard>
 
       {/* Quick Actions */}
+      <SnakeCard index={7}>
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
           { label: 'Add New Bus', icon: Plus, color: 'bg-primary-600 hover:bg-primary-700' },
@@ -272,6 +281,7 @@ const Overview = () => {
           </button>
         ))}
       </div>
+      </SnakeCard>
     </div>
   );
 };

@@ -8,6 +8,7 @@ import ErrorState from '../../components/ui/ErrorState';
 import EmptyState from '../../components/ui/EmptyState';
 import { useToast } from '../../context/ToastContext';
 import { parseApiError } from '../../lib/errorMapper';
+import { SnakeCard } from '../../components/ui/SnakeCard';
 
 const statusClasses: Record<string, string> = {
   Active: 'bg-emerald-50 text-emerald-600 border-emerald-200',
@@ -61,6 +62,7 @@ const RouteStops = () => {
 
   return (
     <div className="space-y-6">
+      <SnakeCard index={0}>
       {/* Warning Banner */}
       <div className="flex items-start gap-3 p-4 rounded-2xl bg-amber-50 border border-amber-200">
         <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
@@ -71,7 +73,9 @@ const RouteStops = () => {
           </p>
         </div>
       </div>
+      </SnakeCard>
 
+      <SnakeCard index={1}>
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
@@ -86,7 +90,9 @@ const RouteStops = () => {
           Add New Route
         </button>
       </div>
+      </SnakeCard>
 
+      <SnakeCard index={2}>
       {/* Route Cards */}
       <div className="space-y-4">
         {routes.map((route, routeIndex) => {
@@ -158,6 +164,7 @@ const RouteStops = () => {
           );
         })}
       </div>
+      </SnakeCard>
 
       {/* Add Route Modal */}
       <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title="Add New Route">

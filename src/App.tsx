@@ -16,11 +16,11 @@ import WhoWeAre from './components/WhoWeAre'
 import AuthSection from './components/AuthSection'
 import Subscribe from './components/Subscribe'
 import Footer from './components/Footer'
+import SectionDivider from './components/ui/SectionDivider'
 
 /* ── Layouts (eager — they are route shells) ── */
 import AdminLayout from './pages/admin/AdminLayout'
 import PassengerLayout from './pages/passenger/PassengerLayout'
-import DriverLayout from './pages/driver/DriverLayout'
 
 /* ── Lazy-loaded dashboard pages ── */
 const Overview = lazy(() => import('./pages/admin/Overview'))
@@ -38,21 +38,16 @@ const PassengerRoutes = lazy(() => import('./pages/passenger/PassengerRoutes'))
 const PassengerNotifications = lazy(() => import('./pages/passenger/PassengerNotifications'))
 const ProfileSettings = lazy(() => import('./pages/passenger/ProfileSettings'))
 
-const DriverOverview = lazy(() => import('./pages/driver/DriverOverview'))
-const MyRoute = lazy(() => import('./pages/driver/MyRoute'))
-const PassengerList = lazy(() => import('./pages/driver/PassengerList'))
-const DriverNotifications = lazy(() => import('./pages/driver/DriverNotifications'))
-const DriverProfile = lazy(() => import('./pages/driver/DriverProfile'))
-
 const NotFound = lazy(() => import('./pages/NotFound'))
 const AuthCallback = lazy(() => import('./pages/AuthCallback'))
-const RoleSelection = lazy(() => import('./pages/RoleSelection'))
+const Onboarding = lazy(() => import('./pages/Onboarding'))
+const ComingSoon = lazy(() => import('./pages/ComingSoon'))
 
 /* ── React Query client ── */
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 30_000,      // 30 seconds
+      staleTime: 30_000,
       retry: 1,
       refetchOnWindowFocus: false,
     },
@@ -70,12 +65,16 @@ const PageLoader = () => (
 function LandingPage() {
   useDocumentTitle('Fleetmark — 1337 Night Shuttle')
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen relative" style={{ backgroundColor: 'var(--bg-primary)' }}>
       <Navbar />
       <Hero />
+      <SectionDivider />
       <Features />
+      <SectionDivider />
       <WhoWeAre />
+      <SectionDivider />
       <AuthSection />
+      <SectionDivider />
       <Subscribe />
       <Footer />
     </div>
@@ -96,12 +95,12 @@ function App() {
           {/* Public landing */}
           <Route path="/" element={<LandingPage />} />
 
-          {/* 42 OAuth callback & role selection */}
+          {/* 42 OAuth callback & onboarding */}
           <Route path="/auth/callback" element={<AuthCallback />} />
-          <Route path="/auth/role-select" element={<RoleSelection />} />
+          <Route path="/onboarding" element={<Onboarding />} />
 
           {/* Admin dashboard — protected */}
-          <Route path="/admin" element={<ProtectedRoute allowedRole="admin"><AdminLayout /></ProtectedRoute>}>
+          <Route path="/admin" element={<ProtectedRoute allowedRoles={['admin']}><AdminLayout /></ProtectedRoute>}>
             <Route index element={<Navigate to="overview" replace />} />
             <Route path="overview" element={<Overview />} />
             <Route path="buses" element={<BusManagement />} />
@@ -112,8 +111,8 @@ function App() {
             <Route path="notifications" element={<Notifications />} />
           </Route>
 
-          {/* Passenger dashboard — protected */}
-          <Route path="/passenger" element={<ProtectedRoute allowedRole="passenger"><PassengerLayout /></ProtectedRoute>}>
+          {/* Student dashboard — protected (backend role = "passenger") */}
+          <Route path="/student" element={<ProtectedRoute allowedRoles={['passenger']}><PassengerLayout /></ProtectedRoute>}>
             <Route index element={<Navigate to="overview" replace />} />
             <Route path="overview" element={<PassengerOverview />} />
             <Route path="reserve" element={<ReserveASeat />} />
@@ -123,15 +122,11 @@ function App() {
             <Route path="profile" element={<ProfileSettings />} />
           </Route>
 
-          {/* Driver dashboard — protected */}
-          <Route path="/driver" element={<ProtectedRoute allowedRole="driver"><DriverLayout /></ProtectedRoute>}>
-            <Route index element={<Navigate to="overview" replace />} />
-            <Route path="overview" element={<DriverOverview />} />
-            <Route path="route" element={<MyRoute />} />
-            <Route path="passengers" element={<PassengerList />} />
-            <Route path="notifications" element={<DriverNotifications />} />
-            <Route path="profile" element={<DriverProfile />} />
-          </Route>
+          {/* Legacy /passenger redirect */}
+          <Route path="/passenger/*" element={<Navigate to="/student/overview" replace />} />
+
+          {/* Driver — Coming Soon */}
+          <Route path="/driver/*" element={<ComingSoon />} />
 
           {/* 404 */}
           <Route path="*" element={<NotFound />} />

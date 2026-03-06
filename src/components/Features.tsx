@@ -1,16 +1,14 @@
-import { motion, useInView } from 'framer-motion';
-import { useRef } from 'react';
+import { motion, useInView, AnimatePresence } from 'framer-motion';
+import { useRef, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  Armchair,
-  MapPinned,
-  Brain,
-  Bell,
-  XCircle,
-  CheckCircle,
-  ArrowRight,
-  type LucideIcon,
+  Users,
+  Shuffle,
+  MapPin,
+  MessageCircleOff,
 } from 'lucide-react';
+import FlipCard from './ui/FlipCard';
+import { SnakeCard } from './ui/SnakeCard';
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 40 },
@@ -21,7 +19,7 @@ const fadeInUp = {
   }),
 };
 
-const pairIcons: LucideIcon[] = [Armchair, Brain, MapPinned, Bell];
+const cardIcons = [Users, Shuffle, MapPin, MessageCircleOff] as const;
 
 const Features = () => {
   const ref = useRef(null);
@@ -30,13 +28,22 @@ const Features = () => {
 
   const problems = t('landing.features.problems', { returnObjects: true }) as string[];
   const solutions = t('landing.features.solutions', { returnObjects: true }) as string[];
-  const solutionTitles = t('landing.features.solutionTitles', { returnObjects: true }) as string[];
+
+  // Track flip state per card
+  const [flipped, setFlipped] = useState<boolean[]>([false, false, false, false]);
+  const anyFlipped = flipped.some(Boolean);
+  const allFlipped = flipped.every(Boolean);
+
+  const toggleCard = useCallback((idx: number) => {
+    setFlipped((prev) => prev.map((v, i) => (i === idx ? !v : v)));
+  }, []);
+
+  const flipAll = useCallback(() => {
+    setFlipped(allFlipped ? [false, false, false, false] : [true, true, true, true]);
+  }, [allFlipped]);
 
   return (
-    <section id="features" className="py-24 lg:py-32 bg-slate-50 relative overflow-hidden">
-      {/* Background decorations */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-primary-100/30 rounded-full blur-3xl" />
-
+    <section id="features" className="py-24 lg:py-32 relative overflow-hidden" style={{ backgroundColor: 'var(--bg-primary)' }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative" ref={ref}>
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-16 lg:mb-20">
@@ -45,7 +52,12 @@ const Features = () => {
             initial="hidden"
             animate={isInView ? 'visible' : 'hidden'}
             custom={0}
-            className="inline-block px-4 py-1.5 rounded-full bg-primary-100 text-primary-700 text-sm font-semibold mb-4"
+            className="inline-block px-4 py-1.5 rounded-full text-sm font-semibold mb-4"
+            style={{
+              backgroundColor: 'var(--accent-subtle)',
+              color: 'var(--accent-text)',
+              border: '1px solid var(--border-subtle)',
+            }}
           >
             {t('landing.features.badge')}
           </motion.span>
@@ -54,11 +66,12 @@ const Features = () => {
             initial="hidden"
             animate={isInView ? 'visible' : 'hidden'}
             custom={1}
-            className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-primary-900 leading-tight"
+            className="text-3xl sm:text-4xl lg:text-5xl font-extrabold leading-tight"
+            style={{ color: 'var(--text-primary)' }}
           >
             {t('landing.features.title')}
             <br />
-            <span className="bg-gradient-to-r from-primary-600 to-accent-500 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-accent-400 to-accent-600 bg-clip-text text-transparent">
               {t('landing.features.titleHighlight')}
             </span>
           </motion.h2>
@@ -67,80 +80,71 @@ const Features = () => {
             initial="hidden"
             animate={isInView ? 'visible' : 'hidden'}
             custom={2}
-            className="mt-6 text-lg text-slate-500 leading-relaxed"
+            className="mt-6 text-lg leading-relaxed"
+            style={{ color: 'var(--text-secondary)' }}
           >
             {t('landing.features.description')}
           </motion.p>
         </div>
 
-        {/* Problem → Solution Pairs */}
-        <div className="space-y-6">
-          {Array.isArray(problems) && problems.map((problem, index) => {
-            const Icon = pairIcons[index] || Armchair;
-            return (
-            <motion.div
-              key={index}
-              variants={fadeInUp}
-              initial="hidden"
-              animate={isInView ? 'visible' : 'hidden'}
-              custom={index + 3}
-              className="group bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-xl hover:shadow-primary-100/40 hover:border-primary-200 transition-all duration-300"
-            >
-              <div className="grid md:grid-cols-[1fr_auto_1fr] items-stretch">
-                {/* Problem — Left Side */}
-                <div className="flex items-start gap-4 p-6 lg:p-8">
-                  <div className="w-11 h-11 rounded-xl bg-danger-500/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <XCircle className="w-5 h-5 text-danger-500" />
-                  </div>
-                  <div>
-                    <span className="inline-block px-2.5 py-0.5 rounded-md bg-red-50 text-danger-500 text-xs font-semibold uppercase tracking-wider mb-2">
-                      {t('landing.features.problemsLabel')}
-                    </span>
-                    <p className="text-slate-700 font-medium leading-relaxed">{problem}</p>
-                  </div>
-                </div>
+        {/* ─── Flip Cards Grid ─── */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 lg:gap-8 max-w-4xl mx-auto">
+          {Array.isArray(problems) &&
+            problems.map((problem, i) => (
+              <SnakeCard key={i} index={i}>
+              <FlipCard
+                problem={problem}
+                solution={solutions[i]}
+                icon={cardIcons[i]}
+                index={i}
+                isFlipped={flipped[i]}
+                onFlip={() => toggleCard(i)}
+              />
+              </SnakeCard>
+            ))}
+        </div>
 
-                {/* Arrow Connector */}
-                <div className="hidden md:flex items-center justify-center px-2">
-                  <div className="flex flex-col items-center gap-1">
-                    <div className="w-px h-8 bg-gradient-to-b from-danger-500/30 to-success-500/30" />
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-r from-danger-500/10 to-success-500/10 border border-slate-200 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                      <ArrowRight className="w-4 h-4 text-primary-600" />
-                    </div>
-                    <div className="w-px h-8 bg-gradient-to-b from-success-500/30 to-danger-500/30" />
-                  </div>
-                </div>
+        {/* ─── Hint + Flip All ─── */}
+        <div className="mt-8 flex flex-col items-center gap-3">
+          <AnimatePresence>
+            {!anyFlipped && (
+              <motion.p
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="text-sm text-center"
+                style={{ color: 'var(--text-tertiary)' }}
+              >
+                👆 {t('landing.features.flipHint')}
+              </motion.p>
+            )}
+          </AnimatePresence>
 
-                {/* Mobile Arrow */}
-                <div className="flex md:hidden items-center justify-center py-1">
-                  <div className="flex items-center gap-2">
-                    <div className="h-px w-8 bg-gradient-to-r from-danger-500/30 to-success-500/30" />
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-r from-danger-500/10 to-success-500/10 border border-slate-200 flex items-center justify-center">
-                      <ArrowRight className="w-3.5 h-3.5 text-primary-600" />
-                    </div>
-                    <div className="h-px w-8 bg-gradient-to-r from-success-500/30 to-danger-500/30" />
-                  </div>
-                </div>
-
-                {/* Solution — Right Side */}
-                <div className="flex items-start gap-4 p-6 lg:p-8 bg-success-500/[0.02] rounded-b-2xl md:rounded-bl-none md:rounded-r-2xl">
-                  <div className="w-11 h-11 rounded-xl bg-success-500/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <CheckCircle className="w-5 h-5 text-success-500" />
-                  </div>
-                  <div>
-                    <span className="inline-block px-2.5 py-0.5 rounded-md bg-emerald-50 text-success-500 text-xs font-semibold uppercase tracking-wider mb-2">
-                      {t('landing.features.solutionsLabel')}
-                    </span>
-                    <p className="text-slate-600 leading-relaxed">
-                      <span className="font-semibold text-primary-900">{solutionTitles[index]}:</span>{' '}
-                      {solutions[index]}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-            );
-          })}
+          <AnimatePresence>
+            {anyFlipped && (
+              <motion.button
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                onClick={flipAll}
+                className="px-4 py-2 text-sm font-medium rounded-lg transition-colors"
+                style={{
+                  color: 'var(--accent-text)',
+                  border: '1px solid var(--border-default)',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = 'var(--bg-tertiary)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                }}
+              >
+                {allFlipped
+                  ? t('landing.features.resetAll')
+                  : t('landing.features.flipAll')}
+              </motion.button>
+            )}
+          </AnimatePresence>
         </div>
       </div>
     </section>

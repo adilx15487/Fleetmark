@@ -10,6 +10,7 @@ import { useAuth } from '../../context/AuthContext';
 import { SkeletonCard, SkeletonTable } from '../../components/ui/Skeleton';
 import ErrorState from '../../components/ui/ErrorState';
 import EmptyState from '../../components/ui/EmptyState';
+import { SnakeCard } from '../../components/ui/SnakeCard';
 
 const MyRoute = () => {
   const { user } = useAuth();
@@ -41,6 +42,7 @@ const MyRoute = () => {
   return (
     <div className="space-y-6">
       {/* Route header */}
+      <SnakeCard index={0}>
       <div className="bg-white rounded-2xl border border-slate-200 p-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-4">
@@ -60,8 +62,10 @@ const MyRoute = () => {
           </span>
         </div>
       </div>
+      </SnakeCard>
 
       {/* Route details cards */}
+      <SnakeCard index={1}>
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
           { icon: Navigation, label: 'Direction', value: myRoute.direction, color: 'text-primary-600', bg: 'bg-primary-50' },
@@ -81,8 +85,10 @@ const MyRoute = () => {
           );
         })}
       </div>
+      </SnakeCard>
 
       {/* Route info */}
+      <SnakeCard index={2}>
       <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
         <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
           <h3 className="text-sm font-bold text-primary-900">Route Info</h3>
@@ -93,8 +99,10 @@ const MyRoute = () => {
           <p><span className="font-semibold text-primary-900">Trips for this route:</span> {myTrips.length}</p>
         </div>
       </div>
+      </SnakeCard>
 
       {/* Map placeholder */}
+      <SnakeCard index={3}>
       <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
         <div className="px-5 py-4 border-b border-slate-100">
           <h3 className="text-sm font-bold text-primary-900">Route Map</h3>
@@ -121,8 +129,10 @@ const MyRoute = () => {
           </div>
         </div>
       </div>
+      </SnakeCard>
 
       {/* Today's trips */}
+      <SnakeCard index={4}>
       <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
         <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
           <h3 className="text-sm font-bold text-primary-900">Trips</h3>
@@ -164,6 +174,7 @@ const MyRoute = () => {
         </div>
         )}
       </div>
+      </SnakeCard>
     </div>
   );
 };

@@ -60,3 +60,10 @@ export const STORAGE_KEYS = {
 
 // ── Feature flags ──
 export const USE_MOCK = import.meta.env.VITE_USE_MOCK === 'true';
+
+export const FEATURE_FLAGS = {
+  NOTIFICATIONS_ENABLED: import.meta.env.VITE_NOTIFICATIONS_ENABLED === 'true',
+  SCHEDULE_ENABLED: import.meta.env.VITE_SCHEDULE_ENABLED === 'true',
+  REPORTS_ENABLED: import.meta.env.VITE_REPORTS_ENABLED === 'true',
+  STOPS_API_ENABLED: import.meta.env.VITE_STOPS_API_ENABLED === 'true',
+} as const;

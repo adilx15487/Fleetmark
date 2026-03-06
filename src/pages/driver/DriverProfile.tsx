@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Camera, Save, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
+import { SnakeCard } from '../../components/ui/SnakeCard';
 
 const DriverProfile = () => {
   const { user } = useAuth();
@@ -50,6 +51,7 @@ const DriverProfile = () => {
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       {/* Avatar section */}
+      <SnakeCard index={0}>
       <div className="bg-white rounded-2xl border border-slate-200 p-6">
         <div className="flex items-center gap-6">
           <div className="relative">
@@ -71,8 +73,10 @@ const DriverProfile = () => {
           </div>
         </div>
       </div>
+      </SnakeCard>
 
       {/* Profile form */}
+      <SnakeCard index={1}>
       <form onSubmit={handleSave} className="bg-white rounded-2xl border border-slate-200 p-6 space-y-5">
         <h3 className="text-sm font-bold text-primary-900">Personal Information</h3>
 
@@ -150,8 +154,10 @@ const DriverProfile = () => {
           </button>
         </div>
       </form>
+      </SnakeCard>
 
       {/* Change password */}
+      <SnakeCard index={2}>
       <form onSubmit={handlePasswordChange} className="bg-white rounded-2xl border border-slate-200 p-6 space-y-5">
         <h3 className="text-sm font-bold text-primary-900">Change Password</h3>
 
@@ -193,6 +199,7 @@ const DriverProfile = () => {
           </button>
         </div>
       </form>
+      </SnakeCard>
     </div>
   );
 };

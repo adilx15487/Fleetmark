@@ -1,11 +1,9 @@
-import { useState, useRef, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useRef, useState } from 'react';
 import { motion, useInView } from 'framer-motion';
-import { AtSign, Lock, User, ChevronDown, Eye, EyeOff, LogIn, UserPlus, Loader2, ExternalLink } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
-import { useToast } from '../context/ToastContext';
+import { GraduationCap, Shield, ExternalLink, Loader2 } from 'lucide-react';
 import { get42AuthUrl } from '../services/auth.service';
 import { useTranslation } from 'react-i18next';
+import { SnakeCard } from './ui/SnakeCard';
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 40 },
@@ -16,156 +14,20 @@ const fadeInUp = {
   }),
 };
 
-type AuthTab = 'login' | 'signup';
-type Role = 'admin' | 'passenger' | 'driver';
-
-const usernameRegex = /^[a-zA-Z0-9_.-]{3,}$/;
-
-interface FormErrors {
-  [key: string]: string;
-}
-
 const AuthSection = () => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-80px' });
-  const navigate = useNavigate();
-  const { login, isLoading, error, clearError, getDashboardPath } = useAuth();
-  const { toast } = useToast();
   const { t } = useTranslation();
+  const [loadingRole, setLoadingRole] = useState<'student' | 'staff' | null>(null);
 
-  const [activeTab, setActiveTab] = useState<AuthTab>('login');
-  const [showPassword, setShowPassword] = useState(false);
-  const [loginForm, setLoginForm] = useState({ username: '', password: '', role: 'passenger' as Role });
-  const [signupForm, setSignupForm] = useState({ fullName: '', email: '', password: '', confirmPassword: '', role: 'passenger' as Role });
-  const [roleDropdownOpen, setRoleDropdownOpen] = useState(false);
-  const [loginErrors, setLoginErrors] = useState<FormErrors>({});
-  const [signupErrors, setSignupErrors] = useState<FormErrors>({});
-  const [loginTouched, setLoginTouched] = useState<Record<string, boolean>>({});
-  const [signupTouched, setSignupTouched] = useState<Record<string, boolean>>({});
-  const [is42Loading, setIs42Loading] = useState(false);
-
-  // --- Validation helpers ---
-  const validateLoginField = useCallback((field: string, value: string): string => {
-    switch (field) {
-      case 'username':
-        if (!value.trim()) return t('landing.auth.errors.usernameRequired');
-        if (!usernameRegex.test(value)) return t('landing.auth.errors.usernameInvalid');
-        return '';
-      case 'password':
-        if (!value) return t('landing.auth.errors.passwordRequired');
-        if (value.length < 6) return t('landing.auth.errors.passwordLength');
-        return '';
-      default:
-        return '';
-    }
-  }, [t]);
-
-  const validateSignupField = useCallback((field: string, value: string, form?: typeof signupForm): string => {
-    const f = form || signupForm;
-    switch (field) {
-      case 'fullName':
-        if (!value.trim()) return t('landing.auth.errors.nameRequired');
-        if (value.trim().length < 2) return t('landing.auth.errors.nameLength');
-        return '';
-      case 'email':
-        if (!value.trim()) return t('landing.auth.errors.emailRequired');
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) return t('landing.auth.errors.emailInvalid');
-        return '';
-      case 'password':
-        if (!value) return t('landing.auth.errors.passwordRequired');
-        if (value.length < 6) return t('landing.auth.errors.passwordLength');
-        return '';
-      case 'confirmPassword':
-        if (!value) return t('landing.auth.errors.confirmRequired');
-        if (value !== f.password) return t('landing.auth.errors.passwordMismatch');
-        return '';
-      default:
-        return '';
-    }
-  }, [signupForm, t]);
-
-  const handleLoginBlur = (field: string) => {
-    setLoginTouched((p) => ({ ...p, [field]: true }));
-    const err = validateLoginField(field, loginForm[field as keyof typeof loginForm]);
-    setLoginErrors((p) => ({ ...p, [field]: err }));
-  };
-
-  const handleSignupBlur = (field: string) => {
-    setSignupTouched((p) => ({ ...p, [field]: true }));
-    const err = validateSignupField(field, signupForm[field as keyof typeof signupForm]);
-    setSignupErrors((p) => ({ ...p, [field]: err }));
-  };
-
-  const validateLoginForm = (): boolean => {
-    const errors: FormErrors = {};
-    errors.username = validateLoginField('username', loginForm.username);
-    errors.password = validateLoginField('password', loginForm.password);
-    setLoginErrors(errors);
-    setLoginTouched({ username: true, password: true });
-    return !errors.username && !errors.password;
-  };
-
-  const validateSignupForm = (): boolean => {
-    const errors: FormErrors = {};
-    errors.fullName = validateSignupField('fullName', signupForm.fullName);
-    errors.email = validateSignupField('email', signupForm.email);
-    errors.password = validateSignupField('password', signupForm.password);
-    errors.confirmPassword = validateSignupField('confirmPassword', signupForm.confirmPassword);
-    setSignupErrors(errors);
-    setSignupTouched({ fullName: true, email: true, password: true, confirmPassword: true });
-    return !errors.fullName && !errors.email && !errors.password && !errors.confirmPassword;
-  };
-
-  const roles: { value: Role; label: string; description: string }[] = [
-    { value: 'admin', label: t('landing.auth.roles.admin'), description: t('landing.auth.roles.adminDesc') },
-    { value: 'passenger', label: t('landing.auth.roles.passenger'), description: t('landing.auth.roles.passengerDesc') },
-    { value: 'driver', label: t('landing.auth.roles.driver'), description: t('landing.auth.roles.driverDesc') },
-  ];
-
-  const handleLoginSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!validateLoginForm()) return;
-    clearError();
-    const success = await login(loginForm.username, loginForm.password, loginForm.role);
-    if (success) {
-      toast('Welcome back! 👋');
-      navigate(getDashboardPath(loginForm.role));
-    }
-  };
-
-  const handleSignupSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!validateSignupForm()) return;
-    toast('Account created successfully! 🎉');
-    console.log('Signup submitted:', signupForm);
-    // Will connect to backend API later
-  };
-
-  const handle42Login = async () => {
-    setIs42Loading(true);
-    clearError();
-    // Redirect to 42 Intra OAuth authorization page
-    window.location.href = get42AuthUrl();
-  };
-
-  const currentRole = activeTab === 'login' ? loginForm.role : signupForm.role;
-  const setCurrentRole = (role: Role) => {
-    if (activeTab === 'login') {
-      setLoginForm({ ...loginForm, role });
-    } else {
-      setSignupForm({ ...signupForm, role });
-    }
-    setRoleDropdownOpen(false);
+  const handleLogin = (role: 'student' | 'staff') => {
+    setLoadingRole(role);
+    // Both redirect to 42 OAuth — state param tells callback which role was selected
+    window.location.href = get42AuthUrl(role);
   };
 
   return (
-    <section id="auth" className="py-24 lg:py-32 bg-white relative overflow-hidden">
-      {/* Background decoration */}
-      <div className="absolute inset-0">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary-50 rounded-full blur-3xl opacity-60" />
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-accent-400/5 rounded-full blur-3xl opacity-60" />
-      </div>
-
+    <section id="auth" className="py-24 lg:py-32 relative overflow-hidden" style={{ backgroundColor: 'var(--bg-secondary)' }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative" ref={ref}>
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
           {/* Left: Info */}
@@ -175,7 +37,12 @@ const AuthSection = () => {
               initial="hidden"
               animate={isInView ? 'visible' : 'hidden'}
               custom={0}
-              className="inline-block px-4 py-1.5 rounded-full bg-primary-50 text-primary-600 text-sm font-semibold mb-4"
+              className="inline-block px-4 py-1.5 rounded-full text-sm font-semibold mb-4"
+              style={{
+                backgroundColor: 'var(--accent-subtle)',
+                color: 'var(--accent-text)',
+                border: '1px solid var(--border-subtle)',
+              }}
             >
               {t('landing.auth.badge')}
             </motion.span>
@@ -184,11 +51,12 @@ const AuthSection = () => {
               initial="hidden"
               animate={isInView ? 'visible' : 'hidden'}
               custom={1}
-              className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-primary-900 leading-tight"
+              className="text-3xl sm:text-4xl lg:text-5xl font-extrabold leading-tight"
+              style={{ color: 'var(--text-primary)' }}
             >
               {t('landing.auth.title')}
               <br />
-              <span className="bg-gradient-to-r from-primary-600 to-accent-500 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-accent-400 to-accent-600 bg-clip-text text-transparent">
                 {t('landing.auth.subtitle')}
               </span>
             </motion.h2>
@@ -197,12 +65,13 @@ const AuthSection = () => {
               initial="hidden"
               animate={isInView ? 'visible' : 'hidden'}
               custom={2}
-              className="mt-6 text-lg text-slate-500 leading-relaxed"
+              className="mt-6 text-lg leading-relaxed"
+              style={{ color: 'var(--text-secondary)' }}
             >
               {t('landing.auth.description')}
             </motion.p>
 
-            {/* Role cards */}
+            {/* How it works */}
             <motion.div
               variants={fadeInUp}
               initial="hidden"
@@ -210,23 +79,32 @@ const AuthSection = () => {
               custom={3}
               className="mt-10 space-y-4"
             >
-              {roles.map((role) => (
-                <div
-                  key={role.value}
-                  className="flex items-center gap-4 p-4 rounded-xl bg-slate-50 border border-slate-100 hover:border-primary-200 hover:bg-primary-50/50 transition-all duration-200"
-                >
-                  <div className="w-10 h-10 rounded-xl bg-primary-100 flex items-center justify-center flex-shrink-0">
-                    <User className="w-5 h-5 text-primary-600" />
+              {[
+                { step: '1', text: 'Click your role below' },
+                { step: '2', text: 'Authenticate with your 42 Intra account' },
+                { step: '3', text: 'Choose your home stop & start reserving' },
+              ].map((item, i) => (
+                <SnakeCard key={item.step} index={i}>
+                  <div
+                    className="flex items-center gap-4 p-4 rounded-xl"
+                    style={{
+                      backgroundColor: 'var(--bg-card)',
+                      border: '1px solid var(--border-subtle)',
+                    }}
+                  >
+                    <div
+                      className="w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold shrink-0"
+                      style={{ backgroundColor: 'var(--accent-subtle)', color: 'var(--accent-primary)' }}
+                    >
+                      {item.step}
+                    </div>
+                    <p className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>{item.text}</p>
                   </div>
-                  <div>
-                    <p className="font-semibold text-primary-900 text-sm">{role.label}</p>
-                    <p className="text-slate-400 text-xs">{role.description}</p>
-                  </div>
-                </div>
+                </SnakeCard>
               ))}
             </motion.div>
 
-            {/* 1337 School badge */}
+            {/* 1337 badge */}
             <motion.div
               variants={fadeInUp}
               initial="hidden"
@@ -234,365 +112,105 @@ const AuthSection = () => {
               custom={4}
               className="mt-6"
             >
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-100 border border-slate-200 text-sm text-slate-500">
+              <div
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm"
+                style={{
+                  backgroundColor: 'var(--bg-card)',
+                  border: '1px solid var(--border-subtle)',
+                  color: 'var(--text-secondary)',
+                }}
+              >
                 <span>🏫</span>
-                <span>Currently serving <strong className="text-primary-700">1337 School</strong>, Ben Guerir</span>
+                <span>Currently serving <strong style={{ color: 'var(--accent-primary)' }}>1337 School</strong>, Ben Guerir</span>
               </div>
             </motion.div>
           </div>
 
-          {/* Right: Auth Form */}
+          {/* Right: Auth Buttons */}
           <motion.div
             variants={fadeInUp}
             initial="hidden"
             animate={isInView ? 'visible' : 'hidden'}
             custom={2}
           >
-            <div className="bg-white rounded-3xl border border-slate-200 shadow-xl shadow-primary-100/20 overflow-hidden">
-              {/* Tabs */}
-              <div className="flex border-b border-slate-100">
-                <button
-                  onClick={() => { setActiveTab('login'); setRoleDropdownOpen(false); }}
-                  className={`flex-1 flex items-center justify-center gap-2 py-4 text-sm font-semibold transition-all duration-200 ${
-                    activeTab === 'login'
-                      ? 'text-primary-700 border-b-2 border-primary-600 bg-primary-50/50'
-                      : 'text-slate-400 hover:text-slate-600'
-                  }`}
-                >
-                  <LogIn className="w-4 h-4" />
-                  {t('landing.auth.login.tab')}
-                </button>
-                <button
-                  onClick={() => { setActiveTab('signup'); setRoleDropdownOpen(false); }}
-                  className={`flex-1 flex items-center justify-center gap-2 py-4 text-sm font-semibold transition-all duration-200 ${
-                    activeTab === 'signup'
-                      ? 'text-primary-700 border-b-2 border-primary-600 bg-primary-50/50'
-                      : 'text-slate-400 hover:text-slate-600'
-                  }`}
-                >
-                  <UserPlus className="w-4 h-4" />
-                  {t('landing.auth.signup.tab')}
-                </button>
+            <div
+              className="rounded-3xl overflow-hidden p-8 sm:p-10"
+              style={{
+                backgroundColor: 'var(--bg-card)',
+                border: '1px solid var(--border-subtle)',
+                boxShadow: 'var(--shadow-lg)',
+              }}
+            >
+              {/* 42 Logo */}
+              <div className="text-center mb-8">
+                <div className="w-16 h-16 bg-gray-900 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  <span className="text-white text-2xl font-black tracking-tight">42</span>
+                </div>
+                <h3 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>
+                  Sign in with 42 Intra
+                </h3>
+                <p className="text-sm mt-2" style={{ color: 'var(--text-tertiary)' }}>
+                  Use your 42 account to access Fleetmark
+                </p>
               </div>
 
-              <div className="p-6 sm:p-8">
-                {/* 42 Intra OAuth Button */}
+              {/* Sign in buttons */}
+              <div className="space-y-4">
+                {/* Student button */}
                 <button
-                  type="button"
-                  onClick={handle42Login}
-                  disabled={is42Loading || isLoading}
-                  className="w-full flex items-center justify-center gap-3 py-3.5 rounded-xl bg-gray-900 text-white font-semibold text-sm hover:bg-black transition-all duration-200 shadow-lg shadow-gray-900/25 active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed mb-6"
+                  onClick={() => handleLogin('student')}
+                  disabled={loadingRole !== null}
+                  className="w-full flex items-center justify-center gap-3 py-4 rounded-xl font-semibold text-sm transition-all duration-200 active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed"
+                  style={{
+                    backgroundColor: 'var(--accent-primary)',
+                    color: '#fff',
+                    boxShadow: '0 4px 12px rgba(14, 165, 233, 0.25)',
+                  }}
                 >
-                  {is42Loading ? (
+                  {loadingRole === 'student' ? (
                     <>
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      {t('landing.auth.connecting42')}
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      Redirecting to 42…
                     </>
                   ) : (
                     <>
-                      <span className="text-lg font-black tracking-tight">42</span>
-                      {t('landing.auth.loginWith42')}
+                      <GraduationCap className="w-5 h-5" />
+                      Sign in as Student
                       <ExternalLink className="w-3.5 h-3.5 opacity-50" />
                     </>
                   )}
                 </button>
 
-                {/* Divider */}
-                <div className="flex items-center gap-4 mb-6">
-                  <div className="flex-1 h-px bg-slate-200" />
-                  <span className="text-xs text-slate-400 font-medium whitespace-nowrap">{t('landing.auth.orLoginWith')}</span>
-                  <div className="flex-1 h-px bg-slate-200" />
-                </div>
-
-                {activeTab === 'login' ? (
-                  <form onSubmit={handleLoginSubmit} className="space-y-5">
-                    <div>
-                      <label className="block text-sm font-medium text-slate-700 mb-2">{t('landing.auth.login.username')}</label>
-                      <div className="relative">
-                        <AtSign className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300" />
-                        <input
-                          type="text"
-                          value={loginForm.username}
-                          onChange={(e) => {
-                            setLoginForm({ ...loginForm, username: e.target.value });
-                            if (loginTouched.username) setLoginErrors((p) => ({ ...p, username: validateLoginField('username', e.target.value) }));
-                          }}
-                          onBlur={() => handleLoginBlur('username')}
-                          placeholder="your_username"
-                          autoComplete="username"
-                          className={`w-full pl-12 pr-4 py-3.5 rounded-xl border text-sm focus:ring-2 outline-none transition-all placeholder:text-slate-300 ${
-                            loginTouched.username && loginErrors.username
-                              ? 'border-red-300 focus:ring-red-500/20 focus:border-red-500'
-                              : 'border-slate-200 focus:ring-primary-500/20 focus:border-primary-500'
-                          }`}
-                        />
-                      </div>
-                      {loginTouched.username && loginErrors.username && (
-                        <p className="mt-1.5 text-xs text-red-500 font-medium">{loginErrors.username}</p>
-                      )}
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-slate-700 mb-2">{t('landing.auth.login.password')}</label>
-                      <div className="relative">
-                        <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300" />
-                        <input
-                          type={showPassword ? 'text' : 'password'}
-                          value={loginForm.password}
-                          onChange={(e) => {
-                            setLoginForm({ ...loginForm, password: e.target.value });
-                            if (loginTouched.password) setLoginErrors((p) => ({ ...p, password: validateLoginField('password', e.target.value) }));
-                          }}
-                          onBlur={() => handleLoginBlur('password')}
-                          placeholder="Enter your password"
-                          className={`w-full pl-12 pr-12 py-3.5 rounded-xl border text-sm focus:ring-2 outline-none transition-all placeholder:text-slate-300 ${
-                            loginTouched.password && loginErrors.password
-                              ? 'border-red-300 focus:ring-red-500/20 focus:border-red-500'
-                              : 'border-slate-200 focus:ring-primary-500/20 focus:border-primary-500'
-                          }`}
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-500 transition-colors"
-                        >
-                          {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                        </button>
-                      </div>
-                      {loginTouched.password && loginErrors.password && (
-                        <p className="mt-1.5 text-xs text-red-500 font-medium">{loginErrors.password}</p>
-                      )}
-                    </div>
-
-                    {/* Role Selector */}
-                    <div>
-                      <label className="block text-sm font-medium text-slate-700 mb-2">{t('landing.auth.login.role')}</label>
-                      <div className="relative">
-                        <button
-                          type="button"
-                          onClick={() => setRoleDropdownOpen(!roleDropdownOpen)}
-                          className="w-full flex items-center justify-between px-4 py-3.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none transition-all"
-                        >
-                          <span className="text-slate-700">
-                            {roles.find((r) => r.value === loginForm.role)?.label}
-                          </span>
-                          <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${roleDropdownOpen ? 'rotate-180' : ''}`} />
-                        </button>
-                        {roleDropdownOpen && (
-                          <div className="absolute z-20 mt-2 w-full bg-white border border-slate-200 rounded-xl shadow-lg overflow-hidden">
-                            {roles.map((role) => (
-                              <button
-                                key={role.value}
-                                type="button"
-                                onClick={() => { setLoginForm({ ...loginForm, role: role.value }); setRoleDropdownOpen(false); }}
-                                className={`w-full text-left px-4 py-3 text-sm hover:bg-primary-50 transition-colors ${
-                                  loginForm.role === role.value ? 'bg-primary-50 text-primary-700 font-medium' : 'text-slate-600'
-                                }`}
-                              >
-                                <span className="font-medium">{role.label}</span>
-                                <span className="block text-xs text-slate-400 mt-0.5">{role.description}</span>
-                              </button>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-
-                    {error && activeTab === 'login' && (
-                      <div className="px-4 py-3 rounded-xl bg-red-50 border border-red-200 text-sm text-red-600 font-medium">
-                        {error}
-                      </div>
-                    )}
-
-                    <button
-                      type="submit"
-                      disabled={isLoading}
-                      className="w-full py-3.5 rounded-xl bg-primary-700 text-white font-semibold text-sm hover:bg-primary-800 transition-all duration-200 shadow-lg shadow-primary-700/25 hover:shadow-primary-800/30 active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                    >
-                      {isLoading ? (
-                        <>
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                          {t('landing.auth.login.loggingIn')}
-                        </>
-                      ) : (
-                        t('landing.auth.login.button')
-                      )}
-                    </button>
-
-                    <p className="text-center text-sm text-slate-400">
-                      {t('landing.auth.login.noAccount')}{' '}
-                      <button
-                        type="button"
-                        onClick={() => setActiveTab('signup')}
-                        className="text-primary-600 font-semibold hover:text-primary-700"
-                      >
-                        {t('landing.auth.signup.tab')}
-                      </button>
-                    </p>
-                  </form>
-                ) : (
-                  <form onSubmit={handleSignupSubmit} className="space-y-5">
-                    <div>
-                      <label className="block text-sm font-medium text-slate-700 mb-2">{t('landing.auth.signup.fullName')}</label>
-                      <div className="relative">
-                        <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300" />
-                        <input
-                          type="text"
-                          value={signupForm.fullName}
-                          onChange={(e) => {
-                            setSignupForm({ ...signupForm, fullName: e.target.value });
-                            if (signupTouched.fullName) setSignupErrors((p) => ({ ...p, fullName: validateSignupField('fullName', e.target.value) }));
-                          }}
-                          onBlur={() => handleSignupBlur('fullName')}
-                          placeholder="John Doe"
-                          className={`w-full pl-12 pr-4 py-3.5 rounded-xl border text-sm focus:ring-2 outline-none transition-all placeholder:text-slate-300 ${
-                            signupTouched.fullName && signupErrors.fullName
-                              ? 'border-red-300 focus:ring-red-500/20 focus:border-red-500'
-                              : 'border-slate-200 focus:ring-primary-500/20 focus:border-primary-500'
-                          }`}
-                        />
-                      </div>
-                      {signupTouched.fullName && signupErrors.fullName && (
-                        <p className="mt-1.5 text-xs text-red-500 font-medium">{signupErrors.fullName}</p>
-                      )}
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-slate-700 mb-2">{t('landing.auth.signup.email')}</label>
-                      <div className="relative">
-                        <AtSign className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300" />
-                        <input
-                          type="email"
-                          value={signupForm.email}
-                          onChange={(e) => {
-                            setSignupForm({ ...signupForm, email: e.target.value });
-                            if (signupTouched.email) setSignupErrors((p) => ({ ...p, email: validateSignupField('email', e.target.value) }));
-                          }}
-                          onBlur={() => handleSignupBlur('email')}
-                          placeholder="you@example.com"
-                          className={`w-full pl-12 pr-4 py-3.5 rounded-xl border text-sm focus:ring-2 outline-none transition-all placeholder:text-slate-300 ${
-                            signupTouched.email && signupErrors.email
-                              ? 'border-red-300 focus:ring-red-500/20 focus:border-red-500'
-                              : 'border-slate-200 focus:ring-primary-500/20 focus:border-primary-500'
-                          }`}
-                        />
-                      </div>
-                      {signupTouched.email && signupErrors.email && (
-                        <p className="mt-1.5 text-xs text-red-500 font-medium">{signupErrors.email}</p>
-                      )}
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-slate-700 mb-2">{t('landing.auth.signup.password')}</label>
-                      <div className="relative">
-                        <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300" />
-                        <input
-                          type={showPassword ? 'text' : 'password'}
-                          value={signupForm.password}
-                          onChange={(e) => {
-                            setSignupForm({ ...signupForm, password: e.target.value });
-                            if (signupTouched.password) setSignupErrors((p) => ({ ...p, password: validateSignupField('password', e.target.value) }));
-                          }}
-                          onBlur={() => handleSignupBlur('password')}
-                          placeholder="Create a strong password"
-                          className={`w-full pl-12 pr-12 py-3.5 rounded-xl border text-sm focus:ring-2 outline-none transition-all placeholder:text-slate-300 ${
-                            signupTouched.password && signupErrors.password
-                              ? 'border-red-300 focus:ring-red-500/20 focus:border-red-500'
-                              : 'border-slate-200 focus:ring-primary-500/20 focus:border-primary-500'
-                          }`}
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-500 transition-colors"
-                        >
-                          {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                        </button>
-                      </div>
-                      {signupTouched.password && signupErrors.password && (
-                        <p className="mt-1.5 text-xs text-red-500 font-medium">{signupErrors.password}</p>
-                      )}
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-slate-700 mb-2">{t('landing.auth.signup.confirmPassword')}</label>
-                      <div className="relative">
-                        <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300" />
-                        <input
-                          type={showPassword ? 'text' : 'password'}
-                          value={signupForm.confirmPassword}
-                          onChange={(e) => {
-                            setSignupForm({ ...signupForm, confirmPassword: e.target.value });
-                            if (signupTouched.confirmPassword) setSignupErrors((p) => ({ ...p, confirmPassword: validateSignupField('confirmPassword', e.target.value, { ...signupForm, confirmPassword: e.target.value }) }));
-                          }}
-                          onBlur={() => handleSignupBlur('confirmPassword')}
-                          placeholder="Re-enter your password"
-                          className={`w-full pl-12 pr-4 py-3.5 rounded-xl border text-sm focus:ring-2 outline-none transition-all placeholder:text-slate-300 ${
-                            signupTouched.confirmPassword && signupErrors.confirmPassword
-                              ? 'border-red-300 focus:ring-red-500/20 focus:border-red-500'
-                              : 'border-slate-200 focus:ring-primary-500/20 focus:border-primary-500'
-                          }`}
-                        />
-                      </div>
-                      {signupTouched.confirmPassword && signupErrors.confirmPassword && (
-                        <p className="mt-1.5 text-xs text-red-500 font-medium">{signupErrors.confirmPassword}</p>
-                      )}
-                    </div>
-
-                    {/* Role Selector */}
-                    <div>
-                      <label className="block text-sm font-medium text-slate-700 mb-2">{t('landing.auth.signup.role')}</label>
-                      <div className="relative">
-                        <button
-                          type="button"
-                          onClick={() => setRoleDropdownOpen(!roleDropdownOpen)}
-                          className="w-full flex items-center justify-between px-4 py-3.5 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none transition-all"
-                        >
-                          <span className="text-slate-700">
-                            {roles.find((r) => r.value === signupForm.role)?.label}
-                          </span>
-                          <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${roleDropdownOpen ? 'rotate-180' : ''}`} />
-                        </button>
-                        {roleDropdownOpen && (
-                          <div className="absolute z-20 mt-2 w-full bg-white border border-slate-200 rounded-xl shadow-lg overflow-hidden">
-                            {roles.map((role) => (
-                              <button
-                                key={role.value}
-                                type="button"
-                                onClick={() => { setSignupForm({ ...signupForm, role: role.value }); setRoleDropdownOpen(false); }}
-                                className={`w-full text-left px-4 py-3 text-sm hover:bg-primary-50 transition-colors ${
-                                  signupForm.role === role.value ? 'bg-primary-50 text-primary-700 font-medium' : 'text-slate-600'
-                                }`}
-                              >
-                                <span className="font-medium">{role.label}</span>
-                                <span className="block text-xs text-slate-400 mt-0.5">{role.description}</span>
-                              </button>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-
-                    <button
-                      type="submit"
-                      className="w-full py-3.5 rounded-xl bg-primary-700 text-white font-semibold text-sm hover:bg-primary-800 transition-all duration-200 shadow-lg shadow-primary-700/25 hover:shadow-primary-800/30 active:scale-[0.98]"
-                    >
-                      {t('landing.auth.signup.button')}
-                    </button>
-
-                    <p className="text-center text-sm text-slate-400">
-                      {t('landing.auth.signup.hasAccount')}{' '}
-                      <button
-                        type="button"
-                        onClick={() => setActiveTab('login')}
-                        className="text-primary-600 font-semibold hover:text-primary-700"
-                      >
-                        {t('landing.auth.login.tab')}
-                      </button>
-                    </p>
-                  </form>
-                )}
+                {/* Staff button */}
+                <button
+                  onClick={() => handleLogin('staff')}
+                  disabled={loadingRole !== null}
+                  className="w-full flex items-center justify-center gap-3 py-4 rounded-xl font-semibold text-sm transition-all duration-200 active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed"
+                  style={{
+                    backgroundColor: 'var(--bg-tertiary)',
+                    color: 'var(--text-primary)',
+                    border: '1px solid var(--border-default)',
+                  }}
+                >
+                  {loadingRole === 'staff' ? (
+                    <>
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      Redirecting to 42…
+                    </>
+                  ) : (
+                    <>
+                      <Shield className="w-5 h-5" />
+                      Sign in as Staff
+                      <ExternalLink className="w-3.5 h-3.5 opacity-50" />
+                    </>
+                  )}
+                </button>
               </div>
+
+              {/* Note */}
+              <p className="text-center text-xs mt-6" style={{ color: 'var(--text-tertiary)' }}>
+                Only 1337 School members can sign in. Your role is determined by your 42 account.
+              </p>
             </div>
           </motion.div>
         </div>

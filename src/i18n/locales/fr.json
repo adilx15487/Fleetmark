@@ -36,23 +36,26 @@
         "problemsLabel": "Problème",
         "solutionsLabel": "Solution",
         "problems": [
-          "Bus de nuit surchargés et mal gérés",
+          "Bus surchargés sans contrôle de capacité",
           "Attribution injuste des sièges — premier arrivé, seul servi",
-          "Aucune visibilité sur les itinéraires, arrêts ou horaires de la navette",
-          "Mauvaise communication entre admins, chauffeurs et étudiants"
+          "Aucune visibilité sur les horaires ou arrêts de la navette",
+          "Communication défaillante entre admins, chauffeurs et étudiants"
         ],
         "solutions": [
-          "Système de réservation de sièges avec contrôle de capacité — réservez votre siège à l'avance.",
-          "Attribution intelligente basée sur la demande et l'équité — une répartition juste pour chaque étudiant.",
-          "Visibilité des itinéraires et arrêts avec vue carte claire — voyez chaque arrêt de navette en un coup d'œil.",
-          "Signalement instantané et notifications en temps réel — étudiants et chauffeurs restent informés."
+          "Réservation intelligente — réservez votre place avant de quitter le campus 1337",
+          "Attribution automatique basée sur votre arrêt — équitable pour tous",
+          "Visibilité complète — arrêts Bus 1 & Bus 2, horaires, statut en temps réel",
+          "Notifications instantanées — changements d'horaire, rappels de départ, mises à jour"
         ],
         "solutionTitles": [
           "Réservation de sièges",
           "Attribution intelligente",
           "Visibilité des itinéraires",
           "Signalement instantané"
-        ]
+        ],
+        "flipHint": "Cliquez sur chaque carte pour voir notre solution",
+        "flipAll": "Retourner toutes les cartes",
+        "resetAll": "Réinitialiser les cartes"
       },
       "auth": {
         "badge": "Commencer",

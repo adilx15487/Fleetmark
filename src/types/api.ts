@@ -21,6 +21,18 @@ export interface JwtPayload {
   token_type: 'access' | 'refresh';
 }
 
+export interface AuthCallbackResponse {
+  access: string;
+  refresh: string;
+  user: {
+    id: number;
+    username: string;
+    role: 'admin' | 'passenger';
+    is_new_user: boolean;
+    home_stop: string | null;
+  };
+}
+
 // ═══════════════════════════════════════
 //  Organization
 // ═══════════════════════════════════════
@@ -44,6 +56,7 @@ export interface User {
   email: string;
   role: UserRole;
   organization: Organization | null;
+  home_stop?: string | null;
 }
 
 export interface UserCreate {
@@ -94,7 +107,7 @@ export type TripStatus = 'CREATED' | 'STARTED' | 'ENDED';
 export interface Trip {
   id: number;
   route: number;
-  depart_time: string; // ISO 8601
+  depart_time: string;
   status: TripStatus;
   start_trip_at: string | null;
   end_trip_at: string | null;
@@ -122,13 +135,15 @@ export interface TripEndResponse {
 export interface Reservation {
   id: number;
   trip: number;
-  passenger_name: string;
-  created_at: string; // ISO 8601
+  user: number;
+  user_name: string;
+  user_role: string;
+  created_at: string;
 }
 
 export interface ReservationCreate {
   trip: number;
-  passenger_name: string;
+  user: number;
 }
 
 // ═══════════════════════════════════════
@@ -136,8 +151,10 @@ export interface ReservationCreate {
 // ═══════════════════════════════════════
 
 export interface ApiError {
-  error: string;
-  code: string;
+  error?: string;
+  code?: string;
+  detail?: string;
+  [key: string]: unknown;
 }
 
 export type ApiErrorCode =
@@ -146,3 +163,4 @@ export type ApiErrorCode =
   | 'freeze_error'
   | 'capacity_error'
   | 'integrity_error';
+

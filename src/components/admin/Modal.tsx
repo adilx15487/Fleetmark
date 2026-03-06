@@ -34,12 +34,13 @@ const Modal = ({ isOpen, onClose, title, children, size = 'md' }: ModalProps) =>
       onClick={(e) => { if (e.target === overlayRef.current) onClose(); }}
       className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 backdrop-blur-sm"
     >
-      <div className={`${widthClass} w-full max-h-[90vh] sm:max-h-[85vh] bg-white sm:rounded-2xl rounded-t-2xl shadow-2xl border border-slate-200 animate-modal-in flex flex-col sm:mx-4`}>
-        <div className="flex items-center justify-between px-5 sm:px-6 py-4 border-b border-slate-100 shrink-0">
-          <h3 className="text-lg font-bold text-primary-900">{title}</h3>
+      <div className={`${widthClass} w-full max-h-[90vh] sm:max-h-[85vh] sm:rounded-2xl rounded-t-2xl shadow-2xl animate-modal-in flex flex-col sm:mx-4`} style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-subtle)' }}>
+        <div className="flex items-center justify-between px-5 sm:px-6 py-4 shrink-0" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+          <h3 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>{title}</h3>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
+            className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors"
+            style={{ color: 'var(--text-tertiary)' }}
           >
             <X className="w-4 h-4" />
           </button>

@@ -25,29 +25,26 @@ const Footer = () => {
   ];
 
   return (
-    <footer className="bg-primary-900 text-white relative overflow-hidden">
-      {/* Subtle top border */}
-      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary-600/50 to-transparent" />
-
+    <footer className="relative overflow-hidden" style={{ backgroundColor: 'var(--bg-secondary)', borderTop: '1px solid var(--border-subtle)' }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Main footer content */}
         <div className="py-16 lg:py-20 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Brand column */}
           <div className="lg:col-span-1">
             <a href="#" className="flex items-center gap-2 group">
-              <div className="p-2 rounded-xl bg-white/10">
-                <Bus className="w-6 h-6 text-accent-400" />
+              <div className="p-2 rounded-xl" style={{ backgroundColor: 'var(--accent-subtle)' }}>
+                <Bus className="w-6 h-6" style={{ color: 'var(--accent-primary)' }} />
               </div>
-              <span className="text-xl font-bold tracking-tight">Fleetmark</span>
+              <span className="text-xl font-bold tracking-tight" style={{ color: 'var(--text-primary)' }}>Fleetmark</span>
             </a>
-            <p className="mt-4 text-sm text-primary-300/60 leading-relaxed max-w-xs">
+            <p className="mt-4 text-sm leading-relaxed max-w-xs" style={{ color: 'var(--text-tertiary)' }}>
               {t('landing.footer.tagline')}
             </p>
           </div>
 
           {/* Quick Links */}
           <div>
-            <h4 className="text-sm font-semibold text-white/90 uppercase tracking-wider mb-5">
+            <h4 className="text-sm font-semibold uppercase tracking-wider mb-5" style={{ color: 'var(--text-primary)' }}>
               {t('landing.footer.quickLinks')}
             </h4>
             <ul className="space-y-3">
@@ -55,7 +52,10 @@ const Footer = () => {
                 <li key={link.label}>
                   <a
                     href={link.href}
-                    className="text-sm text-primary-300/60 hover:text-accent-400 transition-colors inline-flex items-center gap-1 group"
+                    className="text-sm transition-colors inline-flex items-center gap-1 group"
+                    style={{ color: 'var(--text-tertiary)' }}
+                    onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--accent-primary)'; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--text-tertiary)'; }}
                   >
                     {link.label}
                     <ArrowUpRight className="w-3 h-3 opacity-0 -translate-y-0.5 group-hover:opacity-100 group-hover:translate-y-0 transition-all" />
@@ -67,7 +67,7 @@ const Footer = () => {
 
           {/* Resources */}
           <div>
-            <h4 className="text-sm font-semibold text-white/90 uppercase tracking-wider mb-5">
+            <h4 className="text-sm font-semibold uppercase tracking-wider mb-5" style={{ color: 'var(--text-primary)' }}>
               {t('landing.footer.resources')}
             </h4>
             <ul className="space-y-3">
@@ -75,7 +75,10 @@ const Footer = () => {
                 <li key={link.label}>
                   <a
                     href={link.href}
-                    className="text-sm text-primary-300/60 hover:text-accent-400 transition-colors inline-flex items-center gap-1 group"
+                    className="text-sm transition-colors inline-flex items-center gap-1 group"
+                    style={{ color: 'var(--text-tertiary)' }}
+                    onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--accent-primary)'; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--text-tertiary)'; }}
                   >
                     {link.label}
                     <ArrowUpRight className="w-3 h-3 opacity-0 -translate-y-0.5 group-hover:opacity-100 group-hover:translate-y-0 transition-all" />
@@ -87,7 +90,7 @@ const Footer = () => {
 
           {/* Legal */}
           <div>
-            <h4 className="text-sm font-semibold text-white/90 uppercase tracking-wider mb-5">
+            <h4 className="text-sm font-semibold uppercase tracking-wider mb-5" style={{ color: 'var(--text-primary)' }}>
               {t('landing.footer.legal')}
             </h4>
             <ul className="space-y-3">
@@ -95,7 +98,10 @@ const Footer = () => {
                 <li key={link.label}>
                   <a
                     href={link.href}
-                    className="text-sm text-primary-300/60 hover:text-accent-400 transition-colors inline-flex items-center gap-1 group"
+                    className="text-sm transition-colors inline-flex items-center gap-1 group"
+                    style={{ color: 'var(--text-tertiary)' }}
+                    onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--accent-primary)'; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--text-tertiary)'; }}
                   >
                     {link.label}
                     <ArrowUpRight className="w-3 h-3 opacity-0 -translate-y-0.5 group-hover:opacity-100 group-hover:translate-y-0 transition-all" />
@@ -107,12 +113,19 @@ const Footer = () => {
         </div>
 
         {/* Bottom bar */}
-        <div className="py-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-sm text-primary-300/50">
+        <div className="py-6 flex flex-col sm:flex-row items-center justify-between gap-4" style={{ borderTop: '1px solid var(--border-subtle)' }}>
+          <p className="text-sm" style={{ color: 'var(--text-tertiary)' }}>
             {t('landing.footer.copyright')}
           </p>
-          <p className="text-sm text-primary-300/40">
+          <p className="text-sm" style={{ color: 'var(--text-tertiary)' }}>
             {t('landing.footer.bottomTagline')}
+          </p>
+        </div>
+
+        {/* Built in Morocco */}
+        <div className="pb-6 text-center">
+          <p className="text-sm" style={{ color: 'var(--text-tertiary)' }}>
+            Built with ❤️ in Morocco 🇲🇦
           </p>
         </div>
       </div>

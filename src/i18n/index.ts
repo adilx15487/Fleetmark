@@ -5,20 +5,37 @@ import LanguageDetector from 'i18next-browser-languagedetector';
 import en from './locales/en.json';
 import fr from './locales/fr.json';
 import ar from './locales/ar.json';
-import ma from './locales/ma.json';
 
-export const RTL_LANGUAGES = ['ar', 'ma'];
-export const DASHBOARD_LANGUAGES = ['en', 'fr'];
-export const isRTL = (lang: string) => RTL_LANGUAGES.includes(lang);
-export const isDashboardLang = (lang: string) => DASHBOARD_LANGUAGES.includes(lang);
+/* ── Language definitions ── */
+export const VISIBLE_LANGUAGES = [
+  { code: 'en', label: 'EN', flag: '🇬🇧' },
+  { code: 'fr', label: 'FR', flag: '🇫🇷' },
+  { code: 'ar', label: 'AR', flag: '🇲🇦' },
+];
+
+export const DASHBOARD_LANGUAGES = [
+  { code: 'en', label: 'EN', flag: '🇬🇧' },
+  { code: 'fr', label: 'FR', flag: '🇫🇷' },
+];
+
+const VALID_LANGS = ['en', 'fr', 'ar'];
+
+export const isRTL = (lang: string) => lang === 'ar';
+export const isDashboardLang = (lang: string) => ['en', 'fr'].includes(lang);
 
 const STORAGE_KEY = 'fleetmark_lang';
+
+// Clean up any stale 'ma' (Darija) value from older versions
+const saved = localStorage.getItem(STORAGE_KEY);
+if (saved && !VALID_LANGS.includes(saved)) {
+  localStorage.setItem(STORAGE_KEY, 'en');
+}
 
 i18n
   .use(LanguageDetector)
   .use(initReactI18next)
   .init({
-    resources: { en, fr, ar, ma },
+    resources: { en, fr, ar },
     fallbackLng: 'en',
     interpolation: { escapeValue: false },
     detection: {

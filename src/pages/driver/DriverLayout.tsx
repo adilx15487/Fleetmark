@@ -22,7 +22,7 @@ const DriverLayout = () => {
   useDocumentTitle(`${title} — Fleetmark 1337`);
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen" style={{ backgroundColor: 'var(--bg-primary)' }}>
       <DriverSidebar
         collapsed={sidebarCollapsed}
         onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}

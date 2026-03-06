@@ -8,6 +8,7 @@ import ErrorState from '../../components/ui/ErrorState';
 import EmptyState from '../../components/ui/EmptyState';
 import { useToast } from '../../context/ToastContext';
 import { parseApiError } from '../../lib/errorMapper';
+import { SnakeCard } from '../../components/ui/SnakeCard';
 
 const roleBadge: Record<string, string> = {
   admin: 'bg-purple-50 text-purple-600 border-purple-200',
@@ -57,6 +58,7 @@ const UserManagement = () => {
 
   return (
     <div className="space-y-6">
+      <SnakeCard index={0}>
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
@@ -100,7 +102,9 @@ const UserManagement = () => {
           </div>
         </div>
       </div>
+      </SnakeCard>
 
+      <SnakeCard index={1}>
       {/* Table */}
       <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
         <div className="overflow-x-auto">
@@ -174,6 +178,7 @@ const UserManagement = () => {
           </table>
         </div>
       </div>
+      </SnakeCard>
 
       {/* Invite User Modal */}
       <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title="Create User">

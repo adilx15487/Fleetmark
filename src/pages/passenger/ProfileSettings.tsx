@@ -3,6 +3,7 @@ import { Camera, Save, Trash2, Eye, EyeOff, ChevronDown, Bus, MapPin, Ticket, Ar
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { useReservation, ALL_STOPS, getBusForStop, isSharedStop, type BusAssignment } from '../../context/ReservationContext';
+import { SnakeCard } from '../../components/ui/SnakeCard';
 
 const ProfileSettings = () => {
   const { toast } = useToast();
@@ -95,6 +96,7 @@ const ProfileSettings = () => {
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       {/* Avatar section */}
+      <SnakeCard index={0}>
       <div className="bg-white rounded-2xl border border-slate-200 p-6">
         <div className="flex items-center gap-6">
           <div className="relative">
@@ -116,9 +118,11 @@ const ProfileSettings = () => {
           </div>
         </div>
       </div>
+      </SnakeCard>
 
       {/* Transport Settings */}
       {isOnboarded && transport && (
+        <SnakeCard index={1}>
         <div className="bg-white rounded-2xl border border-slate-200 p-6 space-y-4">
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-bold text-primary-900">Transport Settings</h3>
@@ -175,9 +179,11 @@ const ProfileSettings = () => {
             </div>
           </div>
         </div>
+        </SnakeCard>
       )}
 
       {/* Profile form */}
+      <SnakeCard index={2}>
       <form onSubmit={handleSave} className="bg-white rounded-2xl border border-slate-200 p-6 space-y-5">
         <h3 className="text-sm font-bold text-primary-900">Personal Information</h3>
 
@@ -244,8 +250,10 @@ const ProfileSettings = () => {
           </button>
         </div>
       </form>
+      </SnakeCard>
 
       {/* Change password */}
+      <SnakeCard index={3}>
       <form onSubmit={handlePasswordChange} className="bg-white rounded-2xl border border-slate-200 p-6 space-y-5">
         <h3 className="text-sm font-bold text-primary-900">Change Password</h3>
 
@@ -293,8 +301,10 @@ const ProfileSettings = () => {
           </button>
         </div>
       </form>
+      </SnakeCard>
 
       {/* Danger zone */}
+      <SnakeCard index={4}>
       <div className="bg-white rounded-2xl border border-red-200 p-6">
         <h3 className="text-sm font-bold text-red-600 mb-2">Danger Zone</h3>
         <p className="text-sm text-slate-500 mb-4">
@@ -306,6 +316,7 @@ const ProfileSettings = () => {
           Delete My Account
         </button>
       </div>
+      </SnakeCard>
 
       {/* ── Change Home Stop Modal ── */}
       {showStopModal && (

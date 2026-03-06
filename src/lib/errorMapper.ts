@@ -30,10 +30,15 @@ export function parseApiError(error: unknown): ParsedApiError {
     if (data && typeof data === 'object' && 'error' in data) {
       const apiErr = data as ApiError;
       return {
-        message: ERROR_MESSAGES[apiErr.code] || apiErr.error,
-        code: apiErr.code,
+        message: ERROR_MESSAGES[apiErr.code ?? ''] || apiErr.error || 'Something went wrong.',
+        code: apiErr.code ?? null,
         status,
       };
+    }
+
+    // DRF default format: { detail: "..." }
+    if (data && typeof data === 'object' && 'detail' in data && typeof data.detail === 'string') {
+      return { message: data.detail, code: null, status };
     }
 
     // DRF validation errors: { field: ["error1", "error2"] }
@@ -90,4 +95,9 @@ export function parseApiError(error: unknown): ParsedApiError {
     code: null,
     status: 0,
   };
+}
+
+/** Convenience wrapper — returns just the message string */
+export function getErrorMessage(error: unknown): string {
+  return parseApiError(error).message;
 }

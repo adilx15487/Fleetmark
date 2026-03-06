@@ -36,23 +36,26 @@
         "problemsLabel": "Problem",
         "solutionsLabel": "Solution",
         "problems": [
-          "Overcrowded and unmanaged night buses",
-          "Unfair seat allocation — first come, only served",
-          "No visibility on shuttle routes, stops, or schedules",
-          "Poor communication between admins, drivers, and students"
+          "Overcrowded buses with no capacity control",
+          "Unfair seat allocation — first come only served",
+          "No visibility on shuttle schedule or stops",
+          "Poor communication between admins, drivers, students"
         ],
         "solutions": [
-          "Seat reservation system with capacity control — reserve your seat in advance and never stand again.",
-          "Smart bus allocation based on demand & fairness — fair assignment that works for every student.",
-          "Route & stop visibility with clear map view — see every shuttle stop and timing at a glance.",
-          "Instant reporting & real-time notifications — students and drivers stay informed, every trip."
+          "Smart seat reservation — reserve your spot before you leave 1337 campus",
+          "Auto bus assignment based on your home stop — fair for everyone",
+          "Full route visibility — Bus 1 & Bus 2 stops, times, real-time status",
+          "Instant notifications — schedule changes, departure reminders, real-time updates"
         ],
         "solutionTitles": [
           "Seat Reservation",
           "Smart Allocation",
           "Route Visibility",
           "Instant Reporting"
-        ]
+        ],
+        "flipHint": "Click each card to reveal our solution",
+        "flipAll": "Flip all cards",
+        "resetAll": "Reset all cards"
       },
       "auth": {
         "badge": "Get Started",

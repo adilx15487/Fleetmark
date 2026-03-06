@@ -8,6 +8,7 @@ import ErrorState from '../../components/ui/ErrorState';
 import EmptyState from '../../components/ui/EmptyState';
 import { useToast } from '../../context/ToastContext';
 import { parseApiError } from '../../lib/errorMapper';
+import { SnakeCard } from '../../components/ui/SnakeCard';
 
 const statusClasses: Record<string, string> = {
   Active: 'bg-emerald-50 text-emerald-600 border-emerald-200',
@@ -83,6 +84,7 @@ const BusManagement = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
+      <SnakeCard index={0}>
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-xl font-bold text-primary-900">All Buses</h2>
@@ -108,8 +110,10 @@ const BusManagement = () => {
           className="bg-transparent text-sm outline-none w-full placeholder:text-slate-400"
         />
       </div>
+      </SnakeCard>
 
       {/* Table */}
+      <SnakeCard index={1}>
       <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
@@ -162,6 +166,7 @@ const BusManagement = () => {
           <div className="text-center py-12 text-slate-400 text-sm">No buses found.</div>
         )}
       </div>
+      </SnakeCard>
 
       {/* Add Bus Modal */}
       <Modal isOpen={modalOpen} onClose={() => { setModalOpen(false); setFormErrors({}); setFormTouched({}); }} title="Add New Bus">

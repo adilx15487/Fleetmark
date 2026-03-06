@@ -164,7 +164,7 @@ OAUTH_42_CLIENT_SECRET = os.environ.get(
 )
 OAUTH_42_REDIRECT_URI = os.environ.get(
     'OAUTH_42_REDIRECT_URI',
-    'https://fleetmark.vercel.app/auth/callback',
+    'http://localhost:5173/auth/callback',
 )
 
 # JWT Settings

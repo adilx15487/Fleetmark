@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { Ticket, Bus, MapPin, ArrowRight, TrendingUp, XCircle, Bell, Check } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useReservation } from '../../context/ReservationContext';
+import { SnakeCard } from '../../components/ui/SnakeCard';
 
 const greeting = () => {
   const h = new Date().getHours();
@@ -38,6 +39,7 @@ const PassengerOverview = () => {
   return (
     <div className="space-y-6">
       {/* Welcome banner */}
+      <SnakeCard index={0}>
       <div className="bg-gradient-to-br from-primary-700 via-primary-800 to-primary-900 rounded-2xl p-6 sm:p-8 text-white relative overflow-hidden">
         <div className="absolute top-0 right-0 w-72 h-72 bg-accent-400/10 rounded-full -translate-y-1/3 translate-x-1/3" />
         <div className="absolute bottom-0 left-0 w-40 h-40 bg-accent-400/5 rounded-full translate-y-1/2 -translate-x-1/4" />
@@ -126,9 +128,11 @@ const PassengerOverview = () => {
           </div>
         )}
       </div>
+      </SnakeCard>
 
       {/* Reservation counter widget */}
       {isOnboarded && (
+        <SnakeCard index={5}>
         <div className="bg-white rounded-2xl border border-slate-200 p-5">
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-sm font-bold text-primary-900">
@@ -157,25 +161,29 @@ const PassengerOverview = () => {
             </div>
           )}
         </div>
+        </SnakeCard>
       )}
 
       {/* Stats cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {stats.map((stat) => {
+        {stats.map((stat, i) => {
           const Icon = stat.icon;
           return (
-            <div key={stat.label} className="bg-white rounded-2xl border border-slate-200 p-5 hover:shadow-lg hover:shadow-primary-100/30 transition-shadow">
+            <SnakeCard key={stat.label} index={i + 1}>
+            <div className="bg-white rounded-2xl border border-slate-200 p-5 hover:shadow-lg hover:shadow-primary-100/30 transition-shadow">
               <div className={`w-10 h-10 rounded-xl ${stat.bg} flex items-center justify-center mb-3`}>
                 <Icon className={`w-5 h-5 ${stat.color}`} />
               </div>
               <p className="text-2xl font-bold text-primary-900 truncate">{stat.value}</p>
               <p className="text-xs text-slate-400 mt-1">{stat.label}</p>
             </div>
+            </SnakeCard>
           );
         })}
       </div>
 
       {/* Notifications */}
+      <SnakeCard index={6}>
       <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
         <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
           <h3 className="text-sm font-bold text-primary-900">Notifications</h3>
@@ -188,6 +196,7 @@ const PassengerOverview = () => {
           No new notifications
         </div>
       </div>
+      </SnakeCard>
     </div>
   );
 };
